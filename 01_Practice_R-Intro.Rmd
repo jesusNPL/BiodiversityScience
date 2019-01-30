@@ -36,23 +36,23 @@ Ok, we are now in the correct place, so we can continue with the practice.
 ## Directory structure
 For training purposes, we will create a **directory structure** where the main folder is our current working place, so we will create a series of **subfolders** where we store, the data, the scripts and whatever we want… To do that we will use the function **dir.create()**. Lets practice!
 
-```{r, eval=FALSE, echo=FALSE, error=FALSE, message=FALSE}
+```{r, warnings = FALSE, error=FALSE, message=FALSE}
 dir.create("Data")
 ```
 
-```{r, eval=FALSE, echo=FALSE, error=FALSE, message=FALSE}
+```{r, warnings = FALSE, error=FALSE, message=FALSE}
 dir.create("R-scripts")
 ```
 
-```{r, eval=FALSE, echo=FALSE, error=FALSE, message=FALSE}
+```{r, warnings = FALSE, error=FALSE, message=FALSE}
 dir.create("Figures")
 ```
 
-```{r, eval=FALSE, echo=FALSE, error=FALSE, message=FALSE}
+```{r, warnings = FALSE, error=FALSE, message=FALSE}
 dir.create("Results")
 ```
 
-```{r, eval=FALSE, echo=FALSE, error=FALSE, message=FALSE}
+```{r, warnings = FALSE, error=FALSE, message=FALSE}
 dir.create("Temp")
 ```
 
