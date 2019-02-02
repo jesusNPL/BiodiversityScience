@@ -71,7 +71,7 @@ setwd("..")
 ## The importance of the question mark “?” or the help function
 Maybe, the most important (at least for Jesús) function of R is the **help** or **?**. Using help or the question mark, we can ask to R about almost anything (saddly we can’t order pizza, yet)…so, lets practice!
 
-```{r, , results = "hide", warnings = FALSE, message = FALSE}
+```{r, results = "hide", warnings = FALSE, message = FALSE}
 help("logarithm")
 ```
 
