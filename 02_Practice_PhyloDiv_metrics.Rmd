@@ -2,10 +2,10 @@
 title: 'Measuring phylogenetic diversity within communities'
 author: Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares
 output:
-  pdf_document: default
   html_document: 
     theme: readable
     toc: yes
+  pdf_document: default
 ---
 
 The main goal of this practice is to present basic understanding about measuring phylogenetic diversity with in communities or best known as the analysis of community phylogenetics. The community phylogenetics integrates ecological and evolutionary concepts and explores the mecanisms (e.g., biotic interactions or environemntal filters) governing the assembly of ecological communities. 
@@ -27,8 +27,15 @@ package.names <- c('picante', 'pez', 'car', 'vegan', 'MASS', 'ecodist', 'FD', 'a
 if ( ! ("PACKAGE NAME" %in% installed.packages())) {install.packages("PACKAGE NAME", dependencies = T)}
 library("PACKAGE NAME")
 ```
+Or you can use a conditional!
 
-Or you can use a loop to make the work for you!
+```{r, eval = FALSE}
+missing_pkgs <- package.names[which(!package.names %in% installed.packages())]
+
+install.packages(missing_pkgs)
+```
+
+Or you can use a conditional inside the for loop!
 
 ```{r, eval = FALSE}
 package.names <- c('ape', 'picante', 'pez', 'car', 'vegan', 'MASS', 'ecodist', 'FD', 'adephylo') 
@@ -300,7 +307,9 @@ BBScdm$qDP <-	BBSqDp
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 head(BBScdm, 10)
+```
 
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 BBScdm2 <- BBScdm[, c(1, 2, 5, 6, 9, 12, 13, 14, 15)]
 names(BBScdm2) <- c("SR", "PD", "RaoD", "MPD", "MNTD", "PSV", "PSR", "PSE", "qDP")
 head(BBScdm2)

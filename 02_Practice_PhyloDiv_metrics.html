@@ -217,7 +217,11 @@ $(document).ready(function () {
 
 if ( ! (&quot;PACKAGE NAME&quot; %in% installed.packages())) {install.packages(&quot;PACKAGE NAME&quot;, dependencies = T)}
 library(&quot;PACKAGE NAME&quot;)</code></pre>
-<p>Or you can use a loop to make the work for you!</p>
+<p>Or you can use a conditional!</p>
+<pre class="r"><code>missing_pkgs &lt;- package.names[which(!package.names %in% installed.packages())]
+
+install.packages(missing_pkgs)</code></pre>
+<p>Or you can use a conditional inside the for loop!</p>
 <pre class="r"><code>package.names &lt;- c('ape', 'picante', 'pez', 'car', 'vegan', 'MASS', 'ecodist', 'FD', 'adephylo') 
 
 for (pkg in package.names) {
@@ -404,9 +408,8 @@ source(&quot;RFunctions/qDp.R&quot;)
 BBSqDp &lt;- qDp(matched$phy, matched$comm, q = 2)
 
 BBScdm$qDP &lt;-   BBSqDp</code></pre>
-<pre class="r"><code>head(BBScdm, 10)
-
-BBScdm2 &lt;- BBScdm[, c(1, 2, 5, 6, 9, 12, 13, 14, 15)]
+<pre class="r"><code>head(BBScdm, 10)</code></pre>
+<pre class="r"><code>BBScdm2 &lt;- BBScdm[, c(1, 2, 5, 6, 9, 12, 13, 14, 15)]
 names(BBScdm2) &lt;- c(&quot;SR&quot;, &quot;PD&quot;, &quot;RaoD&quot;, &quot;MPD&quot;, &quot;MNTD&quot;, &quot;PSV&quot;, &quot;PSR&quot;, &quot;PSE&quot;, &quot;qDP&quot;)
 head(BBScdm2)</code></pre>
 </div>
