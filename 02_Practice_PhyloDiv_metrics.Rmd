@@ -52,7 +52,7 @@ for (pkg in package.names) {
 ## Load phylogentic and community data
 
 ```{r, results = "hide", warnings = FALSE, message = FALSE}
-trMB <- ape::read.tree("Data/ALLMB.tre")
+trMB <- ape::read.tree("Data/ALLMB.CCESR.tre")
 #trMB$tip.label <- gsub(" ", "_", phy$tip.label)
 #trMB$tip.label <- gsub("sp.", "sp", trMB$tip.label)
 ```
@@ -349,11 +349,15 @@ Cavender-Bares, J., Kozak, K. H., Fine, P. V. A. and Kembel, S. W. (2009). The m
 
 Garamszegi, L. Z. (2014). Modern Phylogenetic Comparative Methods and Their Application in Evolutionary Biology. (ed. Garamszegi, L. Z.) Berlin: Springer-Verlag.
 
+Helmus, M. R. 2007. Phylogenetic measures of biodiversity. American Naturalist 169:E68-E83.
+
 Pausas, J. G. and Verdú, M. (2010). The Jungle of Methods for Evaluating Phenotypic and Phylogenetic Structure of Communities. BioScience 60, 614–625.
 
 Pinto-Ledezma, J. N., Jahn, A. E., Cueto, V. R., Diniz-Filho, J. A. F., & Villalobos, F. (2019). Drivers of Phylogenetic Assemblage Structure of the Furnariides, a Widespread Clade of Lowland Neotropical Birds. The American Naturalist, E000–E000.
 
 Rao, C. R. 1982. Diversity and dissimilarity coefficients: a unified approach. Theoretical Population Biology 21:2443.
+
+Smith, S. A., & Brown, J. W. (2018). Constructing a broadly inclusive seed plant phylogeny. American Journal of Botany, 105(3), 302–314.
 
 Scheiner, S. M. (2012). A metric of biodiversity that integrates abundance, phylogeny, and function. Oikos, 121(8), 1191–1202.
 
