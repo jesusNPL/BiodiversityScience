@@ -24,7 +24,7 @@ Now install the load the necessary packages.
 ```{r, eval = FALSE}
 package.names <- c('picante', 'pez', 'car', 'vegan', 'MASS', 'ecodist', 'FD', 'adephylo', 'phytools') 
 
-if ( ! ("PACKAGE NAME" %in% installed.packages())) {install.packages("PACKAGE NAME", dependencies = T)}
+if ( ! (package.names[1] %in% installed.packages())) {install.packages(package.names[1], dependencies = T)}
 library("PACKAGE NAME")
 ```
 Or you can use a conditional!
