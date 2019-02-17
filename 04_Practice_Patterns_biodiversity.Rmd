@@ -132,7 +132,6 @@ Ok, now let's try with a single species,
 que_vir <- subset(oaks_nodups, oaks_nodups$Species == "Quercus_virginiana")
 ```
 
-will give you basic information about the phylogeny: the number of tips and nodes; what the tips are called; whether the tree is rooted; and if it has branch lengths.
 
 ```{r, eval = FALSE}
 que_vir_hull <- convHull(que_vir[, c(2:3)])
@@ -214,10 +213,6 @@ neo_ras
 
 values(neo_ras) <- 0
 ```
-
-*What variables were measured for each of these species of Anolis? How many species of Anolis were used?* 
-
-*Is that the same number that were in your phylogeny?*
 
 Now using the empty raster we will **rasterize** the species identities in each cell or pixel. The resulting raster will be the species richness of Furnariides across the Neotropics.
 

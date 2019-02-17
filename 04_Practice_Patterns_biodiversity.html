@@ -283,7 +283,6 @@ oaks_hull &lt;- convHull(oaks_nodups[, c(2:3)])</code></pre>
 points(oaks_nodups$Longitude, oaks_nodups$Latitude, pch = 16, col = &quot;black&quot;)}</code></pre>
 <p>Ok, now let’s try with a single species,</p>
 <pre class="r"><code>que_vir &lt;- subset(oaks_nodups, oaks_nodups$Species == &quot;Quercus_virginiana&quot;)</code></pre>
-<p>will give you basic information about the phylogeny: the number of tips and nodes; what the tips are called; whether the tree is rooted; and if it has branch lengths.</p>
 <pre class="r"><code>que_vir_hull &lt;- convHull(que_vir[, c(2:3)])</code></pre>
 <pre class="r"><code>{plot(que_vir_hull)
 points(que_vir$Longitude, que_vir$Latitude, pch = 16, col = &quot;black&quot;)}</code></pre>
@@ -336,8 +335,6 @@ res(neo_ras) &lt;- 1
 neo_ras
 
 values(neo_ras) &lt;- 0</code></pre>
-<p><em>What variables were measured for each of these species of Anolis? How many species of Anolis were used?</em></p>
-<p><em>Is that the same number that were in your phylogeny?</em></p>
 <p>Now using the empty raster we will <strong>rasterize</strong> the species identities in each cell or pixel. The resulting raster will be the species richness of Furnariides across the Neotropics.</p>
 <pre class="r"><code>f_sr_raster &lt;- rasterize(franges, neo_ras, field = &quot;SCINAME&quot;, 
                          fun = function(x,...){length(unique(na.omit(x)))})</code></pre>
