@@ -1,6 +1,6 @@
 ---
-title: 'Introduction to Phylogenies and the Comparative Method'
-author: F. Keith Barker, Sharon Jansa, Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares
+title: 'Global patterns of biodiversity'
+author: Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares
 output:
   pdf_document: default
   html_document: 
@@ -22,15 +22,32 @@ Set up a working directory and put the two data files in that directory. Tell R 
 setwd("path/for/your/directory")
 ```
 
+```{r, eval=FALSE}
+require(maptools)
+require(rgdal)
+require(raster)
+require(sp)
+```
+
+
+
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
-anoleData <- read.csv("Data/anolisDataAppended.csv", row.names = 1)
+oakData <- read.csv("Data/Oaks_data.csv")
 ```
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
-anoleTree <- read.tree("anolis.phy")
+head(oakData)
+
+tail(oakData)
 ```
 
 You will need to have a set of R packages to do this lab. Install the following packages:
+
+```{r, eval = FALSE}
+plot(oakData[, 2], oakData[, 3], col = "blue", pch = 19)
+data(wrld_simpl)
+plot(wrld_simpl, add = T)
+```
 
 ```{r, eval = FALSE}
 library(ape)
