@@ -1,11 +1,11 @@
 ---
-title: 'Biodiversity Science BEF Module'
+title: 'Biodiversity and Ecosystem Function'
 author: Jake Grossman, Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares
 output:
-  pdf_document: default
   html_document: 
     theme: readable
     toc: yes
+  pdf_document: default
 ---
 
 In this lab, we will explore some questions about biodiversity and its effects on ecosystem functioning. To do so, we will use data and scripts (with some modifications) kindly provided by Jake Gorssman.
