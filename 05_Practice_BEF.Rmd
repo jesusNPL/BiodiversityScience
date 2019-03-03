@@ -27,7 +27,7 @@ library(agricolae)
 Read in data from "Species richness and traits predict overyielding in stem growth in an early‐successional tree diversity experiment" (Grossman et al. 2017; Ecology 98:2601-14)
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
-df <- read.csv("Data/BEF_Lesson_Data.csv",header=T)
+df <- read.csv("Data/BEF_Lesson_Data.csv", header = T)
 ```
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
