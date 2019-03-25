@@ -2,7 +2,11 @@
 # obtained from Jarrett Byrnes at https://gist.github.com/jebyrnes/6886018
 
 
-#A quick R script I used to convince myself of why our current tests for Sampling effects in BEF research are likely wrong, and result from statistical bias rather than real biology. Thanks to Forest Isbell for hammering the idea home and Marc Hensel for making me explain this clearly.
+# A quick R script I used to convince myself of why our current tests 
+# for Sampling effects in BEF research are likely wrong, and result from statistical bias 
+# rather than real biology. 
+# Thanks to Forest Isbell for hammering the idea home and Marc Hensel for making 
+# me explain this clearly.
 
 
 library(ggplot2)
@@ -18,6 +22,7 @@ n <- 8
 SIMdf <- data.frame(sp = sort(rep(c(LETTERS[1:mono], "Poly"), n)), 
                     div = c(rep(1, mono*n), rep(mono, n)))
 
+head(SIMdf)
 #### we sample some compositional effect from a random distribution for ALL treatments
 #### there is no biology here - just that each composition has some random variation
 SIMdf$compEffect <- 3.5*as.vector(replicate(mono+1, rep(rnorm(1), n)))					
@@ -35,13 +40,16 @@ summary(lm(y ~ div, data = SIMdf))
 #look at the mono/poly difference visually
 SIMdfSummarized <- ddply(SIMdf, c("sp", "div"), summarise, ymean = mean(y), 
                          ymin = quantile(y, 0.025), ymax = quantile(y, 0.975))
+
 ggplot(SIMdfSummarized, aes(x = sp, y = ymean, ymin = ymin, ymax = ymax)) + 
   geom_pointrange() + theme_bw()
 
 #whoah!  E and H are the same or better than the average poly.  But this is due to chance, 
 #not because the poly contains the E and H
 
-#what is better is to add some intermediate composition treatments and see if this is REALLY due to E and F, or if it is just the higher sample size of monoculture treatments
+#what is better is to add some intermediate composition treatments and 
+# see if this is REALLY due to E and F, or if it is just the higher sample size 
+# of monoculture treatments
 
 intPolyLevels <- choose(mono, mono-1)
 intPoly <- rep(combn(LETTERS[1:mono], mono-1, FUN = function(x) paste(x, collapse = "")), n)
@@ -65,7 +73,7 @@ summary(lm(y ~ div, data = SIMdf))
 #now let's look at everything by treatment
 ##
 SIMdfSummarized <- ddply(SIMdf, c("sp", "div"), summarise, 
-                         ymean = mean(y), ymin = quantile(y, 0.025), ymax = quantile(y,0.975))
+                         ymean = mean(y), ymin = quantile(y, 0.025), ymax = quantile(y, 0.975))
 ggplot(SIMdfSummarized, aes(x = sp, y = ymean, ymin = ymin, ymax = ymax)) + 
   geom_pointrange() + theme_bw()
 
