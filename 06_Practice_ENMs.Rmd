@@ -712,7 +712,7 @@ plot(map.sd, main = "Standard deviation of all models")
 
 That's it, we modeled environmental niches (ghosts) to produce geographical distributions (shadows)...
 
-# Excercices
+# Exercises
 
 Please respond each question based on the practice.
 
