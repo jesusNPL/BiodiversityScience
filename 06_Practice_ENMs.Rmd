@@ -78,7 +78,7 @@ This map correspond to the environmental varibale Annual Mean Temperature or BIO
 However, we do not need all environmental information across the world, as our focal species is ditributed only in South America (if the species is in a Zoo in US or Europe doesn't mean that the species occur in those places, dah!).
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
-# Set a geographical extension (Sur America long = -90, -30, lat = -60, 15)
+# Set a geographical extension (South America long = -90, -30, lat = -60, 15)
 e <- extent(c(-90, -30, -60, 15))
 ```
 
@@ -124,7 +124,7 @@ SA0k <- cbind(coord.SA, SA0k)
 Check the values on specific rows and columns.
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
-# observar valores de lineas y columnas especificas
+# Observ specific rows and columns
 SA0k[1:5,]
 SA0k[1:5, 1:5]
 ```
@@ -160,7 +160,7 @@ loadings(SA0k.fa)
 Based on the results of the FA and the specialist knowledge we can select the next variables: bio1, bio2, bio15, bio4, bio2.
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
-#6. Guardar las variables seleccionadas
+#6. Save the selected variables.
 write.table(SA0k[, c("x", "y", "bio.1", "bio.2", "bio.4", "bio.12", "bio.15")],
             row.names = FALSE, "Data/Environment/climaSA0k.txt", sep = "\t")
 ```
@@ -472,8 +472,7 @@ What about if we plot the prediction and the TRUE occurrences used for fit the m
 plot(Bioclim0k)
 points(training[training[, "pb"]==1,"x"], training[training[, "pb"]==1,"y"])
 ```
-points(entrenamiento[entrenamiento[, "pb"]==0,"x"], entrenamiento[entrenamiento[, "pb"]==0,"y"], 
-       pch = 20, col = "red")
+
 
 ### Gower
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}

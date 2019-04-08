@@ -267,7 +267,7 @@ names(datoG0)</code></pre>
 map(add = T)</code></pre>
 <p>This map correspond to the environmental varibale Annual Mean Temperature or BIO-1 accross the world.</p>
 <p>However, we do not need all environmental information across the world, as our focal species is ditributed only in South America (if the species is in a Zoo in US or Europe doesn’t mean that the species occur in those places, dah!).</p>
-<pre class="r"><code># Set a geographical extension (Sur America long = -90, -30, lat = -60, 15)
+<pre class="r"><code># Set a geographical extension (South America long = -90, -30, lat = -60, 15)
 e &lt;- extent(c(-90, -30, -60, 15))</code></pre>
 <p>Using the extent cut the information only for South America</p>
 <pre class="r"><code>clima0k.SA &lt;- crop(clima0k, e)</code></pre>
@@ -283,7 +283,7 @@ map(add = T)</code></pre>
 <p>Now, merge the environmental values with the geographical coordinates.</p>
 <pre class="r"><code>SA0k &lt;- cbind(coord.SA, SA0k)</code></pre>
 <p>Check the values on specific rows and columns.</p>
-<pre class="r"><code># observar valores de lineas y columnas especificas
+<pre class="r"><code># Observ specific rows and columns
 SA0k[1:5,]
 SA0k[1:5, 1:5]</code></pre>
 <p>Now, we need to decide which variables are needed to model the niche (Grinnellian niche or Fundamental niche) for the Hyacinth macaw. Here we can rely the selection to the specialist or use statistical tools or both.</p>
@@ -297,7 +297,7 @@ fa.parallel(SA0k[, -c(1:3)])</code></pre>
 <pre class="r"><code>SA0k.fa</code></pre>
 <pre class="r"><code>loadings(SA0k.fa)</code></pre>
 <p>Based on the results of the FA and the specialist knowledge we can select the next variables: bio1, bio2, bio15, bio4, bio2.</p>
-<pre class="r"><code>#6. Guardar las variables seleccionadas
+<pre class="r"><code>#6. Save the selected variables.
 write.table(SA0k[, c(&quot;x&quot;, &quot;y&quot;, &quot;bio.1&quot;, &quot;bio.2&quot;, &quot;bio.4&quot;, &quot;bio.12&quot;, &quot;bio.15&quot;)],
             row.names = FALSE, &quot;Data/Environment/climaSA0k.txt&quot;, sep = &quot;\t&quot;)</code></pre>
 <p>We can also save each environmental variable as raster files in our computer, but we do not need to do that.</p>
@@ -447,7 +447,6 @@ Gower.model</code></pre>
 <p>What about if we plot the prediction and the TRUE occurrences used for fit the model.</p>
 <pre class="r"><code>plot(Bioclim0k)
 points(training[training[, &quot;pb&quot;]==1,&quot;x&quot;], training[training[, &quot;pb&quot;]==1,&quot;y&quot;])</code></pre>
-<p>points(entrenamiento[entrenamiento[, “pb”]==0,“x”], entrenamiento[entrenamiento[, “pb”]==0,“y”], pch = 20, col = “red”)</p>
 </div>
 <div id="gower" class="section level3">
 <h3>Gower</h3>
