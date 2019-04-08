@@ -326,7 +326,7 @@ Interesting, only 123 occurrences without duplicates. We can save this informati
 write.table(hyacinth_var, row.names = FALSE, "Data/OCC/hyacinth_var.txt", sep = "\t")
 ```
 
-Inspect how the 123 looks in the map.
+Inspect how the 123 loocs in the map.
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 plot(climSA0k$bio.1)
 points(hyacinth_var[, "lon"], hyacinth_var[, "lat"])
