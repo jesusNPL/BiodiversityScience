@@ -10,7 +10,7 @@ output:
 
 In this lab, we will explore some aspects of **Spectral data**. To do so, we will use the R package **spectrolab** and the data stored in it. **spectrolab** is a R package that process and visualize data from portable spectrometers and establishes a common interface to spectra information. As you will see, working with spectral information/data is similar to work with any other information (e.g., species, communities) and consequently it can be used to calculate any metric of diversity, a biodiversity dimension called **Spectral diversity**.
 
-Basically, this practice is based on the vignette of the spectrolab package (https://cran.r-project.org/web/packages/spectrolab/vignettes/introduction_to_spectrolab.pdf), although Jesús made some modifications and additions. Thanks to Dudu (José Eduardo Meireles) to make spectra data easy for us. 
+Basically, this practice is based on the vignette of the spectrolab package (https://cran.r-project.org/web/packages/spectrolab/vignettes/introduction_to_spectrolab.pdf), although Jesús made some modifications and additions. Thanks to Dudu (José Eduardo Meireles) to make spectra data easy to handle. 
 
 # Set up your data and your working directory
 
@@ -101,9 +101,12 @@ m <- meta(achillea_spec, "ssp", simplify = TRUE)
 You can subset the spectra information using a notation similar to the [i, j] function used in matrices and data.frames. The first argument in [i, ] matches sample names (rows), whereas the second argument [ , j] matches the wavelength names (columns). Here are some examples of how **[** works in spectra:
 
 • x[1:3, ] will keep the first three samples of x, i.e. 1:3 are indexes.
-• x["sp_1", ] keeps all entries in x where sample names match "sp_1"
+
+• x["sp_1", ] keeps all entries in x where sample names match "sp_1".
+
 • x[ , 800:900] will keep wavelengths between 800 and 900.
-• x[ , 1:5] will fail!. wavelengths cannot be subset by indexes!
+
+• x[ , 1:5] will fail!. wavelengths cannot be subset by indexes!.
 
 Subsetting lets you, for instance, exclude noisy regions at the beginning and end of the spectrum or limit the data to specific entries.
 
@@ -160,32 +163,110 @@ plot_regions(achillea_spec, regions = default_spec_regions(), add = TRUE)
 
 It is also possible to convert a spectra object to a matrix or data.frame using the **as.matrix()** or **as.data.frame()** functions. This is useful if you want to export your data in a particular format, such as csv.
 
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
+# Make a matrix from a `spectra` object
+spec_as_mat = as.matrix(achillea_spec, fix_names = "none")
+spec_as_mat[1:4, 1:3]
+```
+
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
+# Make a matrix from a `spectra` object
+spec_as_df = as.data.frame(achillea_spec, fix_names = "none", metadata = TRUE)
+spec_as_df[1:4, 1:5]
+```
+
+Ok, enough of exploring and plotting spectra. Now we will use spectra to calculate some descriptive statistics and to calculate some diversity metrics.
+
+# Using spectra
+
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
+VIS <- c(400:700)
+NIR <- c(800:1300)
+SWIR1 <- c(1550:1800)
+SWIR2 <- c(2000:2400)
+```
+
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
+achillea_spec_VIS <- achillea_spec[, VIS]
+achillea_spec_VIS
+```
+
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
+achillea_spec_VIS_df <- as.data.frame(achillea_spec_VIS, fix_names = "none", metadata = TRUE)
+achillea_spec_VIS_df[1:10, 1:5]
+```
+
+Drop the first 3 columns for further analyses
+
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
+spec_as_df_clean <- spec_as_df[, 4:2004]
+spec_as_df_clean[1:10, 1:5]
+```
+
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
+achillea_spec_VIS_df_clean <- achillea_spec_VIS_df[, 4:304]
+achillea_spec_VIS_df_clean[1:10, 1:5]
+```
 
 
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
+spec_as_df_clean_ind1 <- spec_as_df_clean[1, ]
+spec_as_df_clean_ind1
+```
 
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
+hist(as.numeric(spec_as_df_clean_ind1), col = "black")
+abline(v = mean(as.numeric(spec_as_df_clean_ind1)), col = "red", lwd = 3)
+```
+
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
+source("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/RFunctions/mixR.R")
+```
+
+
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
+Descriptives(as.numeric(spec_as_df_clean_ind1))
+```
+
+
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
+achillea_spec_VIS_df_clean_ind1 <- achillea_spec_VIS_df_clean[1, ]
+achillea_spec_VIS_df_clean_ind1
+```
+
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
+hist(as.numeric(achillea_spec_VIS_df_clean_ind1), col = "black")
+abline(v = mean(as.numeric(achillea_spec_VIS_df_clean_ind1)), col = "red", lwd = 3)
+```
+
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
+Descriptives(as.numeric(achillea_spec_VIS_df_clean_ind1))
+```
+
+What about all individuals...
+
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
+descript_all_individuals <- apply(spec_as_df_clean, MARGIN = 1, FUN = Descriptives)
+descript_all_individuals[[10]]
+```
+
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
+diversities(spec_as_df_clean)
+```
+
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
+diversities(achillea_spec_VIS_df_clean)
+```
 
 
 # Exercises
 
 Please respond each question based on the practice.
 
-1. Summarize the data: how many records are there, how many have coordinates, how many records without coordinates have a textual georeference (locality description)?
 
-2. Do you think the observations are a reasonable representation of the distribution (and ecological niche) of the species?
-
-3. There is a best model? Explain your answer.
-
-4. Can we use ENM/SDM to aid the conservation of the Hyacinth macaw? Explain your answer.
-
-5. Based on the lecture and the practice, what can we conclude?
 
 
 # References 
 
-Karatzoglou, A., D. Meyer & K. Hornik, 2006. Support Vector Machines in R. Journal of statistical software 15(9).
-
-Lima-Ribeiro, M.S., S. Varela, J. González-Hernández, G. Oliveira, J.A.F. Diniz-Filho & L.C. Terribile. 2015. ecoClimate: a database of climate data from multiple models for past, present, and the future for macroecologistis and biogeographers. Biodiversity Informatics, 10: 1-21.
-
-Vapnik, V., 1998. Statistical Learning Theory. Wiley, New York.
-
+Cavender-Bares, J., Meireles, J., Couture, J., Kaproth, M., Kingdon, C., Singh, A., … Townsend, P. (2016). Associations of Leaf Spectra with Genetic and Phylogenetic Variation in Oaks: Prospects for Remote Detection of Biodiversity. Remote Sensing, 8(3), 221. doi:10.3390/rs8030221
 
