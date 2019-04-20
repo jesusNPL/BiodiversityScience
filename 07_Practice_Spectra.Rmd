@@ -179,6 +179,8 @@ Ok, enough of exploring and plotting spectra. Now we will use spectra to calcula
 
 # Using spectra
 
+Note that spectra goes from 400 to 2400 bands, following we will separate the spectra data into different spectrum. These are the **VIS** or Visible, **NIR** or Near Infrared, **SWIR1** and **SWIR2** or Short-wave Infared Imagery.
+
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 VIS <- c(400:700)
 NIR <- c(800:1300)
@@ -186,85 +188,97 @@ SWIR1 <- c(1550:1800)
 SWIR2 <- c(2000:2400)
 ```
 
+Now select and extract the bands corresponding to the VISIBLE spectrum.
+
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 achillea_spec_VIS <- achillea_spec[, VIS]
 achillea_spec_VIS
 ```
+
+Cool, right? now you repeat the process for the other three spectrum.
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 achillea_spec_VIS_df <- as.data.frame(achillea_spec_VIS, fix_names = "none", metadata = TRUE)
 achillea_spec_VIS_df[1:10, 1:5]
 ```
 
-Drop the first 3 columns for further analyses
+You can also plot part of the spectra, for example, lets use the VIS.
+
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
+plot(achillea_spec_VIS, lwd = 0.75, lty = 1, col = "grey25", main = "Visible")
+```
+
+Drop the first 3 columns for further analyses. Note that the rows are maintained in the same position, so you can bind the names of the species or individuals.
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 spec_as_df_clean <- spec_as_df[, 4:2004]
 spec_as_df_clean[1:10, 1:5]
 ```
 
+Same procedure to select part of the spectra. You are now capable to deal with spectra data, without any problem.
+
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 achillea_spec_VIS_df_clean <- achillea_spec_VIS_df[, 4:304]
 achillea_spec_VIS_df_clean[1:10, 1:5]
 ```
 
+For example, lets select the first individual (first row) of ACHMI. The result is a data.frame with dimensions 1 row and 2001 columns.
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 spec_as_df_clean_ind1 <- spec_as_df_clean[1, ]
+dim(spec_as_df_clean_ind1)
 spec_as_df_clean_ind1
 ```
 
-```{r, warnings = FALSE, message = FALSE, eval = FALSE}
-hist(as.numeric(spec_as_df_clean_ind1), col = "black")
-abline(v = mean(as.numeric(spec_as_df_clean_ind1)), col = "red", lwd = 3)
-```
+Ok, now lets calculate some descriptive statistics to better understand the data. You can do by yourself, but, Jesús prepared a function to make this calculation automatically. The function was called **Descriptives()** and you just need to enter a vector of values.
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 source("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/RFunctions/mixR.R")
 ```
 
+For example, lets use the first individual from the previous step.
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 Descriptives(as.numeric(spec_as_df_clean_ind1))
 ```
 
-
-```{r, warnings = FALSE, message = FALSE, eval = FALSE}
-achillea_spec_VIS_df_clean_ind1 <- achillea_spec_VIS_df_clean[1, ]
-achillea_spec_VIS_df_clean_ind1
-```
-
-```{r, warnings = FALSE, message = FALSE, eval = FALSE}
-hist(as.numeric(achillea_spec_VIS_df_clean_ind1), col = "black")
-abline(v = mean(as.numeric(achillea_spec_VIS_df_clean_ind1)), col = "red", lwd = 3)
-```
-
-```{r, warnings = FALSE, message = FALSE, eval = FALSE}
-Descriptives(as.numeric(achillea_spec_VIS_df_clean_ind1))
-```
-
-What about all individuals...
+Now, you can repeat the process for the other individuals and see the differences with the other individuals of Achillea. Notice that the function **Descriptives()** can be used within a **for** loop, but also you can use the **apply** function. This function apply a specific function to a matrix or data.frame.
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 descript_all_individuals <- apply(spec_as_df_clean, MARGIN = 1, FUN = Descriptives)
 descript_all_individuals[[10]]
 ```
 
+Finally, we will calculate some vegetation indexes. Until now, we explored how to handle spectra data and extract some descriptive statistics, so, you are now capable to calculate some simple vegetation indices.
+
+1. Simple Ratio: SR = Rnir/Rr
+Where: R = reflectance, nir = band 845 and r = band 665.
+
+2. Normalized Difference Vegetation Index: NDVI = (Rnir - Rr)/(Rnir + Rr)
+Where: nir = 845 and r = 665.
+
+3. Photochemical Reflectance Index: PRI = (R531 - R570)/(R531 + R570). 
+The numbers corresponde to the 531 and 570 bands, respectively and R is the reflectance.
+
+4. Normalized Difference Water Index: NDWI = (R860 - R1240)/(R860 + R1240)
+
+5. Water Balance Index: WBI = R900/R970.
+
+Here is an example:
+
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
-diversities(spec_as_df_clean)
+#head(spec_as_df_clean)
+SR_achillea = spec_as_df[, "845"]/spec_as_df[, "665"]
+SR_achillea
 ```
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
-diversities(achillea_spec_VIS_df_clean)
-```
 
+```
 
 # Exercises
 
-Please respond each question based on the practice.
-
-
-
+Now, do the calulations for the other four metrics and using the function **Descriptives()** explain the results, that will be your work for this lab.
 
 # References 
 
