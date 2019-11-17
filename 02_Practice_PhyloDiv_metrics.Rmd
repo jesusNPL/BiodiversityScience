@@ -163,7 +163,7 @@ plot(matched$phy, show.tip.label = FALSE)
 ```
 
 # Explore diversity metrics
-Awesome, we now ready to explore some the of the **jungle** of metrics for the evaluation of phenotypic and phylogenetic structure of communities (Pausas and Verdú 2010).
+Awesome, we are now ready to explore some the of the **jungle** of metrics for the evaluation of phenotypic and phylogenetic structure of communities (Pausas and Verdú 2010).
 
 ## Phylogenetic diversity
  
