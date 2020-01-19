@@ -8,19 +8,19 @@ output:
     toc: yes
 ---
 
-The main goal of this practice is to present basic aspects for anyone to be free about initial fear and start using R to perform data analysis. Every learning process becomes more effective when theory is combined with practice, so we stringly recommend that you follow the exercises in this short tutorial at the same time that you run the commands on your computer, and not just read it passively.
+The main goal of this practice is to present basic aspects for anyone to be free about initial fear and start using R to perform data analysis. Every learning process becomes more effective when theory is combined with practice, so we strongly recommend that you follow the exercises in this short tutorial at the same time that you run the commands on your computer, and not just read it passively.
 
 # Why R?
 R is a language and a statistical programming environment and graphics or also called an **“object oriented programming”**, which means, that using R involves the creation and manipulation of objects on a screen, where the user has to say exactly what they want to do rather than simply press a button **(black box paradox)**. So, the main advantage of R is that the user has control over what is happening and also the fully understanding of what he/she wants before performing any analysis.
 
-With R it is possible to manipulate and to analyze data, make graphics and write from small commands to entire programs. Basically, R is the open version of the S language, created by Bell’s Lab in 1980. Interestingly, S language is super popular among different areas of sciences and is the base for comercial products such as, SPSS, STATA, SAS among others. Thus, if we have to add another advantage of R, is that R is **open language and free**!
+With R it is possible to manipulate and analyze data, make graphics and write from small commands to entire programs. Basically, R is the open version of the S language, created by Bell’s Lab in 1980. Interestingly, S language is super popular among different areas of sciences and is the base for comercial products such as, SPSS, STATA, SAS among others. Thus, if we have to add another advantage of R, is that R is **open language and free**!
 
 There are different sources and web-pages with a lot of information about R, most of them are super useful and can be found at DataCamp (https://www.datacamp.com/), CRAN (https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf), R Tutorial (http://www.r-tutor.com/r-introduction).
 
 Also, when we are reporting our results in the form of a report, scientific paper or any kind of document, we need to cite the software used, the easiest to cite R is using the internal function **citation()**.
 
 # First steps
-First that all, we need to know about WHERE are we working at? That is our Working directory.
+First that all, we need to know about **WHERE** are we working at? That is our Working directory.
 
 ```{r, warnings = FALSE, message = FALSE}
 getwd()
@@ -28,7 +28,7 @@ getwd()
 
 If the working directory is not the correct one, we just need to order R to **SET** the correct address.
 
-```{r, eval=FALSE, echo=FALSE, error=FALSE, message=FALSE}
+```{r, eval = FALSE, echo = FALSE, error = FALSE, message = FALSE}
 setwd("Your path or directory")
 ```
 Ok, we are now in the correct place, so we can continue with the practice.
@@ -36,34 +36,34 @@ Ok, we are now in the correct place, so we can continue with the practice.
 ## Directory structure
 For training purposes, we will create a **directory structure** where the main folder is our current working place, so we will create a series of **subfolders** where we store, the data, the scripts and whatever we want… To do that we will use the function **dir.create()**. Lets practice!
 
-```{r, warnings = FALSE, error=FALSE, message=FALSE}
+```{r, warnings = FALSE, error = FALSE, message = FALSE}
 dir.create("Data")
 ```
 
-```{r, warnings = FALSE, error=FALSE, message=FALSE}
+```{r, warnings = FALSE, error = FALSE, message = FALSE}
 dir.create("R-scripts")
 ```
 
-```{r, warnings = FALSE, error=FALSE, message=FALSE}
+```{r, warnings = FALSE, error = FALSE, message = FALSE}
 dir.create("Figures")
 ```
 
-```{r, warnings = FALSE, error=FALSE, message=FALSE}
+```{r, warnings = FALSE, error = FALSE, message = FALSE}
 dir.create("Results")
 ```
 
-```{r, warnings = FALSE, error=FALSE, message=FALSE}
+```{r, warnings = FALSE, error = FALSE, message = FALSE}
 dir.create("Temp")
 ```
 
 To check if the subfolders were created, just use the function **dir()**, this simple function will print in the console the name of the files that are currently in your working directory.
 
-We can SET our working directory into one of the subfolders that we created using the function setwd()
+We can SET our working directory into one of the subfolders that we created using the function **setwd()**
 ```{r, results = "hide", warnings = FALSE, message = FALSE}
 setwd("Results")
 ```
 
-However, for practicity it is super-ultra-mega recommendable to work in a **MAIN FOLDER**, so go back to the previous folder or main folder we just need to use again the function **setwd()**, instead of using a folder name, we will use simple two dots, yes two dots **".."**. This simple operation will return to the main folder.
+However, for practicity it is super-ultra-mega recommendable to work in a **MAIN FOLDER**, so go back to the previous folder or main folder by just using the function **setwd()**, instead of using a folder name, we will use simple two dots, yes two dots **".."**. This simple operation will return to the main folder.
 ```{r, results = "hide", warnings = FALSE, message = FALSE}
 setwd("..")
 ```
@@ -75,11 +75,11 @@ Maybe, the most important (at least for Jesús) function of R is the **help** or
 help("logarithm")
 ```
 
-```{r, eval=FALSE, echo=FALSE, error=FALSE, message=FALSE}
+```{r, eval = FALSE, echo = FALSE, error = FALSE, message = FALSE}
 ?log
 ```
 
-```{r, eval=FALSE, echo=FALSE, error=FALSE, message=FALSE}
+```{r, eval = FALSE, echo = FALSE, error = FALSE, message = FALSE}
 ??log
 ```
 
@@ -122,7 +122,7 @@ str(seq_test) # Look at the structure of the data
 #### Character vector
 
 ```{r, warnings = FALSE, message = FALSE}
-research_groups <- c(Jeannine = "Oaks", Jesus = "Furnariides", Kirsten = "Fossils")
+research_groups <- c(Jeannine = "Oaks", Jesus = "Furnariides", Lucy = "Plants")
 
 research_groups
 ```
@@ -217,7 +217,7 @@ str(matx)
 summary(matx)
 ```
 
-In general when we are exploring our data for example using **head()** the function will return only the 6 first rows of our matrix, however, we can add another argument into the function. For example, **head(matx, 10)**, just add the number 10 after the comma adn is possible to see the first 10 lines. This simple operation is useful specially when our matrix is large **>500 rows**.
+In general, when we are exploring our data for example using **head()** the function will return only the 6 first rows of our matrix, however, we can add another argument into the function. For example, **head(matx, 10)**, just add the number 10 after the comma and is possible to see the first 10 lines. This simple operation is useful specially when our matrix is large **>500 rows**.
 
 ## Data frame
 The difference between a matrix and a data frame is that a data frame can handle different types of vectors. You can explore more about the data frames asking R **?data.frame**.
@@ -278,7 +278,7 @@ install.packages("PACKAGE NAME")
 ```
 The reverse function is **remove.packages()**.
 
-Most of the time, we do not remember if we already have a package installed in our computer, so if we are tired and do not want to go to our R folder and check if the package is in fact installed, we can use the next command.
+Most of the time, we do not remember if we already have a package installed in our computer, so, if we are tired and do not want to go to our R folder and check if the package is in fact installed, we can use the next command.
 ```{r, eval = FALSE}
 if ( ! ("PACKAGE NAME" %in% installed.packages())) {install.packages("PACKAGE NAME", dependencies = T)}
 ```
@@ -398,7 +398,7 @@ dat4[1:20, 1:4]
 ```
 
 You can also import your data using the same functions, but without specifying the address. Notice that we do not recomend this procedure as you can't control the **directory structure**, but is useful when you just are exploring data.
-```{r, eval=FALSE, echo=FALSE, error=FALSE, message=FALSE}
+```{r, eval = FALSE, echo = FALSE, error = FALSE, message = FALSE}
 dat5 <- na.omit(read.csv(file.choose()))
 ```
 
@@ -442,7 +442,7 @@ newick_tree <- read.tree(text = newick_tree)
 plot(newick_tree, show.node.label = TRUE)
 ```
 
-The other format is the **Nexus**, and after some time we can say the Nexus format have more flexibility for working. An example of a Nexus format is as follow:
+The other format is the **Nexus**, and after some time using it, we can say the Nexus format have more flexibility for working. An example of a Nexus format is as follow:
 
 
 ```{r, results = "hide", eval = FALSE}
@@ -550,7 +550,7 @@ multitree_example_nexus
 
 
 # Gentle intro to loops
-In programming one of the most important tool is the **loop** AKA **for**. Basically, a loop runs for a **n** number of steps in a previously defined statement.
+In programming one of the most important tool is the **loop** AKA **for**. Basically, a loop runs for **n** number of steps in a previously defined statement.
 
 The basic syntax struture of a loop is:
 
@@ -595,17 +595,18 @@ for (i in 5:length(ex)){
 
 
 ```{r, warnings = FALSE, message = FALSE}
-BioSciNames <- c("Jeannine", "Jesús", "Bailey", "Kalli", "Ariadna", "Samantha", "Maxell",
-                 "Sara", "Nicholas", "Carmen", "Ashley", "Mikkel", "Shana", "Kirsten",
-                 "Lucy", "Joe", "Joshua")
+BioSciNames <- c("Jeannine", "Jesús", "Grant", "Lauren", "Ashley", "Efrata", "Calista",
+                 "Madeline", "Andrew", "Addie", "Robin", "Aidan", "Jocelyn", "Marin",
+                 "Erin", "Abigail", "Luke", "Rose", "Kyle", "Adoree", "Jessica", 
+                 "Gayatri", "Lucy", "Francesca")
 ```
 
 ```{r, warnings = FALSE, message = FALSE}
 for (i in 3:length(BioSciNames)){
-  cat("Hi,", BioSciNames[i], ", welcome to the first practice!","\n");
+  cat("Hi,", BioSciNames[i], ", welcome to the first practice!", "\n");
 }
 ```
-We have covered basic aspects of R, from exploring and managing object to import/export data and basics into loops. We hope that this short tutorial can be useful not only for the **Biodiversity Sciences** course, but for your specific projects. Remember, practice, practice, practice!
+We have covered basic aspects of R, from exploring and managing object to import/export data and basics into loops. We hope that this short tutorial can be useful not only for the **Biodiversity Science** course, but for your specific projects. Remember, practice, practice, practice!
 
 
 # References
