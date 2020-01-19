@@ -1,0 +1,613 @@
+---
+title: 'R Intro'
+author: Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares
+output:
+  pdf_document: default
+  html_document: 
+    theme: readable
+    toc: yes
+---
+
+The main goal of this practice is to present basic aspects for anyone to be free about initial fear and start using R to perform data analysis. Every learning process becomes more effective when theory is combined with practice, so we stringly recommend that you follow the exercises in this short tutorial at the same time that you run the commands on your computer, and not just read it passively.
+
+# Why R?
+R is a language and a statistical programming environment and graphics or also called an **“object oriented programming”**, which means, that using R involves the creation and manipulation of objects on a screen, where the user has to say exactly what they want to do rather than simply press a button **(black box paradox)**. So, the main advantage of R is that the user has control over what is happening and also the fully understanding of what he/she wants before performing any analysis.
+
+With R it is possible to manipulate and to analyze data, make graphics and write from small commands to entire programs. Basically, R is the open version of the S language, created by Bell’s Lab in 1980. Interestingly, S language is super popular among different areas of sciences and is the base for comercial products such as, SPSS, STATA, SAS among others. Thus, if we have to add another advantage of R, is that R is **open language and free**!
+
+There are different sources and web-pages with a lot of information about R, most of them are super useful and can be found at DataCamp (https://www.datacamp.com/), CRAN (https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf), R Tutorial (http://www.r-tutor.com/r-introduction).
+
+Also, when we are reporting our results in the form of a report, scientific paper or any kind of document, we need to cite the software used, the easiest to cite R is using the internal function **citation()**.
+
+# First steps
+First that all, we need to know about WHERE are we working at? That is our Working directory.
+
+```{r, warnings = FALSE, message = FALSE}
+getwd()
+```
+
+If the working directory is not the correct one, we just need to order R to **SET** the correct address.
+
+```{r, eval=FALSE, echo=FALSE, error=FALSE, message=FALSE}
+setwd("Your path or directory")
+```
+Ok, we are now in the correct place, so we can continue with the practice.
+
+## Directory structure
+For training purposes, we will create a **directory structure** where the main folder is our current working place, so we will create a series of **subfolders** where we store, the data, the scripts and whatever we want… To do that we will use the function **dir.create()**. Lets practice!
+
+```{r, warnings = FALSE, error=FALSE, message=FALSE}
+dir.create("Data")
+```
+
+```{r, warnings = FALSE, error=FALSE, message=FALSE}
+dir.create("R-scripts")
+```
+
+```{r, warnings = FALSE, error=FALSE, message=FALSE}
+dir.create("Figures")
+```
+
+```{r, warnings = FALSE, error=FALSE, message=FALSE}
+dir.create("Results")
+```
+
+```{r, warnings = FALSE, error=FALSE, message=FALSE}
+dir.create("Temp")
+```
+
+To check if the subfolders were created, just use the function **dir()**, this simple function will print in the console the name of the files that are currently in your working directory.
+
+We can SET our working directory into one of the subfolders that we created using the function setwd()
+```{r, results = "hide", warnings = FALSE, message = FALSE}
+setwd("Results")
+```
+
+However, for practicity it is super-ultra-mega recommendable to work in a **MAIN FOLDER**, so go back to the previous folder or main folder we just need to use again the function **setwd()**, instead of using a folder name, we will use simple two dots, yes two dots **".."**. This simple operation will return to the main folder.
+```{r, results = "hide", warnings = FALSE, message = FALSE}
+setwd("..")
+```
+
+## The importance of the question mark “?” or the help function
+Maybe, the most important (at least for Jesús) function of R is the **help** or **?**. Using help or the question mark, we can ask to R about almost anything (saddly we can’t order pizza, yet)…so, lets practice!
+
+```{r, results = "hide", warnings = FALSE, message = FALSE}
+help("logarithm")
+```
+
+```{r, eval=FALSE, echo=FALSE, error=FALSE, message=FALSE}
+?log
+```
+
+```{r, eval=FALSE, echo=FALSE, error=FALSE, message=FALSE}
+??log
+```
+
+Other important and useful functions in R, are: **head()**, **tail()**, **dim()**, **str**, **summary()**, **names()**, **class()**, **rm()**, **save.image**, **saveRDS and readRDS**, **load**, **source**, all these simple functions help us to understand the data with we are working.
+
+# Objects: creation and manipulation
+In R you can create and manipulate different data, from a simple numeric vector to complex spatial and/or phylogenetic data frames. The main six kinds of objects that you can create and manipulate in R, are: vector, factor, matrix, data frame, list and functions. 
+
+So, lets start with the first object, the **Vector**.
+
+## Vector
+Vectors are the basic object in R and basically, contains elements of the same type (e.g., numbers, characters). Within vector exist three types: numeric, character and logic.
+
+#### Numeric vector
+
+**IMPORTANT** R is case sensitive, so you need to pay atention when you name the objects.
+
+```{r, results = "hide", warnings = FALSE, message = FALSE}
+a <- 10
+
+b <- c(1, 2, 3, 4, 5)
+
+seq_test <- seq(from = 1, to = 20, by = 2) # Here is a sequence of numbers from 1 to 20, every two numbers
+
+x = seq(10, 30) # This is a sequence from 10 to 30. What is the difference with the previous numeric vector? 
+
+sample(seq_test, 2, replace = T) # Sort two numbers within the object seq_test
+
+rep_test <- rep(1:2, c(10, 3)) # Repeat the number one, ten times and the number 2, three times
+
+ex <- c(1:10) # Create a sequence of 1 to 10
+
+length(ex) # Lenght of the object example
+
+aa <- length(ex) # What we are doing in here?
+
+str(seq_test) # Look at the structure of the data
+```
+
+#### Character vector
+
+```{r, warnings = FALSE, message = FALSE}
+research_groups <- c(Jeannine = "Oaks", Jesus = "Furnariides", Kirsten = "Fossils")
+
+research_groups
+```
+
+```{r, warnings = FALSE, message = FALSE}
+str(research_groups)
+```
+
+You can try to create a different character vector, for example, using the names of your peers.
+
+#### Logic vector
+
+This kind of vector is super useful when the purpose is to create or build functions. The elements of a logic vector are **TRUE, FALSE, NA** (not available).
+
+```{r, warnings = FALSE, message = FALSE}
+is.factor(ex) # It is a factor? (FALSE)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+is.matrix(ex) # It is a matrix? (FALSE)
+```
+```{r, warnings = FALSE, message = FALSE}
+is.vector(ex) # It is a vector? (TRUE)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+a < 1   # 'a' is lower than 1? (FALSE)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+a == 1   # 'a' is equal to 1? (TRUE)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+a >= 1   # 'a' is higher or equal to 1? (TRUE)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+a != 2   # the object 'a' is different of two? (TRUE) (!= negation)
+```
+
+## Factor
+A factor is useful to create categorical variables, that is very common in statistical analyses, such as the Anova.
+
+```{r, results = "hide", warnings = FALSE, message = FALSE}
+data <- factor(c("small", "medium", "large"))
+```
+
+```{r, echo=FALSE, error=FALSE, message=FALSE}
+is.factor(data) # Check if the object is correct.
+```
+
+## Matrix
+A matrix is bidimensional arrangement of **vectors**, where the vectors need to be of the same type, that is, two or more numeric vectors, or two or more character vectors.
+
+```{r, results = "hide", warning = FALSE, message = FALSE}
+matx <- matrix(1:45, nrow = 15)
+rownames(matx) <-  LETTERS[1:15]
+colnames(matx) <- c("Sample01", "Sample02", "Sample03")
+```
+
+```{r, warnings = FALSE, message = FALSE}
+matx # Inspect the matrix
+```
+
+```{r, warnings = FALSE, message = FALSE}
+class(matx) # Ask which kind of data is?
+```
+
+```{r, warnings = FALSE, message = FALSE}
+matx[, 1] # We can use brackets to select a specific column
+```
+
+```{r, warnings = FALSE, message = FALSE}
+matx[1, ] # We can use brackets to select a specific row
+```
+
+```{r, warnings = FALSE, message = FALSE}
+head(matx)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+tail(matx)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+#fix(matx)
+str(matx)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+summary(matx)
+```
+
+In general when we are exploring our data for example using **head()** the function will return only the 6 first rows of our matrix, however, we can add another argument into the function. For example, **head(matx, 10)**, just add the number 10 after the comma adn is possible to see the first 10 lines. This simple operation is useful specially when our matrix is large **>500 rows**.
+
+## Data frame
+The difference between a matrix and a data frame is that a data frame can handle different types of vectors. You can explore more about the data frames asking R **?data.frame**.
+
+```{r, results = "hide", warning = FALSE, message = FALSE}
+df <- data.frame(species = c("rufus", "cristatus", "albogularis", "paraguayae"), habitat = factor(c("forest", "savanna", "urban", "transition")), high = c(10, 2, 7, 4), distance = c(3, 9, 5, 6))
+```
+
+```{r, warnings = FALSE, message = FALSE}
+class(df)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+matx2 <- as.data.frame(matx) # We can also transform our matrix to a data frame
+class(matx2) 
+```
+
+```{r, warnings = FALSE, message = FALSE}
+str(df)
+#fix(df)
+#edit(df)
+```
+
+## List
+The list is an object that consists of an assembly of objects sorted in a hierarchical way. Here we will use the data previously created.
+```{r, results = "hide", warning = FALSE, message = FALSE}
+lst <- list(data, df, matx)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+str(lst)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+class(lst)
+```
+
+Now, inspect the objects that are stored into our object **lst**. To do this, we just need to use two brackets **[[]]**.
+
+```{r, warning = FALSE, message = FALSE}
+lst[[1]]
+```
+
+```{r, warnings = FALSE, message = FALSE}
+lst[[2]]
+```
+
+```{r, warnings = FALSE, message = FALSE}
+lst[[3]]
+```
+
+# Install and load packages
+Although R is a programming language, it is also possible to use different auxiliary packages that are available for free to download and to install in our computers.
+Install new packages into R is easy and just needs a simple function **install.packages()**. For more information of how to install new packages, you just need to ask R, using **?install.packages**
+
+```{r, results = "hide", warnings = FALSE, message = FALSE, , eval = FALSE}
+install.packages("PACKAGE NAME")
+```
+The reverse function is **remove.packages()**.
+
+Most of the time, we do not remember if we already have a package installed in our computer, so if we are tired and do not want to go to our R folder and check if the package is in fact installed, we can use the next command.
+```{r, eval = FALSE}
+if ( ! ("PACKAGE NAME" %in% installed.packages())) {install.packages("PACKAGE NAME", dependencies = T)}
+```
+
+To load an installed package you can just type, **library() or require()**
+```{r, results = "hide", warnings = FALSE, message = FALSE, eval = FALSE}
+library("PACKAGE NAME")
+require("PACKAGE NAME")
+```
+
+# R as a calculator
+R can be used as a calculator, for example, we can use the information created before to make some arithmetic operations.
+
+```{r, warnings = FALSE, message = FALSE}
+b[4]+seq_test[10]
+```
+
+```{r, warnings = FALSE, message = FALSE}
+b[4]*seq_test[10]
+```
+
+```{r, warnings = FALSE, message = FALSE}
+seq_test[5]/df[3, 3]
+```
+
+```{r, warnings = FALSE, message = FALSE}
+matx[, 3][4]-df[4, 4]
+```
+
+```{r, warnings = FALSE, message = FALSE}
+seq_test^7
+```
+
+```{r, warnings = FALSE, message = FALSE}
+seq_test*7
+```
+
+```{r, warnings = FALSE, message = FALSE}
+seq_test+7
+```
+
+```{r, warnings = FALSE, message = FALSE}
+seq_test-7
+```
+
+```{r, warnings = FALSE, message = FALSE}
+mean(seq_test)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+max(seq_test)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+min(seq_test)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+sum(seq_test)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+log(seq_test)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+sqrt(seq_test)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+cor(matx[, 1], matx[, 2])
+```
+
+# Data import/export
+As indicated before, in R you can handle different information (from vector to data frames) and basically most of our data is stored in an Excel spreadsheet or in files that have the extension of **.csv** (comma-separated values file) or **.txt** (Text X Text or text file that contains unformatted text). 
+
+Most of these files are imported in R are **data frames**, but, as we were practicing, we now have the tools to handle or transform the information into different objects. 
+
+The function to import data to R is simple **read.table()** or **read.csv()**, and using these simple functions, you can import the data and transform it in other kind of objects So, lets practice!
+
+```{r, results = "hide", warnings = FALSE, message = FALSE}
+dat <- read.table("Data/Sample.txt")
+
+dat2 <- read.table("Data/Sample.txt", row.names = 1, header = TRUE)
+
+dat3 <- read.csv("Data/Sample.csv")
+```
+
+```{r, warnings = FALSE, message = FALSE}
+class(dat)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+class(dat2)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+class(dat3)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+dat3Sample <- dat3[1:50, 1:4]
+dim(dat3Sample)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+dat4 <- na.omit(as.matrix(read.csv("Data/Sample.csv", row.names = 1, header = TRUE)))
+class(dat4)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+head(dat4, 10)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+dat4[1:20, 1:4]
+```
+
+You can also import your data using the same functions, but without specifying the address. Notice that we do not recomend this procedure as you can't control the **directory structure**, but is useful when you just are exploring data.
+```{r, eval=FALSE, echo=FALSE, error=FALSE, message=FALSE}
+dat5 <- na.omit(read.csv(file.choose()))
+```
+
+You can also save your data from R using the function **write.table** or **write.csv**. Lets save the dat3Sample. Notice that always we need to specify the correct address, in our case we will save the data in the subolder **Data**.
+```{r, results = "hide", warnings = FALSE, message = FALSE}
+is.na(dat3Sample)
+write.csv(dat3Sample, file = "Data/dat3Sample.csv")
+```
+
+# Phylogenetic data
+To study biodiversity is important to first understand the data and one common data used now is the phylogentic data or phylogenetic trees that describe the evolutionary relationships between and among lineages. From here until the end of this short tutorial we will try to explain the basics of how to import/export and handle phylogenetic information. You can find extra information at https://www.r-phylo.org/wiki/HowTo/Table_of_Content e http://www.mpcm-evolution.org/practice/online-practical-material-chapter-2.
+
+## Formats
+The two most common formats in which the phylogenies are stored are the Newick and Nexus (Maddison et al. 1997). 
+
+The Newick format represent the phylogenetic relationships as **"(", "," and ":"**, so the species relationships can be represented as follows:
+
+```{r, results = "hide", eval = FALSE}
+((A:10,B:9)D:5,C:15)F;
+```
+
+Using this notation, the parenthesis links the lineages to a specific node of the tree and the comma **","** separates the lineages that descend from that node. The colon punctuation **":"** can be used after the name of the node and the subsequent numeric values represent the branch lenght. Finally, the semicolon punctuation **";"** indicate the end of the phylogenetic tree.
+
+Now we can see how this format works, but first, check if we have the R packages for this purpose.
+```{r, results = "hide", warnings = FALSE, message = FALSE}
+if ( ! ("ape" %in% installed.packages())) {install.packages("ape", dependencies = T)}
+```
+
+```{r, warnings = FALSE, message = FALSE}
+require(ape)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+## Here we will create a phylogenetic tree in Newick format
+newick_tree <- "((A:10,B:9)D:5,C:15)F;"
+
+## Read the tre
+newick_tree <- read.tree(text = newick_tree)
+
+## And now we can plot the phylogentic tree
+plot(newick_tree, show.node.label = TRUE)
+```
+
+The other format is the **Nexus**, and after some time we can say the Nexus format have more flexibility for working. An example of a Nexus format is as follow:
+
+
+```{r, results = "hide", eval = FALSE}
+#NEXUS
+BEGIN TAXA;
+DIMENSIONS NTAXA=3;
+TaxLabels A B C;
+END;
+BEGIN TREES;
+TREE=((A:10,B:9)D:5,C:15)F;
+END;
+```
+
+```{r, warnings = FALSE, message = FALSE}
+## First create a Nexus file in the working directory 
+cat(
+ "#NEXUS
+ BEGIN TAXA;
+ DIMENSIONS NTAXA=3;
+ TaxLabels A B C;
+ END;
+ BEGIN TREES;
+ TREE=((A:10,B:9)D:5,C:15)F;
+ END;",
+file = "Data/Nexus_tree.nex"
+)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+## Now read the phylogenetic tree, but look that instead of using read.tree we are using read.nexus
+nexus_tree <- read.nexus("Data/Nexus_tree.nex")
+```
+
+```{r, warnings = FALSE, message = FALSE}
+## lets plot the example
+plot(nexus_tree, show.node.label = TRUE)
+```
+
+Now lets inspect our phylogenetic trees.
+
+```{r, warnings = FALSE, message = FALSE}
+str(nexus_tree)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+nexus_tree$tip.label
+```
+
+If we want to know about the branch lenght of the tree we just need to select **edge.lenght**
+
+```{r, warnings = FALSE, message = FALSE}
+nexus_tree$edge.length
+```
+
+An important component of a phylo object is the matrix called **edge**. In this matrix, each **row** represents a **branch** in the tree and the **first column** shows the index of the ancestral node of the branch and the **second column** shows the descendant node of that branch. Lets inspect!
+
+```{r, warnings = FALSE, message = FALSE}
+nexus_tree$edge
+```
+
+We know, it is a little hard to follow even with small trees as the example, but, if we plot the phylogenetic tree, the information within it is easier to understand.
+
+```{r, warnings = FALSE, message = FALSE}
+# Lets plot the tree
+plot(nexus_tree, show.tip.label = FALSE)
+# Add the internal nodes
+nodelabels()
+# Add the tips or lineages
+tiplabels()
+```
+
+Finally, the phylogenies can also be imported in form of a list and in phylogenetic comparative methods this list of phylogenies is called **multiPhylo**, and we can import/export these multiPhylos in the two formats.
+
+```{r, warnings = FALSE, message = FALSE}
+# Simulate 10 phylogenies, each one with 5 species
+multitree <- replicate(10, rcoal(5), simplify = FALSE)
+# Store the list of trees as a multiPhylo object
+class(multitree) <- "multiPhylo"
+
+# Plot a single tree from the 10
+plot(multitree[[10]])
+```
+
+```{r, warnings = FALSE, message = FALSE}
+par(mfrow = c(2, 2))
+plot(multitree[[1]])
+plot(multitree[[3]])
+plot(multitree[[7]])
+plot(multitree[[10]])
+```
+
+```{r, warnings = FALSE, message = FALSE}
+# Exporting the phylogenies as a single Newick file. 
+write.tree(phy = multitree, file = "Data/multitree_example_newick.txt")
+multitree_example_newick <- read.tree("Data/multitree_example_newick.txt")
+multitree_example_newick
+```
+
+```{r, warnings = FALSE, message = FALSE}
+# Exporting the phylogenies as a single Nexus file. 
+write.nexus(phy = multitree, file = "Data/multitree_example_nexus.nex")
+multitree_example_nexus <- read.nexus("Data/multitree_example_nexus.nex")
+multitree_example_nexus
+```
+
+
+# Gentle intro to loops
+In programming one of the most important tool is the **loop** AKA **for**. Basically, a loop runs for a **n** number of steps in a previously defined statement.
+
+The basic syntax struture of a loop is:
+
+```{r, results = "hide", warnings = FALSE, message = FALSE, eval = FALSE}
+for (variable in vector) {
+  execute defined statements
+}
+```
+
+When we are programming it is common to use the loop variable **i** to determine the number of steps. Why not other letter?, well **i** is the first letter of the word **iteration** —duh! Anyway, you can use any letter or word as a loop variable.
+
+So, lets take a look.
+```{r, warnings = FALSE, message = FALSE}
+for (i in 1:10){
+  cat(i, sep = '')
+}
+```
+Notice that the number of steps is determined by the loop variable and in this example is a sequence of steps from 1 to 10, that correspond to the second element of the **for loop**, the **vector**.
+
+You can modify the previous statement to obtain different results, for example:
+```{r, warnings = FALSE, message = FALSE}
+for (i in 1:10){
+  cat(i, sep = '\n')
+}
+```
+
+Or using a previous object:
+```{r, warnings = FALSE, message = FALSE}
+for (i in 5:length(ex)){
+  cat(i, sep = '\n')
+}
+```
+
+Or to make calculations
+```{r, warnings = FALSE, message = FALSE}
+for (i in 5:length(ex)){
+  b2 <- b^2
+  b3 <- b*2
+  b4 <- b+10
+}
+```
+
+
+```{r, warnings = FALSE, message = FALSE}
+BioSciNames <- c("Jeannine", "Jesús", "Bailey", "Kalli", "Ariadna", "Samantha", "Maxell",
+                 "Sara", "Nicholas", "Carmen", "Ashley", "Mikkel", "Shana", "Kirsten",
+                 "Lucy", "Joe", "Joshua")
+```
+
+```{r, warnings = FALSE, message = FALSE}
+for (i in 3:length(BioSciNames)){
+  cat("Hi,", BioSciNames[i], ", welcome to the first practice!","\n");
+}
+```
+We have covered basic aspects of R, from exploring and managing object to import/export data and basics into loops. We hope that this short tutorial can be useful not only for the **Biodiversity Sciences** course, but for your specific projects. Remember, practice, practice, practice!
+
+
+# References
+Maddison, D. R., Swofford, D. L. and Maddison, W. P. (1997). NEXUS: An Extensible File Format for Systematic Information. Systematic Biology 46, 590.
+
