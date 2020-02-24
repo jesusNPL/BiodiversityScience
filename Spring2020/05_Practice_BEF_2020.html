@@ -382,6 +382,8 @@ summary {
 <div id="TOC">
 <ul>
 <li><a href="#set-up-your-data-and-your-working-directory">Set up your data and your working directory</a></li>
+<li><a href="#part-1---estimating-loreaus-and-hector-partition">Part 1 - Estimating Loreau’s and Hector partition</a></li>
+<li><a href="#part-2---exploring-the-effects-of-biodiversity-on-ecosystem-functioning">Part 2 - Exploring the effects of biodiversity on ecosystem functioning</a></li>
 <li><a href="#exercise-1">Exercise 1</a><ul>
 <li><a href="#question-1-does-stem-biomass-yield-depend-on-plot-composition-and-richness">Question 1: does stem biomass yield depend on plot composition and richness?</a></li>
 <li><a href="#question-2-does-overyielding-depend-on-plot-composition-and-richness">Question 2: does overyielding depend on plot composition and richness?</a></li>
@@ -406,7 +408,42 @@ summary {
 <p>Set up a working directory and put the two data files in that directory. Tell R that this is the directory you will be using, and read in your data:</p>
 <pre class="r"><code>setwd(&quot;path/for/your/directory&quot;)</code></pre>
 <p>Install and load the following packages</p>
-<pre class="r"><code>library(agricolae)</code></pre>
+<pre class="r"><code>library(partitionBEFsp)
+library(agricolae)</code></pre>
+</div>
+<div id="part-1---estimating-loreaus-and-hector-partition" class="section level1">
+<h1>Part 1 - Estimating Loreau’s and Hector partition</h1>
+<p>First set biomass values for N species in both monocultures and mixtures</p>
+<pre class="r"><code>#Monoculture biomasses for 50 species
+M &lt;- c(57.57, 2.33, 306.25, 172.42, 351.48, 280.15, 216.93,
+     1.30, 397.73, 185.57, 19.81, 162.45, 36.23, 42.48,
+     3.16, 250.12, 5.30, 58.06, 172.93, 210.50, 253.78,
+     15.96, 218.62, 282.00, 342.73, 242.18, 49.39, 100.00,
+     112.20, 181.50, 61.98, 428.82, 911.55, 80.60, 206.75,
+     108.25, 58.45, 154.55, 114.58, 144.38, 273.98, 25.41,
+     148.82, 48.27, 35.62, 168.45, 157.98, 100.47, 31.12,
+     9.86)
+
+#Polyculture biomasses for a community of 50 species
+P &lt;- c(31.82, 0.06, 6.93, 6.75, 0.00, 0.11, 0.00,
+     10.95, 0.19, 0.58, 0.01, 0.52, 21.72, 16.20,
+     0.00, 0.09, 3.42, 0.00, 0.02, 3.18, 8.86,
+     0.03, 0.02, 0.00, 10.14, 8.93, 4.53, 0.00,
+     0.00, 0.02, 8.80, 0.31, 21.47, 0.34, 14.52,
+     0.15, 0.00, 17.17, 66.55, 1.65, 0.44, 0.17,
+     7.11, 0.45, 5.37, 7.66, 4.37, 0.00, 120.08,
+     144.61)</code></pre>
+<p>Now using the biomass mass values of our 50 species let’s calculate the change in relative yield or Delta Relative Yield (DRY). DRY is calculated by comparing the observed relative yield to the expected yield or simply as DRY = P/M - 1/Q where is the number of species in the community.</p>
+<pre class="r"><code># calculate DRY
+DRY &lt;- calculate_DRY(M = M, P = P, Q = length(M))</code></pre>
+<p>Now we are ready to estimate the additive partition of local net biodiversity effect (NBE) into ist local complementary (CE) and selection (SE) components as proposed by Loreau and Hector (2001).</p>
+<pre class="r"><code>#calculate classic partition for full community
+NBE &lt;- classic_partition(DRY = DRY, M = M)</code></pre>
+<pre class="r"><code>SE &lt;- NBE$S
+CE &lt;- NBE$C</code></pre>
+</div>
+<div id="part-2---exploring-the-effects-of-biodiversity-on-ecosystem-functioning" class="section level1">
+<h1>Part 2 - Exploring the effects of biodiversity on ecosystem functioning</h1>
 <p>Read in data from “Species richness and traits predict overyielding in stem growth in an early‐successional tree diversity experiment” (Grossman et al. 2017; Ecology 98:2601-14)</p>
 <pre class="r"><code>df &lt;- read.csv(&quot;Data/BEF_Lesson_Data.csv&quot;, header = T)</code></pre>
 <pre class="r"><code>names(df)</code></pre>
