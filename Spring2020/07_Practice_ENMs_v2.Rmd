@@ -8,7 +8,7 @@ output:
     toc: yes
 ---
 
-In this lab, we will explore some Correlative models use data at species level (occurrence data points) and environmental data at large spatial scales. We will use data occurrence data of the Hyacinth macaw (*Anodorhynchus hyacinthinus*), the largest macaw in the world and that is distributed in the Pantanal of Bolivia and Brazil and the Cerrado en Brazil. The environmental was obtained from from **Ecoclimate** (http://ecoclimate.org). Notice that you can obtain environmental data from WorldClim..
+In this lab, we will explore some Correlative models using data at species level (occurrence data points) and environmental data at large spatial scales. We will use occurrence data of the Hyacinth macaw (*Anodorhynchus hyacinthinus*), the largest macaw in the world and that is distributed in the Pantanal of Bolivia and Brazil and the Cerrado en Brazil. The environmental was obtained from from **Ecoclimate** (http://ecoclimate.org). Notice that you can obtain environmental data from WorldClim.
 
 Part of the explanation of algorithms was extracted from the vignette of the dismo package.
 
@@ -57,7 +57,7 @@ colnames(hyacinth)
 
 Wow, there are a bunch of columns, lets clean our data.
 
-First, removing all NA data.
+First, remove all NA data.
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 hyacinth <- subset(hyacinth, !is.na(lon) & !is.na(lat))
@@ -96,7 +96,7 @@ rm(list = ls())
 ```
 
 # Prepare environmental data
-Read the environmental variables (bioclimatic variables in WorldClim - http://www.worldclim.org/bioclim)
+Read the environmental variables
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 datoG0 <- read.table("Data/Environment/bio_var_CCSM_0k_global.txt", h = T)
@@ -280,6 +280,8 @@ hyacinth_bios <- crop(climSA0k, hyacinth_buffer)
 hyacinth_bios2 <- mask(hyacinth_bios, hyacinth_buffer)
 ```
 
+How it look...
+
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 plot(hyacinth_bios2$bio.1)
 plot(hyacinth_spatial, add = TRUE)
@@ -324,7 +326,7 @@ hyacinth_var_noDUPS <- hyacinth_var[-a, ]
 dim(hyacinth_var_noDUPS)
 ```
 
-Interesting, only 130 occurrences without duplicates. We can save this information in our OCC subfolder.
+Interestingly only 130 occurrences do not have duplicates. We can save this information in our OCC subfolder.
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 write.table(hyacinth_var_noDUPS, row.names = FALSE, "Data/OCC/hyacinth_var.txt", sep = "\t")
@@ -354,13 +356,16 @@ id.back <- data.frame(randomPoints(hyacinth_bios2, n = 2*nrow(hyacinth_var_noDUP
 #id.back <- sample(1:nrow(hyacinth_bios2), nrow(hyacinth_var_noDUPS), replace = TRUE) # nrow(hyacinth_var) return the same number of TRUE occurrences
 #length(id.back)
 ```
+
 How it looks. These random points represent **pseudoabsences** for our species.
+
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 plot(hyacinth_bios2$bio.1)
 points(id.back[, "x"], id.back[, "y"])
 ```
 
 Now we can extract the bioclimatic data using the random points.
+
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 background_var <- extract(hyacinth_bios2, id.back, cellnumbers = T)
 dim(background_var)
@@ -383,6 +388,7 @@ Now, we need to decide which variables are needed to model the niche (Grinnellia
 Let's use statistical tools.
 
 First we can create a temporal object that will help us in this process.
+
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 hyacinth_var_tmp <- data.frame(hyacinth_var_noDUPS)
 names(hyacinth_var_tmp) <- c("x", "y", "cells", "id", names(hyacinth_var_tmp)[5:23])
@@ -424,6 +430,7 @@ The function return a list of three objects:
 1. AIC values for each model
 2. The correlation matrix
 3. A vector of of the selected variables.
+
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 var_sel$AIC
 var_sel$cor_mat

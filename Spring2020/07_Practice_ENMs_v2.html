@@ -416,7 +416,7 @@ summary {
 </ul>
 </div>
 
-<p>In this lab, we will explore some Correlative models use data at species level (occurrence data points) and environmental data at large spatial scales. We will use data occurrence data of the Hyacinth macaw (<em>Anodorhynchus hyacinthinus</em>), the largest macaw in the world and that is distributed in the Pantanal of Bolivia and Brazil and the Cerrado en Brazil. The environmental was obtained from from <strong>Ecoclimate</strong> (<a href="http://ecoclimate.org" class="uri">http://ecoclimate.org</a>). Notice that you can obtain environmental data from WorldClim..</p>
+<p>In this lab, we will explore some Correlative models using data at species level (occurrence data points) and environmental data at large spatial scales. We will use occurrence data of the Hyacinth macaw (<em>Anodorhynchus hyacinthinus</em>), the largest macaw in the world and that is distributed in the Pantanal of Bolivia and Brazil and the Cerrado en Brazil. The environmental was obtained from from <strong>Ecoclimate</strong> (<a href="http://ecoclimate.org" class="uri">http://ecoclimate.org</a>). Notice that you can obtain environmental data from WorldClim.</p>
 <p>Part of the explanation of algorithms was extracted from the vignette of the dismo package.</p>
 <div id="set-up-your-data-and-your-working-directory" class="section level1">
 <h1>Set up your data and your working directory</h1>
@@ -448,7 +448,7 @@ dim(hyacinth)
 # select the records that have longitude and latitude data
 colnames(hyacinth)</code></pre>
 <p>Wow, there are a bunch of columns, lets clean our data.</p>
-<p>First, removing all NA data.</p>
+<p>First, remove all NA data.</p>
 <pre class="r"><code>hyacinth &lt;- subset(hyacinth, !is.na(lon) &amp; !is.na(lat))</code></pre>
 <pre class="r"><code>dim(hyacinth)
 ## [1] 3785   137
@@ -466,7 +466,7 @@ write.csv(hyacinth_coords, &quot;Data/OCC/hyacinth_data.csv&quot;)</code></pre>
 </div>
 <div id="prepare-environmental-data" class="section level1">
 <h1>Prepare environmental data</h1>
-<p>Read the environmental variables (bioclimatic variables in WorldClim - <a href="http://www.worldclim.org/bioclim" class="uri">http://www.worldclim.org/bioclim</a>)</p>
+<p>Read the environmental variables</p>
 <pre class="r"><code>datoG0 &lt;- read.table(&quot;Data/Environment/bio_var_CCSM_0k_global.txt&quot;, h = T)</code></pre>
 <p>Lets explore some details of the raw data</p>
 <pre class="r"><code>head(datoG0)
@@ -546,6 +546,7 @@ plot(hyacinth_spatial, add = TRUE)</code></pre>
 <p>Using the buffer created in the previous step we will crop the bioclimatic data.</p>
 <pre class="r"><code>hyacinth_bios &lt;- crop(climSA0k, hyacinth_buffer)
 hyacinth_bios2 &lt;- mask(hyacinth_bios, hyacinth_buffer)</code></pre>
+<p>How it look…</p>
 <pre class="r"><code>plot(hyacinth_bios2$bio.1)
 plot(hyacinth_spatial, add = TRUE)</code></pre>
 <p>Now, we will extract the environmental information using the hyacinth occurrences.</p>
@@ -565,7 +566,7 @@ a</code></pre>
 <p>Using the object a, we can delete the duplicate cells.</p>
 <pre class="r"><code>hyacinth_var_noDUPS &lt;- hyacinth_var[-a, ]
 dim(hyacinth_var_noDUPS)</code></pre>
-<p>Interesting, only 130 occurrences without duplicates. We can save this information in our OCC subfolder.</p>
+<p>Interestingly only 130 occurrences do not have duplicates. We can save this information in our OCC subfolder.</p>
 <pre class="r"><code>write.table(hyacinth_var_noDUPS, row.names = FALSE, &quot;Data/OCC/hyacinth_var.txt&quot;, sep = &quot;\t&quot;)</code></pre>
 <p>Inspect how the 130 looks in the map.</p>
 <pre class="r"><code>plot(hyacinth_bios2$bio.1)
