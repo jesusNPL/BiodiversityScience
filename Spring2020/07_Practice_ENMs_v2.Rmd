@@ -99,7 +99,7 @@ rm(list = ls())
 Read the environmental variables
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
-datoG0 <- read.table("Data/Environment/bio_var_CCSM_0k_global.txt", h = T)
+datoG0 <- read.table("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2020/Data/Environment/bio_var_CCSM_0k_global.txt", h = T)
 ```
 
 Lets explore some details of the raw data
@@ -416,7 +416,7 @@ corrplot.mixed(cor_mat, tl.pos = "lt", tl.cex = 0.5, number.cex = 0.5,
 Wow, looks like a lot of the predictors are highly correlated and inspecting predictor by predictor can take for ever. However we can also ask to the computer make the work for us, in this case we will bild univariate models and select the best fitting model. To do that, we will use the function **selectBelow07** which is an adaptation from a function written by Damariz Zurell. 
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
-source("R-Functions/selectVariables.R")
+source("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2020/R-Functions/selectVariables.R")
 ```
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
@@ -429,7 +429,7 @@ var_sel <- selectBelow07(pred_names = bios, response_name = "id",
 The function return a list of three objects:
 1. AIC values for each model
 2. The correlation matrix
-3. A vector of of the selected variables.
+3. A vector of the selected variables.
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 var_sel$AIC
@@ -493,7 +493,7 @@ Set data for testing.
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 test <- prepareData(x = hyacinth_bios_sel, 
                       p = hyacinth_var_sel[-id.ocur, 1:2], 
-                      b = background_sel[-id.back,1:2], xy = T)
+                      b = background_sel[-id.back, 1:2], xy = T)
 head(test)
 ```
 
