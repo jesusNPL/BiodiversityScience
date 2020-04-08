@@ -55,7 +55,7 @@ dim(hyacinth)
 colnames(hyacinth)
 ```
 
-Wow, there are a bunch of columns, lets clean our data.
+Wow, there are a bunch of columns, let's clean our data.
 
 First, removing all NA data.
 
