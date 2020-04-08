@@ -2,10 +2,10 @@
 title: 'Ecological niche models and species distributions'
 author: Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares
 output:
-  pdf_document: default
   html_document: 
     theme: readable
     toc: yes
+  pdf_document: default
 ---
 
 In this lab, we will explore some Correlative models using data at species level (occurrence data points) and environmental data at large spatial scales. We will use occurrence data of the Hyacinth macaw (*Anodorhynchus hyacinthinus*), the largest macaw in the world and that is distributed in the Pantanal of Bolivia and Brazil and the Cerrado en Brazil. The environmental was obtained from from **Ecoclimate** (http://ecoclimate.org). Notice that you can obtain environmental data from WorldClim.
@@ -82,7 +82,7 @@ Lets inspect the results.
 head(hyacinth_coords)
 ```
 
-Now lets save the data needed for further analyses.
+Now let's save the data needed for further analyses.
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 dir.create("Data/OCC")
