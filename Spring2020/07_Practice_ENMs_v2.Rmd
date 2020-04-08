@@ -114,7 +114,7 @@ class(datoG0)
 names(datoG0)
 ```
 
-Note that the environmental data is a data frame, but we need a raster. To transfor the data frame to raster, we just need to use the function **gridded**. Lets try!
+Note that the environmental data is a data frame, but we need a raster. To transform the data frame to raster, we just need to use the function **gridded**. Lets try!
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 gridded(datoG0) <- ~long+lat
