@@ -283,7 +283,7 @@ Do the calulations for the other four vegetation indices and using the function 
 
 ## Building a PLSR model to predict traits from spectra
 
-Now we will explore the power of spectra in predicting plant chemical components using the statistical machinery of the PLS models. You can clean up your Global Environment using **rm(list = ls())**, as we will use othe data.
+Now we will explore the power of spectra in predicting plant chemical components using the statistical machinery of the PLS models. You can clean up your Global Environment using **rm(list = ls())**, as we will use other data.
 
 Using the data **spec_chem_fiber** we will predict non-structural carbohydrates using spectra.
 
