@@ -2,10 +2,10 @@
 title: 'R Intro'
 author: Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares
 output:
+  pdf_document: default
   html_document: 
     theme: readable
     toc: yes
-  pdf_document: default
 ---
 
 The main goal of this tutorial is to present basic aspects for anyone to be free about initial fear and start using R to perform data analysis. Every learning process becomes more effective when theory is combined with practice, in this sense, we strongly recommend that you follow the exercises in this short tutorial at the same time that you run the commands on your computer, and not just read it passively.
@@ -240,7 +240,9 @@ In general, when we are exploring our data for example using **head()** the func
 The difference between a matrix and a data frame is that a data frame can handle different types of vectors. You can explore more about the data frames asking R **?data.frame**. Let's create a data frame and explore its properties.
 
 ```{r, results = "hide", warning = FALSE, message = FALSE}
-df <- data.frame(species = c("rufus", "cristatus", "albogularis", "paraguayae"), habitat = factor(c("forest", "savanna", "urban", "transition")), high = c(10, 2, 7, 4), distance = c(3, 9, 5, 6))
+df <- data.frame(species = c("rufus", "cristatus", "albogularis", "paraguayae"), 
+                 habitat = factor(c("forest", "savanna", "urban", "transition")), 
+                 high = c(10, 2, 7, 4), distance = c(3, 9, 5, 6))
 ```
 
 ```{r, warnings = FALSE, message = FALSE}
@@ -302,7 +304,8 @@ The reverse function is **remove.packages()**.
 Most of the time, we do not remember if we already have a package installed in our computer, so, if we are tired and do not want to go to our R folder packages and check if the package is in fact installed, we can use the next command.
 
 ```{r, eval = FALSE}
-if ( ! ("PACKAGE NAME" %in% installed.packages())) {install.packages("PACKAGE NAME", dependencies = T)}
+if ( ! ("PACKAGE NAME" %in% installed.packages())) 
+  {install.packages("PACKAGE NAME", dependencies = T)}
 ```
 
 To load an installed package you can just type, **library() or require()**
@@ -409,7 +412,7 @@ Most of these files are imported in R are **data frames**, but, as we were pract
 
 The function to import data to R is simple **read.table()** or **read.csv()**, and using these simple functions, you can import the data and transform it in other kind of objects So, lets practice!
 
-```{r, results = "hide", warnings = FALSE, message = FALSE}
+```{r, results = "hide", message = FALSE}
 dat <- read.table("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2021/Data/Sample.txt")
 
 dat2 <- read.table("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2021/Data/Sample.txt", row.names = 1, header = TRUE)
