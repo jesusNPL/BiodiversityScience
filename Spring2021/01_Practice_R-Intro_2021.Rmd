@@ -2,10 +2,10 @@
 title: 'R Intro'
 author: Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares
 output:
-  pdf_document: default
   html_document: 
     theme: readable
     toc: yes
+  pdf_document: default
 ---
 
 The main goal of this tutorial is to present basic aspects for anyone to be free about initial fear and start using R to perform data analysis. Every learning process becomes more effective when theory is combined with practice, in this sense, we strongly recommend that you follow the exercises in this short tutorial at the same time that you run the commands on your computer, and not just read it passively.
@@ -319,7 +319,7 @@ packages <- c("ggplot2", "BIEN", "phytools", "picante", "tidyr", "dplyr")
 # Package vector names
 ```
 
-```{r}
+```{r, eval = FALSE}
 # Install packages not yet installed
 installed_packages <- packages %in% rownames(installed.packages())
 if (any(installed_packages == FALSE)) {
@@ -329,7 +329,7 @@ if (any(installed_packages == FALSE)) {
 
 Now we can load all the packages listed in last vector.
 
-```{r}
+```{r, eval = FALSE}
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 ```
@@ -410,11 +410,11 @@ Most of these files are imported in R are **data frames**, but, as we were pract
 The function to import data to R is simple **read.table()** or **read.csv()**, and using these simple functions, you can import the data and transform it in other kind of objects So, lets practice!
 
 ```{r, results = "hide", warnings = FALSE, message = FALSE}
-dat <- read.table("Data/Sample.txt")
+dat <- read.table("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2021/Data/Sample.txt")
 
-dat2 <- read.table("Data/Sample.txt", row.names = 1, header = TRUE)
+dat2 <- read.table("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2021/Data/Sample.txt", row.names = 1, header = TRUE)
 
-dat3 <- read.csv("Data/Sample.csv")
+dat3 <- read.csv("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2021/Data/Sample.csv")
 ```
 
 ```{r, warnings = FALSE, message = FALSE}
@@ -429,13 +429,17 @@ class(dat2)
 class(dat3)
 ```
 
+We can also extract a sample of our data frame.
+
 ```{r, warnings = FALSE, message = FALSE}
 dat3Sample <- dat3[1:50, 1:4]
 dim(dat3Sample)
 ```
 
+We can import the data frame as a matrix.
+
 ```{r, warnings = FALSE, message = FALSE}
-dat4 <- na.omit(as.matrix(read.csv("Data/Sample.csv", row.names = 1, header = TRUE)))
+dat4 <- na.omit(as.matrix(read.csv("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2021/Data/Sample.csv", row.names = 1, header = TRUE)))
 class(dat4)
 ```
 
@@ -444,25 +448,28 @@ head(dat4, 10)
 ```
 
 ```{r, warnings = FALSE, message = FALSE}
-dat4[1:20, 1:4]
+dat4[1:20, 1:4] # Show the first 20 rows and 4 columns.
 ```
 
-You can also import your data using the same functions, but without specifying the address. Notice that we do not recomend this procedure as you can't control the **directory structure**, but is useful when you just are exploring data.
+You can also import your data using the same functions, but without specifying the address. Notice that we do not recommend this procedure as you can't control the **directory structure**, but is useful when you just are exploring data.
+
 ```{r, eval = FALSE, echo = FALSE, error = FALSE, message = FALSE}
 dat5 <- na.omit(read.csv(file.choose()))
 ```
 
 You can also save your data from R using the function **write.table** or **write.csv**. Lets save the dat3Sample. Notice that always we need to specify the correct address, in our case we will save the data in the subolder **Data**.
+
 ```{r, results = "hide", warnings = FALSE, message = FALSE}
 is.na(dat3Sample)
 write.csv(dat3Sample, file = "Data/dat3Sample.csv")
 ```
 
 # Phylogenetic data
-To study biodiversity is important to first understand the data and one common data used now is the phylogentic data or phylogenetic trees that describe the evolutionary relationships between and among lineages. From here until the end of this short tutorial we will try to explain the basics of how to import/export and handle phylogenetic information. You can find extra information at https://www.r-phylo.org/wiki/HowTo/Table_of_Content e http://www.mpcm-evolution.org/practice/online-practical-material-chapter-2.
+
+To study biodiversity is important to first understand the data we are using and one common data used now is the phylogenetic data or phylogenetic trees that describe the evolutionary relationships between and among lineages. From here until the end of this short tutorial we will try to explain the basics of how to import/export and handle phylogenetic information. You can find extra information at https://www.r-phylo.org/wiki/HowTo/Table_of_Content e http://www.mpcm-evolution.org/practice/online-practical-material-chapter-2.
 
 ## Formats
-The two most common formats in which the phylogenies are stored are the Newick and Nexus (Maddison et al. 1997). 
+The two most common formats in which the phylogenies are stored are the Newick and Nexus (*Maddison et al. 1997*). 
 
 The Newick format represent the phylogenetic relationships as **"(", "," and ":"**, so the species relationships can be represented as follows:
 
@@ -470,14 +477,16 @@ The Newick format represent the phylogenetic relationships as **"(", "," and ":"
 ((A:10,B:9)D:5,C:15)F;
 ```
 
-Using this notation, the parenthesis links the lineages to a specific node of the tree and the comma **","** separates the lineages that descend from that node. The colon punctuation **":"** can be used after the name of the node and the subsequent numeric values represent the branch lenght. Finally, the semicolon punctuation **";"** indicate the end of the phylogenetic tree.
+Using this notation, the parenthesis links the lineages to a specific node of the tree and the comma **","** separates the lineages that descend from that node. The colon punctuation **":"** can be used after the name of the node and the subsequent numeric values represent the branch length. Finally, the semicolon punctuation **";"** indicate the end of the phylogenetic tree.
 
-Now we can see how this format works, but first, check if we have the R packages for this purpose.
+Now we can see how this format works, but first, check if we have the R packages for this purpose. Here we will use the package Analyses of Phylogenetics and Evolution, AKA **ape**.
+
 ```{r, results = "hide", warnings = FALSE, message = FALSE}
 if ( ! ("ape" %in% installed.packages())) {install.packages("ape", dependencies = T)}
 ```
 
 ```{r, warnings = FALSE, message = FALSE}
+?ape
 require(ape)
 ```
 
@@ -492,19 +501,19 @@ newick_tree <- read.tree(text = newick_tree)
 plot(newick_tree, show.node.label = TRUE)
 ```
 
-The other format is the **Nexus**, and after some time using it, we can say the Nexus format have more flexibility for working. An example of a Nexus format is as follow:
+The other format is the **Nexus**, and after some time using it, we can say that the Nexus format have more flexibility for working. An example of a Nexus format is as follow:
 
-
-```{r, results = "hide", eval = FALSE}
-#NEXUS
+```{r, results = "hide", warnings = FALSE, message = FALSE}
+"#NEXUS
 BEGIN TAXA;
 DIMENSIONS NTAXA=3;
 TaxLabels A B C;
 END;
 BEGIN TREES;
 TREE=((A:10,B:9)D:5,C:15)F;
-END;
+END;"
 ```
+
 
 ```{r, warnings = FALSE, message = FALSE}
 ## First create a Nexus file in the working directory 
@@ -541,7 +550,7 @@ str(nexus_tree)
 nexus_tree$tip.label
 ```
 
-If we want to know about the branch lenght of the tree we just need to select **edge.lenght**
+If we want to know about the branch length of the tree we just need to select **edge.lenght**
 
 ```{r, warnings = FALSE, message = FALSE}
 nexus_tree$edge.length
@@ -600,6 +609,7 @@ multitree_example_nexus
 
 
 # Gentle intro to loops
+
 In programming one of the most important tool is the **loop** AKA **for**. Basically, a loop runs for **n** number of steps in a previously defined statement.
 
 The basic syntax struture of a loop is:
@@ -612,15 +622,18 @@ for (variable in vector) {
 
 When we are programming it is common to use the loop variable **i** to determine the number of steps. Why not other letter?, well **i** is the first letter of the word **iteration** —duh! Anyway, you can use any letter or word as a loop variable.
 
-So, lets take a look.
+So, let's take a look.
+
 ```{r, warnings = FALSE, message = FALSE}
 for (i in 1:10){
   cat(i, sep = '')
 }
 ```
+
 Notice that the number of steps is determined by the loop variable and in this example is a sequence of steps from 1 to 10, that correspond to the second element of the **for loop**, the **vector**.
 
 You can modify the previous statement to obtain different results, for example:
+
 ```{r, warnings = FALSE, message = FALSE}
 for (i in 1:10){
   cat(i, sep = '\n')
@@ -628,6 +641,7 @@ for (i in 1:10){
 ```
 
 Or using a previous object:
+
 ```{r, warnings = FALSE, message = FALSE}
 for (i in 5:length(ex)){
   cat(i, sep = '\n')
@@ -635,6 +649,7 @@ for (i in 5:length(ex)){
 ```
 
 Or to make calculations
+
 ```{r, warnings = FALSE, message = FALSE}
 for (i in 5:length(ex)){
   b2 <- b^2
@@ -645,19 +660,22 @@ for (i in 5:length(ex)){
 
 
 ```{r, warnings = FALSE, message = FALSE}
-BioSciNames <- c("Jeannine", "Jesús", "Grant", "Lauren", "Ashley", "Efrata", "Calista",
-                 "Madeline", "Andrew", "Addie", "Robin", "Aidan", "Jocelyn", "Marin",
-                 "Erin", "Abigail", "Luke", "Rose", "Kyle", "Adoree", "Jessica", 
-                 "Gayatri", "Lucy", "Francesca")
+BioSciNames <- c("Jeannine", "Jesús", "Idil", "Meghan", "Addison", "Chen", "Lydia",
+                 "Alex", "Alexandra", "Madison", "Maggie", "Emma", "Sarah", "Ryan",
+                 "Danielle", "Zonish", "Jonah", "Allison", "Medha", "Susan", "Salma", 
+                 "Ashley", "Maria", "Taylor", "Yorkinov", "Alex", "Tyler", "Luke", 
+                 "Maya", "Paige", "Jonathan")
 ```
 
 ```{r, warnings = FALSE, message = FALSE}
-for (i in 3:length(BioSciNames)){
-  cat("Hi,", BioSciNames[i], ", welcome to the first practice!", "\n");
+for (i in 3:length(BioSciNames)){ # start at the position 3
+  #cat("Hi,", BioSciNames[i], ", welcome to the first practice!", "\n");
+  print(paste0("Hi ", BioSciNames[i], ", welcome to the first practice!"))
+  Sys.sleep(2) # wait two seconds before the next iteration
 }
 ```
-We have covered basic aspects of R, from exploring and managing object to import/export data and basics into loops. We hope that this short tutorial can be useful not only for the **Biodiversity Science** course, but for your specific projects. Remember, practice, practice, practice!
 
+We have covered basic aspects of R, from exploring and managing object to import/export data and basics into loops. We hope that this short tutorial can be useful not only for the **Biodiversity Science** course, but for your specific projects. Remember, practice, practice, practice!
 
 # References
 Maddison, D. R., Swofford, D. L. and Maddison, W. P. (1997). NEXUS: An Extensible File Format for Systematic Information. Systematic Biology 46, 590.
