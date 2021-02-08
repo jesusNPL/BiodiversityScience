@@ -214,7 +214,7 @@ summary {
 installed_packages &lt;- packages %in% rownames(installed.packages())
 
 if (any(installed_packages == FALSE)) {
-  install.packages(packages[!installed_packages])
+  install.packages(packages[!installed_packages],dependencies=T)
 }</code></pre>
 <p>Load installed packages</p>
 <pre class="r"><code>library(ape)
@@ -292,9 +292,8 @@ abline(lm_awehost)</code></pre>
 <p><em>What is the R^2 value for this data?</em></p>
 <p><em>How do you feel about that?</em></p>
 <p>Nice. But. We have not considered the fact that these lizards are related to each other. As such, they may share their hostility and awesomeness simply due to the fact that their ancestors were hostile or awesome. In other words, we need to account for non-independence of residuals due to phylogeny. One way to do that is to use phylogenetic-generalized-least-squares regression (PGLS)</p>
-<pre class="r"><code>pglsModel &lt;- gls(awesomeness ~ hostility, data = anoleData, 
-                 correlation = corBrownian(phy = anoleTree), method = &quot;ML&quot;)</code></pre>
-<p>Let’s break this command down. This command infers a linear model for awesomeness as a function of hostility (gls(awesomness ~ hostility, data = anoleData)), but it specifies existing correlation structure in the data (correlation =) as the covariance of these traits assuming a Brownian motion model (corBrowinan()) based on the anolis tree (phy = anoleTree). The model is fit using maximum likelihood (method = “ML”). To see the results:</p>
+<pre class="r"><code>pglsModel &lt;- gls(awe ~ host, correlation = corBrownian(phy = anoleTree, form=~names(awe)), method = &quot;ML&quot;)</code></pre>
+<p>Let’s break this command down. This command infers a linear model for awesomeness as a function of hostility (gls(awe ~ host), but it specifies existing correlation structure in the data (correlation =) as the covariance of these traits assuming a Brownian motion model (corBrowinan()) based on the anolis tree (phy = anoleTree) and a correctly ordered list of taxon names (form=~names(awe)). The model is fit using maximum likelihood (method = “ML”). To see the results:</p>
 <pre class="r"><code>summary(pglsModel)
 coef(pglsModel)
 R2(pglsModel)</code></pre>
@@ -302,7 +301,7 @@ R2(pglsModel)</code></pre>
 abline(a = coef(pglsModel)[1], b = coef(pglsModel)[2]) 
 # will plot the pgls regression line on your biplot.</code></pre>
 <p><em>Write the linear model for this relationship. Are the parameters significantly different from 0?</em></p>
-<p><em>What is the R^2 value for this data?</em></p>
+<p><em>What is the R^2 value for this data? (use the likelihood-based R^2 value)</em></p>
 <p><em>How do you feel about that?</em></p>
 <p><em>Compare results from the pgls analysis with those that you got from the regular linear model you ran earlier.</em></p>
 </div>
@@ -364,7 +363,6 @@ legend(&quot;bottomleft&quot;, fill = c(&quot;black&quot;, &quot;red&quot;, &quo
 <p><em>How many transitions from Cuba to Hispanola?</em></p>
 <p><em>Are there any reversals?</em></p>
 <p><em>Does a Jamaican ancestor ever move to Puerto Rico?</em></p>
-<p><em>What is the ancestral island for the ancestor of A. distichus and A. evermanni?</em></p>
 </div>
 
 

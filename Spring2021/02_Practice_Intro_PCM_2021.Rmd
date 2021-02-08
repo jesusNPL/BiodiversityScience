@@ -2,10 +2,10 @@
 title: 'Introduction to Phylogenies and the Comparative Method'
 author: Sharon Jansa, Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares
 output:
+  pdf_document: default
   html_document: 
     theme: readable
     toc: yes
-  pdf_document: default
 ---
 
 In this lab, you will learn basic tools in R for visualizing phylogenies, optimizing ancestral states for a discrete and continuous characters, testing models of character evolution, and performing phylogenetic correction of a regression model. This lab is based in part on one designed by Luke Harmon for a workshop that he and others ran; the original can be seen here: http://lukejharmon.github.io/ilhabela/instruction/2015/07/03/PGLS/ There are many other useful labs in comprative analysis from that workshop that you can peruse at your leisure. http://lukejharmon.github.io/ilhabela/
@@ -28,7 +28,7 @@ packages <- c("ape", "geiger", "nlme", "phytools", "rr2")
 installed_packages <- packages %in% rownames(installed.packages())
 
 if (any(installed_packages == FALSE)) {
-  install.packages(packages[!installed_packages])
+  install.packages(packages[!installed_packages],dependencies=T)
 }
 ```
 
@@ -153,6 +153,7 @@ brownianModel <- fitContinuous(anoleTree, awe)
 brownianModel # this will show you the fit statistics and parameter values
 ```
 
+
 Here, you can see the estimates for ancestral state (z0), and the rate parameter ($\sigma^{2}$), as well as some measures of model fit. The fit of the model is determined using maximum likelihood, and expressed as a log likelihood. The higher the lnL, the more probable the data given the model. However, when comparing different models, we can't use the lnL, because it does not account for the difference in the number of parameters among models. Models with more parameters will always fit better, but do they fit significantly better? For example an OU model has 4 parameters (alpha [$\alpha$], theta [$\theta$], z0, and sigma-squared [$\sigma^{2}$]), so it should fit better than a BM model, which includes only z0 and sigsq. To account for this, statisticians have developed another measure of fit called the AIC (Akaike Information Criterion): **AIC = (2xN)-2xlnL**, where **N** is the number of parameters. This penalizes the likelihood score for adding parameters. When selecting among a set of models, the one with the lowest AIC is preferred. We will use this information later on in this lab.
 
 In addition to assessing model fit, we can use the Brownian Motion model to reconstruct ancestral states of a character on a tree. To visualize what BM evolution of this trait looks like on a tree. The *contMap()* command in phytools estimates ancestral states and plots them on a tree.
@@ -203,11 +204,10 @@ The coefficients table from the *summary()* command shows the slope and intercep
 Nice. But. We have not considered the fact that these lizards are related to each other. As such, they may share their hostility and awesomeness simply due to the fact that their ancestors were hostile or awesome. In other words, we need to account for non-independence of residuals due to phylogeny. One way to do that is to use phylogenetic-generalized-least-squares regression (PGLS)
 
 ```{r, eval = FALSE}
-pglsModel <- gls(awesomeness ~ hostility, data = anoleData, 
-                 correlation = corBrownian(phy = anoleTree), method = "ML")
+pglsModel <- gls(awe ~ host, correlation = corBrownian(phy = anoleTree, form=~names(awe)), method = "ML")
 ```
 
-Let's break this command down. This command infers a linear model for awesomeness as a function of hostility (gls(awesomness ~ hostility, data = anoleData)), but it specifies existing correlation structure in the data (correlation =) as the covariance of these traits assuming a Brownian motion model (corBrowinan()) based on the anolis tree (phy = anoleTree). The model is fit using maximum likelihood (method = "ML"). To see the results:
+Let's break this command down. This command infers a linear model for awesomeness as a function of hostility (gls(awe ~ host), but it specifies existing correlation structure in the data (correlation =) as the covariance of these traits assuming a Brownian motion model (corBrowinan()) based on the anolis tree (phy = anoleTree) and a correctly ordered list of taxon names (form=~names(awe)). The model is fit using maximum likelihood (method = "ML"). To see the results:
 
 ```{r, eval = FALSE}
 summary(pglsModel)
@@ -223,7 +223,7 @@ abline(a = coef(pglsModel)[1], b = coef(pglsModel)[2])
 
 *Write the linear model for this relationship. Are the parameters significantly different from 0?*
 
-*What is the R^2 value for this data?* 
+*What is the R^2 value for this data? (use the likelihood-based R^2 value)* 
 
 *How do you feel about that?* 
 
@@ -348,9 +348,6 @@ legend("bottomleft", fill = c("black", "red", "green", "blue"),
 *Are there any reversals?* 
 
 *Does a Jamaican ancestor ever move to Puerto Rico?* 
-
-*What is the ancestral island for the ancestor of A. distichus and A. evermanni?*
-
 
 
 
