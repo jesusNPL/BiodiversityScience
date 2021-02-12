@@ -2,10 +2,10 @@
 title: 'Introduction to Phylogenies and the Comparative Method'
 author: Sharon Jansa, Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares
 output:
-  pdf_document: default
   html_document: 
     theme: readable
     toc: yes
+  pdf_document: default
 ---
 
 In this lab, you will learn basic tools in R for visualizing phylogenies, optimizing ancestral states for a discrete and continuous characters, testing models of character evolution, and performing phylogenetic correction of a regression model. This lab is based in part on one designed by Luke Harmon for a workshop that he and others ran; the original can be seen here: http://lukejharmon.github.io/ilhabela/instruction/2015/07/03/PGLS/ There are many other useful labs in comprative analysis from that workshop that you can peruse at your leisure. http://lukejharmon.github.io/ilhabela/
@@ -204,7 +204,9 @@ The coefficients table from the *summary()* command shows the slope and intercep
 Nice. But. We have not considered the fact that these lizards are related to each other. As such, they may share their hostility and awesomeness simply due to the fact that their ancestors were hostile or awesome. In other words, we need to account for non-independence of residuals due to phylogeny. One way to do that is to use phylogenetic-generalized-least-squares regression (PGLS)
 
 ```{r, eval = FALSE}
-pglsModel <- gls(awe ~ host, correlation = corBrownian(phy = anoleTree, form=~names(awe)), method = "ML")
+pglsModel <- gls(awe ~ host, 
+                 correlation = corBrownian(phy = anoleTree, form=~names(awe)), 
+                 method = "ML")
 ```
 
 Let's break this command down. This command infers a linear model for awesomeness as a function of hostility (gls(awe ~ host), but it specifies existing correlation structure in the data (correlation =) as the covariance of these traits assuming a Brownian motion model (corBrowinan()) based on the anolis tree (phy = anoleTree) and a correctly ordered list of taxon names (form=~names(awe)). The model is fit using maximum likelihood (method = "ML"). To see the results:
@@ -280,9 +282,9 @@ You might want to know if these regressions really differ in their ability to pr
 
 ```{r, eval = FALSE}
 awehost.sum <- summary(lm_awehost)
-awehost.sum$coef[2, 1] + c(-1, 1)*awehost.sum$coef[2, 2]
+awehost.sum$coef[2, 1] + c(-1.96, 1.96)*awehost.sum$coef[2, 2]
 #for the uncorrected linear model
-coef(pglsModel)[2] + c(-1, 1)*sqrt(pglsModel$varBeta[2, 2])
+coef(pglsModel)[2] + c(-1.96, 1.96)*sqrt(pglsModel$varBeta[2, 2])
 #for Brownian Motion, the 95% CI
 ```
 
