@@ -320,7 +320,7 @@ EBModel</code></pre>
 <p><em>Make a table with the AIC and lnL values for each model. Which model provides the best fit for awesomeness?</em></p>
 <p><em>Now, add the results for a model fitting analysis of the Hostility trait to this table.</em></p>
 <p>So, we were wrong. An OU model fits these data better (and you should be able to explain how we know that). Unfortunately, a PGLS analysis with an OU model specified is currently computationally difficult. The best we can do is report the results from our model fitting analysis, and realize that the parameters from BM might not be the best fit.</p>
-<p>However, we can still test our hypothesis that hostile lizards are less awesome, and account for phylogeney when we do. First, we should compare the uncorrected linear model of awesomeness as a fuction of hostility vs the PGLS that uses the covariance structure of the residuals under a Browian Motion model.</p>
+<p>However, we can still test our hypothesis that hostile lizards are less awesome, and account for phylogeny when we do. First, we should compare the uncorrected linear model of awesomeness as a function of hostility vs the PGLS that uses the covariance structure of the residuals under a Brownian Motion model.</p>
 <pre class="r"><code>plot(host, awe, xlab = &quot;hostility&quot;, ylab = &quot;awesomeness&quot;, 
      main = &quot;Awesomeness as a Function of Hostility&quot;)
 abline(lm_awehost, lty = 2) #uncorrected LM
@@ -328,9 +328,9 @@ abline(a = coef(pglsModel)[1], b = coef(pglsModel)[2]) #BM
 legend(&quot;topright&quot;, lty = c(1, 2), legend = c(&quot;PGLS&quot;, &quot;uncorrected&quot;))</code></pre>
 <p>You might want to know if these regressions really differ in their ability to predict awesomeness from hostility. Asked in another way, are the slopes from these two regressions significantly different from each other? You need to know that a 95% confidence interval for the slope parameter is b (the slope) plus/minus 1.96 standard errors (this is derived from a normal distribution). To calculate your 95% confidence intervals:</p>
 <pre class="r"><code>awehost.sum &lt;- summary(lm_awehost)
-awehost.sum$coef[2, 1]+c(-1, 1)*awehost.sum$coef[2, 2]
+awehost.sum$coef[2, 1] + c(-1, 1)*awehost.sum$coef[2, 2]
 #for the uncorrected linear model
-coef(pglsModel)[2]+c(-1, 1)*sqrt(pglsModel$varBeta[2, 2])
+coef(pglsModel)[2] + c(-1, 1)*sqrt(pglsModel$varBeta[2, 2])
 #for Brownian Motion, the 95% CI</code></pre>
 <p><em>Did phylogenetic correction make a difference in this case?</em></p>
 <p><em>What do you conclude about the evolution of awesomeness as a function of hostility?</em></p>
