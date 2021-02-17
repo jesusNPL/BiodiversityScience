@@ -48,7 +48,7 @@ Set up a working directory and put the two data files in that directory. Tell R 
 setwd("path/for/your/directory")
 ```
 
-You can download the data directly on your computer by clicking [**HERE**](https://www.dropbox.com/s/mdfxwaak7dmvx89/anolis.phy?dl=0) and [**HERE**](https://www.dropbox.com/s/s0y4g5efavgewgf/anolisDataAppended.csv?dl=0) and store them in a folder named **Data"**.
+You can download the data directly on your computer by clicking [**HERE**](https://www.dropbox.com/s/mdfxwaak7dmvx89/anolis.phy?dl=0) and [**HERE**](https://www.dropbox.com/s/4x3nk1gwkcf35jn/anolisDataAppended.csv?dl=0) and store them in a folder named **Data"**.
 
 ```{r, eval = FALSE}
 anoleData <- read.csv("Data/anolisDataAppended.csv", row.names = 1)

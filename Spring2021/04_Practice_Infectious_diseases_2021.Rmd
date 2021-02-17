@@ -1,0 +1,293 @@
+---
+title: 'Intro to Infetious Diseases Modeling'
+author: Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares
+output:
+  html_document: 
+    theme: readable
+    toc: yes
+  pdf_document: default
+---
+# Short intro
+
+# Set up your data and your working directory
+
+Set up a working directory and put the data files in that directory. Tell R that this is the directory you will be using, and read in your data:
+
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
+setwd("path/for/your/directory")
+```
+
+Install and load the following packages
+
+```{r, eval=FALSE}
+packages <- c("coronavirus", "deSolve", "dplyr", "tidyr", "ggplot2") 
+```
+
+```{r, eval=FALSE}
+# Install packages not yet installed
+installed_packages <- packages %in% rownames(installed.packages())
+
+if (any(installed_packages == FALSE)) {
+  install.packages(packages[!installed_packages], dependencies = TRUE)
+}
+```
+
+Loading all packages at once using **lapply** function.
+
+```{r, eval = FALSE}
+lapply(packages, library, character.only = TRUE)
+
+```
+
+# *SIR* model basics
+
+SIR = **S**usceptible - **I**nfectious - **R**ecovered
+
+# Data preparation
+
+The first step to build our first ***SIR*** model is to get coronavirus data and to do that we will use data from the amazing R package {**coronarirus**} that provides a daily summary of **COVID-19** cases by state (provinces) obtained from the [Johns Hopkins University Center for Systems Science and Engineering (JHU CCSE) Coronavirus](https://systems.jhu.edu/research/public-health/ncov/). 
+
+```{r, eval = FALSE}
+data("coronavirus")
+```
+
+To to get the most updated dataset we can use the function **refresh_coronavirus_jhu()** and store the UPDATED data in our **Environment** as a new object named *corona*.
+
+```{r, eval = FALSE}
+corona <- refresh_coronavirus_jhu()
+```
+
+```{r, eval=FALSE}
+head(corona)
+```
+By looking at the corona dataset we can see that it has 9 columns with data for most of the countries in the world. To facilitate our analyses we need to isolate a portion of the data corresponding to a specific country, let's say the United States--you can select any other country if you wish.
+
+```{r, eval=FALSE}
+corona_us <- subset(corona, location == "US")
+head(corona_us)
+
+corona_us <- corona_us[order(corona_us$date), ] # sort the data according dates
+head(corona_us)
+```
+If we look at the US coronavirus data it contains information of the number of recovers (**R**), the number of new cases (**I**) and the the deaths. Let's isolate those data and inspect if there are some trends.
+
+```{r, eval=FALSE}
+infected_us <- subset(corona_us, data_type == "cases_new")
+deaths_us <- subset(corona_us, data_type == "deaths_new")
+recovered_us <- subset(corona_us, data_type == "recovered_new")
+
+head(infected_us)
+```
+
+```{r, eval=FALSE}
+plot(infected_us$date, infected_us$value, type = "b")
+```
+
+Ugh, ugly figure, let's try adding a new column that represent the data increasing since the first day in this dataset (i.e., 22/01/2020).
+
+```{r, eval=FALSE}
+Days <- 1:nrow(infected_us)
+infected_us <- data.frame(infected_us, Days)
+head(infected_us)
+```
+```{r, eval=FALSE}
+plot(infected_us$Days, infected_us$value, type = "b", 
+     ylab = "Infected", xlab = "Days since the first case")
+```
+
+We can see that there is trend in the number of confirmed Infected subjects since the first case registered in the US. 
+
+*How do you feel about that?*
+*Please explain the trend in a temporal way, in other words, the pikes in the number of cases match with the US holidays?*
+*What about the number of recovered subjects?*
+
+# SIR model 
+Now using the data from the US we will use the SIR model to predict the changes trends in the number of Infected cases. The basic idea of the SIR model is, in fact, quite simple, there are three groups of people: 
+
+1. Those who are healthy but susceptible to the disease (**S**), 
+2. the infected (**I**), 
+3. the recovered (**R**).
+    
+Using these three kind of data, we can model the dynamics of an outbreak. However, first of all we need to understand a little bit the *Math* behind the scenes. Jeannine provided a nice introduction to the math in her last lecture, but if you want to dig a little bit more you can watch this amazing video by Trevor Bazett [The MATH of Epidemics | Intro to the SIR Model](https://www.youtube.com/watch?v=Qrp40ck3WpI) on YouTube. But if you are still interested on this topic, the Book [**Epidemics: models and data using R**](https://www.springer.com/gp/book/9783319974866) can help you.
+
+Anyhow, let's recap a little bit how the maths work. To do that we need three *differential equations*, one for the change in each group, where $\beta$ (represent the infection rate) is the parameter that controls the transition between $S$ and $I$ and $\gamma$ (gamma) which controls the transition between $I$ and $R$, and represent the removal or recovery rate. 
+
+The first equation indicates that the number of susceptible subjects ($S$) decreases with the number of newly infected subjects. In other words, every new infected subject is the result of the infection rate ($\beta$) times the number of susceptible individuals ($S$) who had a contact with an infected subject ($I$).
+
+$$\frac{dS}{dt} = - \frac{\beta IS}{N}$$
+The second equation indicates that the number of infected subjects ($I$) increases as new infected individuals are added to the pool ($\beta IS$) minus the recovered subjects ($\gamma I$), where, $\gamma I$ is the removal rate $\gamma$ times the infected subjects $I$.
+
+
+$$\frac{dI}{dt} = \frac{\beta IS}{N} - \gamma I$$
+Finally, the third equation indicates that the number of recovered subjects $R$ increases with the number of subjects who either recovered or died ($\gamma I$).
+
+$$\frac{dR}{dt} = \gamma I$$
+Okay, we are almost there. But first let's see how an epidemic develops. 
+
+* Step zero - An outbreak starts when no subject in the population has anti-bodies, in other words, when $S$ (susceptible subjects) equal the entire population $N$.
+* Step one - Once one subject in the population get infected ($I$), this subject change the state from $S$ to $I$. Thus, $S$ decreases by **1** as new $I$ are added to the population. 
+* Step two - Each $I$ (before recovering or dying) in turn infect other subjects in the population.
+* Step three - The dynamic continues as newly $I$ subjects infect other $S$ subjects in the population before they recover (or died) or until some **Interventions** are applied (e.g., quarantine, wearing masks `r emo::ji("mask")`).
+* Step four - Vaccines are developed `r emo::ji("hooray")` `r emo::ji("hooray")`, so a counteract can be applied to reduce the number of $S$ or to increase the number of $R$.
+
+As we now understand how the $SIR$ model works, we can build an **R function** that allow us to model the dynamic of a disease. 
+
+```{r, eval=FALSE}
+
+SIR <- function(time, state, parameters) {
+  par <- as.list(c(state, parameters))
+  with(par, { 
+    dS <- -Beta * I * S / N # Equation one
+    dI <- Beta * I * S / N - Gamma * I # Equation two
+    dR <- Gamma * I # Equation three
+    list(c(dS, dI, dR)) 
+    })
+}
+
+```
+
+
+Now to fit the $SIR$ model to the data (US dataset) we need a ***solver*** and an ***optimizer***, why is that? Well, the $SIR$ model is an ***Ordinary Differential Equation*** (**ODE**), thus, a solver function is needed to help us to solve the equations. We will use the function "**ode**" of the package {**deSolve**} and the "**optim**" function of {**R base**} as an optimizer.
+
+More specifically, in order to solve the equations we need is to minimize the sum of the squared differences ($RSS$) between the number of $I$ subjects (infected) and time $t$--$I(t)$--and the number of predicted cases by our model, i.e., $\hat{I}(t)$:
+
+$$RSS(\beta, \gamma) = \sum_t \big(I(t) - \hat{I}(t) \big)^2$$
+
+Before start solving the $SIR$ model, let's write another function that allows the $RSS$ estimation.
+
+```{r, eval=FALSE}
+RSS <- function(parameters) {
+  names(parameters) <- c("Beta", "Gamma") 
+  out <- ode(y = init, times = Days, func = SIR, parms = parameters) 
+  # the out object includes the SIR function we wrote above
+  fit <- out[, 3] 
+  sum((Infected - fit)^2)
+}
+```
+
+
+Okay, we now have almost all information needed to fit our first $SIR$ model. The last information we need is to set of initial values for $N$ (population size), $S$, $I$ and $R$.
+
+
+```{r, eval=FALSE}
+N <- 328200000 # Total population of the United States (328.2 million)
+Infected <- infected_us$value # isolating the infected subjects in the US dataset
+Days <- infected_us$Days # Number of days since the first case
+```
+
+As we now know that the there are number of $I$ is decreasing, let's recreate the first 45 days of the COVID in the US. To do that, we will extract the first 45 values from the vectors Infected and Days, respectively.
+
+```{r, eval=FALSE}
+Infected_60 <- Infected[1:60]
+Days <- 1:(length(Infected_60))
+  
+init <- c(
+  S = N - Infected_60[1],
+  I = Infected_60[1],
+  R = 0
+)
+```
+
+Now we can combine all information and run our model. Using the information provided above, we can find the values of $\beta$ and $\gamma$ that give the smallest $RSS$ that represent the best fit to the data. Let's start exploring with values of **0.5** for each step and constrain those values to an interval from 0 to 1. 
+
+You can play with the initial values by changing the **c(0.5, 0.5)** to lower or higher values (e.g., 0.1 or 0.7), but remember, the estimates of $\beta$ and $\gamma$ will change. A nice post that explains in more detail the impact of changing the initial values can be found [HERE](https://blog.ephorie.de/contagiousness-of-covid-19-part-i-improvements-of-mathematical-fitting-guest-post).
+
+
+```{r, eval = FALSE}
+Opt <- optim(c(0.5, 0.5),
+  RSS,
+  method = "L-BFGS-B",
+  lower = c(0, 0),
+  upper = c(1, 1)
+)
+```
+
+Check if the model converged.
+
+```{r, eval = FALSE}
+# optimize with some sensible conditions
+Opt$message
+
+# [1] "CONVERGENCE: REL_REDUCTION_OF_F <= FACTR*EPSMCH"
+```
+
+From the optimized model we can obtain the $\beta$ and $\gamma$ values, and remember, these values controls for the transition between $S$ (susceptible) and $I$ (infectious) and $I$ and $R$ (recovered), respectively.
+
+```{r, eval=FALSE}
+Opt_par <- setNames(Opt$par, c("Beta", "Gamma"))
+Opt_par
+```
+
+
+```{r}
+# get the fitted values from our SIR model
+fit_incidence <- data.frame(ode(
+  y = init, times = Days,
+  func = SIR, parms = Opt_par
+))
+
+head(fit_incidence)
+tail(fit_incidence)
+```
+
+
+```{r}
+matplot(fit_incidence$time, fit_incidence$I, 
+        type = "l", log = "y", 
+        xlab = "Days", ylab = "Number of subjects", 
+        lwd = 2, lty = 1)
+points(Days, Infected_60)
+
+```
+
+
+The obtained $\beta$ and $\gamma$ values will be used to estimate the number of each compartment of our $SIR$ model up to 100 days after the first case in the US.
+
+```{r, eval=FALSE}
+times <- 1:150 # time in days
+
+fit_100 <- data.frame(ode( 
+  y = init, times = times, 
+  func = SIR, parms = Opt_par))
+
+head(fit)
+tail(fit)
+```
+
+To better explore the data, let's make some figures that allow us to see what happened the 100 days of the pandemic in the US.
+
+```{r, eval=FALSE}
+cols <- 1:3 # colors: black = susceptible, red = infected and green = recovered
+```
+
+```{r, eval=FALSE}
+matplot(fit_100$time, fit_100[, 2:4], type = "l", 
+        xlab = "Days", ylab = "Number of subjects", 
+        lwd = 2, lty = 1, col = cols)
+legend("left", c("Susceptible", "Infected", "Recovered"), 
+       lty = 1, lwd = 2, col = cols, inset = 0.05)
+```
+
+*How do you feel about that?*
+*Please explain the trend of each compartment in a temporal way?*
+
+```{r, eval=FALSE}
+matplot(fit_100$time, fit_100[ , 2:4], type = "l", 
+        xlab = "Days", ylab = "Number of subjects", 
+        lwd = 2, lty = 1, col = cols, log = "y")
+## Warning in xy.coords(x, y, xlabel, ylabel, log = log): 1 y value <= 0
+## omitted from logarithmic plot
+
+points(Days, Infected_60)
+legend("bottomright", c("Susceptible", "Infected", "Recovered"), 
+       lty = 1, lwd = 2, col = cols, inset = 0.05)
+title("SIR model 2019-nCoV United States", outer = TRUE, line = -2)
+
+```
+
+
+
+
+
+We see in the right log-linear plot that the model seems to fit the values quite well. We can now extract some interesting statistics. One important number is the so-called basic reproduction number (also basic reproduction ratio) R_0 (pronounced “R naught”) which basically shows how many healthy people get infected by a sick person on average:
+
