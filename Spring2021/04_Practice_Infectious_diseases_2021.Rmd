@@ -2,14 +2,11 @@
 title: 'Intro to Infetious Diseases'
 author: Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares
 output:
-  pdf_document: default
   html_document: 
     theme: readable
     toc: yes
+  pdf_document: default
 ---
-# Short intro
-
-Here add an INTRO
 
 # Set up your data and your working directory
 
@@ -142,7 +139,7 @@ plot(infected_us$Days, infected_us$value, type = "b",
      ylab = "Infected", xlab = "Days since the first case")
 ```
 
-We can see that there is trend in the number of confirmed Infected subjects since the first case registered in the US, happily, the number of reported cases are declining steadily.
+We can see that there is trend in the number of confirmed Infected subjects since the first case registered in the US, happily, the number of reported cases are declining steadily since mid-January.
 
 *How do you feel about that?*
 *Please explain the trend in a temporal way, in other words, the pikes in the number of cases match with the US holidays?*
@@ -160,9 +157,19 @@ url_data <- "https://data.cdc.gov/api/views/9mfq-cb36/rows.csv?accessType=DOWNLO
 
 covid_us <- read.csv(url_data)
 
-head(corona_us, 10)
+head(covid_us, 10)
 ```
-Let's clean the data a little bit 
+Let's explore the data and clean it little bit.
+
+```{r, eval=FALSE}
+covid_us %>% 
+  arrange(state) %>% 
+  ggplot(aes(y = state, x = tot_cases)) + 
+  geom_bar(stat = "identity") + 
+  labs(x = "Number of cases", y = "Reported cases by State")
+```
+
+Let's reformat the dates and order the data in an ascending order.
 
 ```{r, eval=FALSE}
 covid_us <- covid_us %>% 
@@ -187,8 +194,26 @@ head(covid_mn)
 Now we can explore the data in a similar way we did for the entire United States.
 
 ```{r, eval=FALSE}
+plot(1:nrow(covid_mn), covid_mn$new_case, type = "b", 
+     ylab = "Infected Subjects", xlab = "Days since the pandemic started")
+```
+
+We can see that there are some days that no cases were reported, however, it looks like follows the same pattern as the entire United States.
+
+Let's see what happens if we plot the cumulative number of cases. 
+
+```{r, eval=FALSE}
 plot(1:nrow(covid_mn), covid_mn$tot_cases, type = "b", 
-     ylab = "Infected", xlab = "Days since the pandemic started")
+     ylab = "Total Infected Subjects", xlab = "Days since the pandemic started")
+```
+
+It look like the after a year the cumulative number of cases is reaching a plateau. 
+
+We can also see the number of deaths caused by COVID-19 in the state of Minnesota.
+
+```{r, eval=FALSE}
+plot(1:nrow(covid_mn), abs(covid_mn$new_death), type = "b", 
+     ylab = "Number of Deaths", xlab = "Days since the pandemic started")
 ```
 
 ## Modeling SIR 
@@ -199,20 +224,23 @@ Now using the data from the US we will fit the SIR model to predict the changes 
 2. the infected (**I**), 
 3. the recovered (**R**).
     
-Then, these compartments in turn are used to can model the dynamics of an outbreak. However, first of all we need to understand a little bit the *Math* behind the scenes. Jeannine provided a nice introduction to the math in her last lecture, but if you want to dig a little bit more you can watch this amazing video by Trevor Bazett [The MATH of Epidemics | Intro to the SIR Model](https://www.youtube.com/watch?v=Qrp40ck3WpI) on YouTube. But, if you want to learn more details on this topic, the Book [**Epidemics: models and data using R**](https://www.springer.com/gp/book/9783319974866) can help you.
+Then, these compartments in turn are used to model the dynamics of an outbreak. However, first of all we need to understand a little bit the *Math* behind the scenes. Jeannine provided a nice introduction to the math in her last lecture, but if you want to dig a little bit more you can watch this amazing video by Trevor Bazett [The MATH of Epidemics | Intro to the SIR Model](https://www.youtube.com/watch?v=Qrp40ck3WpI) on YouTube. But, if you want to learn more details on this topic, the Book [**Epidemics: models and data using R**](https://www.springer.com/gp/book/9783319974866) can help you.
 
-Anyhow, let's recap a little bit how the math works. To do that, we need three *differential equations*, one for the change in each group or compartment, where $\beta$ (represent the infection rate) is the parameter that controls the transition between $S$ and $I$ and $\gamma$ (gamma) which controls the transition between $I$ and $R$, represents the removal or recovery rate. 
+Anyhow, let's recap a little bit how the math works. To do that, we need three *differential equations*, one for the change in each group or compartment, where $\beta$ (represent the infection rate) is the parameter that controls the transition between $S$ and $I$ and $\gamma$ (gamma) which controls the transition between $I$ and $R$, and represents the removal or recovery rate. 
 
 The first equation indicates that the number of susceptible subjects ($S$) decreases with the number of newly infected subjects. In other words, every new infected subject is the result of the infection rate ($\beta$) times the number of susceptible individuals ($S$) who had a contact with an infected subject ($I$).
 
 $$\frac{dS}{dt} = - \frac{\beta IS}{N}$$
+
 The second equation indicates that the number of infected subjects ($I$) increases as new infected individuals are added to the pool ($\beta IS$) minus the recovered subjects ($\gamma I$), where, $\gamma I$ is the removal rate $\gamma$ times the infected subjects $I$.
 
 
-$$\frac{dI}{dt} = \frac{\beta IS}{N} - \gamma I$$
+$$\frac{dI}{dt} = \frac{\beta IS}{N} - \gamma I$$ 
+
 Finally, the third equation indicates that the number of recovered subjects $R$ increases with the number of subjects who either recovered or died ($\gamma I$).
 
 $$\frac{dR}{dt} = \gamma I$$
+
 Okay, we are almost there. But first let's see how an epidemic develops. 
 
 * Step zero - An outbreak starts when no subject in the population has anti-bodies, in other words, when $S$ (susceptible subjects) equal the entire population $N$.
@@ -238,9 +266,9 @@ SIR <- function(time, state, parameters) {
 ```
 
 
-Now to fit the $SIR$ model to the data (US dataset) we need a ***solver*** and an ***optimizer***, why is that? Well, the $SIR$ model is an ***Ordinary Differential Equation*** (**ODE**), thus, a solver function is needed to help us to solve the equations. We will use the function "**ode**" of the package {**deSolve**} and the "**optim**" function of {**R base**} as an optimizer.
+Now to fit the $SIR$ model to the data (Minnesota dataset) we need a ***solver*** and an ***optimizer***, why is that? Well, the $SIR$ model is an ***Ordinary Differential Equation*** (**ODE**), thus, a solver function is needed to help us to solve the equations. We will use the function "**ode**" of the package {**deSolve**} and the "**optim**" function of {**R base**} as an optimizer.
 
-More specifically, in order to solve the equations what we need is to minimize the sum of the squared differences ($RSS$) between the number of $I$ subjects (infected) and time $t$--$I(t)$--and the number of predicted cases by our model, i.e., $\hat{I}(t)$:
+More specifically, in order to solve the equations we need is to minimize the sum of the squared differences ($RSS$) between the number of $I$ subjects (infected) and time $t$--$I(t)$--and the number of predicted cases by our model, i.e., $\hat{I}(t)$:
 
 $$RSS(\beta, \gamma) = \sum_t \big(I(t) - \hat{I}(t) \big)^2$$
 
@@ -259,39 +287,43 @@ RSS <- function(parameters) {
 
 Okay, we now have almost all information needed to fit our first $SIR$ model. The last information we need is to set of initial values for $N$ (population size), $S$, $I$ and $R$.
 
-By observing the trend in the number of cases for MN, we can see that the first record of infected subject was in March 06 2020, so, let's set that day as a starting point for our $SIR$ model. Moreover, as more than a year has passed since the pandemic started, the variability in the number of cases in very huge, so let's select the first 30 days of cases to fit our model and then using the fitted model to predict for the next couple of months.
+By observing the trend in the number of cases for MN, we can see that the first record of infected subject was in **March 06 2020** (you can double check to confirm that date), so, let's set that day as a starting point for our $SIR$ model. Moreover, as more than a year has passed since the pandemic started, the variability in the number of cases in very huge, so let's select the first 60 days of cases to fit our model and then using the fitted model to predict for the next couple of months.
 
 ```{r, eval=FALSE}
 N <- 5686649 # Total population for the State of Minnesota for the 2020
 
 start_date <- "2020-03-06"
-end_date <- "2020-04-10"
+end_date <- "2020-05-10"
 
-# isolating the infected subjects in the state of Minnesota
-Infected <- subset(covid_mn, Date2 >= ymd(start_date) & Date2 <= ymd(end_date))$tot_cases
+# isolating the infected subjects in the state of Minnesota since the start date
+Infected <- subset(covid_mn, Date2 >= ymd(start_date) & Date2 <= ymd(end_date))$new_case
 
 Days <- 1:length(Infected) # Number of days since the first case
 ```
+
+Let's plot this data and see how it looks.
 
 ```{r, eval=FALSE}
 plot(Days, Infected, type = "b")
 ```
 
+Same figure but in log format.
+
 ```{r, eval=FALSE}
 plot(Days, Infected, log = "y")
-abline(lm(log10(Infected) ~ Days))
-title("Confirmed Cases 2019-nCoV in MN, first 30 days", outer = TRUE, line = -2)
+#abline(lm(log10(Infected) ~ Days))
+title("Confirmed Cases 2019-nCoV in MN, first 60 days", outer = TRUE, line = -2)
 ```
 
 We can see that the confirmed cases in Minnesota were increasing rapidly since the first case of COVID-19 was reported.
 
-As we now know that the number of $I$ were increasing during the first days of the pandemic, let's model de dynamic of COVID-19 during that period of time.
+As we now know that the number of $I$ were increasing during the first days of the pandemic, let's model de dynamic of COVID-19 during that period of time. Why we selected that period of time and not all data? Well, the main reason is that this kind of models are used to explore the first stages of a disease in order to identify if the disease has the potential to become a pandemic and to approximate its reproductive ratio $R_0$.
 
 ```{r, eval=FALSE}
 init <- c(
   S = N - Infected[1], # Susceptible group
   I = Infected[1], # Infected group
-  R = 0 # Recovered group
+  R = 0 # Recovered group.
 )
 ```
 
@@ -318,6 +350,8 @@ Opt$message
 # [1] "CONVERGENCE: REL_REDUCTION_OF_F <= FACTR*EPSMCH"
 ```
 
+Yay! our model show convergence.
+
 From the optimized model we can obtain the $\beta$ and $\gamma$ values, and remember, these values controls for the transition between $S$ (susceptible) and $I$ (infectious) and $I$ and $R$ (recovered), respectively.
 
 ```{r, eval=FALSE}
@@ -325,7 +359,7 @@ Opt_par <- setNames(Opt$par, c("Beta", "Gamma"))
 Opt_par
 ```
 
-Now using the fitted $\beta$ and $\gamma$ values, we can see if our model recovers the observed trend in the US.
+Now using the fitted $\beta$ and $\gamma$ values, we can see if our model recovers the observed trend in the state of Minnesota for the first two months since the first positive $I$ case was reported.
 
 ```{r, eval=FALSE}
 # get the fitted values from our SIR model
@@ -338,7 +372,7 @@ head(fit_incidence)
 tail(fit_incidence)
 ```
 
-Let's plot the estimated $I$ over the 30 days. We will use a kind of plot named **semi-log plot**, this plot allow us the read the difference between the expected (fitted) and observed number of confirmed cases over time.
+Let's plot the estimated $I$ over the first two months. We will use a kind of plot named **semi-log plot**, this plot allow us the read the difference between the expected (fitted) and observed number of confirmed cases over time.
 
 ```{r, eval=FALSE}
 matplot(fit_incidence$time, fit_incidence$I, 
@@ -349,7 +383,7 @@ points(Days, Infected)
 
 ```
 
-Hmmm, looks like the fitted model (despite it converged well) does not accurately recover the number of infected cases in the Minnesota, in fact, it tend to underestimate the number of cases, although we can see an steady increment on the number of cases since the first detected case. 
+Hmmm, looks like the fitted model does recover the number of infected cases in the Minnesota. However, although seems that the model tend to underestimate the number of reported cases, we can see an steady increment on the number of cases since the first reported case. 
 
 *How do you feel about that?*
 *Do you see any other interested pattern? If so, please explain*
@@ -359,45 +393,49 @@ Hmmm, looks like the fitted model (despite it converged well) does not accuratel
 Although our SIR model does not fit the observed data accurately, we can still use it to estimate the basic reproduction number $R_0$ (AKA reproductive ratio). The $R_0$ give us an approximate estimation of how many $S$ subjects get infected by a sick subject ($I$) on average. To calculate $R_0$ we just need to obtain the ratio between $\beta$ and $\gamma$: 
 
 $$R_0 = \frac{\beta}{\gamma}$$
+
 ```{r, eval=FALSE}
 R0 <- setNames(Opt_par["Beta"] / Opt_par["Gamma"], "R0")
 round(R0, 3)
 ```
 
-The estimated $R_0$ is 1.549 which suggests that for every sick subject 1.5 subjects can get infected by COVID-19. This value is lower when compared to other diseases and even lower than the estimated $R_0$ for COVID-19 in the literature that ranges between 2.5 and 3. One potential explanation for this low $R_0$ can be due the fact the first 30 days, the number of observed cases were very low when compared with the large population size ($N$) in the state of Minnesota.
+The estimated $R_0$ is 1.232 which suggests that for every sick subject 1.2 subjects can get infected by COVID-19. This value is lower when compared to other diseases and even lower than the estimated $R_0$ for COVID-19 in the literature that ranges between 2.5 and 3. One potential explanation for this low $R_0$ can be due the fact the first 60 days, the number of observed cases were very low when compared with the large population size ($N$) in the state of Minnesota. 
+
+Another reason could be that the number of reported cases of COVID-19 in US are not true, in other words, the reported cases are lower than the true cases (**Wu et al. 2020**). This is critical when we are constructing any kind of model, as potentially we would be facing the **GIGO** metaphor--*garbage-in, garbage-out*--that indicates that if the data used in a model are not reliable, then the results are not useful. In other words, you can be using the best mathematical model ever constructed, but if your data is not reliable or coherent, then your results are not useful (are garbage).
 
 ## Evaluating the outbreak under no intervention
 
-To fit our model we used the first 30 days since the first reported case, now let's explore what would happen if no public intervention (i.e., quarantine) was applied. Here, using the fitted model we will extrapolate up to 90 days
+To fit our model we used data of the first two months since the first reported case, now let's explore what would it happen if no public intervention (i.e., quarantine) was applied. Here, using the fitted model we will extrapolate up to 150 days
 
 ```{r, eval=FALSE}
-times <- 1:90 # time in days
+times <- 1:150 # time in days
 
-fit_90 <- data.frame(ode( 
+fit_150 <- data.frame(ode( 
   y = init, times = times, 
   func = SIR, parms = Opt_par))
 
-head(fit_90)
-tail(fit_90)
+head(fit_150)
+tail(fit_150)
 ```
 
-To better explore the data, let's make some figures that allow us to see what happened the first 90 days of the pandemic in the state of Minnesota.
+To better explore the data, let's make some figures that allow us to see what would happened the first 150 days of the pandemic in the state of Minnesota in a hypothetical case of no intervention.
 
 ```{r, eval=FALSE}
 cols <- 1:3 # colors: black = susceptible, red = infected and green = recovered
 ```
 
 ```{r, eval=FALSE}
-matplot(fit_90$time, fit_90[, 2:4], type = "l", 
+matplot(fit_150$time, fit_150[, 2:4], type = "l", 
         xlab = "Days", ylab = "Number of subjects", 
         lwd = 2, lty = 1, col = cols)
 legend("left", c("Susceptible", "Infected", "Recovered"), 
        lty = 1, lwd = 2, col = cols, inset = 0.05)
 ```
+
 Same figure but in log scale and adding the observed cases
 
 ```{r, eval=FALSE}
-matplot(fit_90$time, fit_90[ , 2:4], type = "l", 
+matplot(fit_150$time, fit_150[ , 2:4], type = "l", 
         xlab = "Days", ylab = "Number of subjects", 
         lwd = 2, lty = 1, col = cols, log = "y")
 ## Warning in xy.coords(x, y, xlabel, ylabel, log = log): 1 y value <= 0
@@ -438,6 +476,8 @@ The challenge for this assignment is to repeat the process by selecting other st
 
 # References
 
-Bjørnstad, O. N. (2018). Epidemics. Use R! doi:10.1007/978-3-319-97487-3
+Bjørnstad, O. N. (2018). Epidemics: models and data using R. doi:10.1007/978-3-319-97487-3
+
+Wu, S. L., Mertens, A. N., Crider, Y. S., Nguyen, A., Pokpongkiat, N. N., Djajadi, S., … Benjamin-Chung, J. (2020). Substantial underestimation of SARS-CoV-2 infection in the United States. Nature Communications, 11(1). doi:10.1038/s41467-020-18272-4
 
 That's all!
