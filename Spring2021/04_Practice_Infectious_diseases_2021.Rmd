@@ -1,11 +1,11 @@
 ---
-title: 'Intro to Infetious Diseases'
+title: 'Intro to Infectious Diseases'
 author: Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares
 output:
-  pdf_document: default
   html_document: 
     theme: readable
     toc: yes
+  pdf_document: default
 ---
 
 Today we will have one more lab and will explore basic aspects of models for Spread of Disease or Compartmental models that are used to simplify the mathematical modeling of infectious diseases, more specifically, we will explore the basic $SIR$ (Susceptible, Infectious, Recovered) model that is used to predict disease spreads, the total number of infected subjects of the duration of a pandemic. To do so, we will use real data obtained from the [**Centers for Disease Control and Prevention**](https://www.cdc.gov) that reports aggregate counts of COVID-19 at State level for the United States. 
