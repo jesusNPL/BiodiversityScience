@@ -214,11 +214,14 @@ summary {
 </ul>
 </div>
 
+<p>Today we will have one more lab and will explore basic aspects of models for Spread of Disease or Compartmental models that are used to simplify the mathematical modeling of infectious diseases, more specifically, we will explore the basic <span class="math inline">\(SIR\)</span> (Susceptible, Infectious, Recovered) model that is used to predict disease spreads, the total number of infected subjects of the duration of a pandemic. To do so, we will use real data obtained from the <a href="https://www.cdc.gov"><strong>Centers for Disease Control and Prevention</strong></a> that reports aggregate counts of COVID-19 at State level for the United States.</p>
+<p>Before starting the lab let’s set some groups to read and discuss this interesting piece published this last Saturday in the New York Times and that entitled <a href="https://www.nytimes.com/interactive/2021/02/20/us/us-herd-immunity-covid.html">When Could the United States Reach Herd Immunity? It’s Complicated</a> and that is related to this amazing paper published in the <strong>American Journal of Preventive Medicine</strong> that entitles <a href="https://www.ajpmonline.org/article/S0749-3797(20)30284-1/abstract">Vaccine Efficacy Needed for a COVID-19 Coronavirus Vaccine to Prevent or Stop an Epidemic as the Sole Intervention</a>. Another nice paper to understand the <strong>herd immunity</strong> concept was published in <strong>Current Biology</strong>, you can get access to that conceptual paper by clicking <a href="https://www.cell.com/current-biology/fulltext/S0960-9822(21)00039-7">HERE</a>.</p>
 <div id="set-up-your-data-and-your-working-directory" class="section level1">
 <h1>Set up your data and your working directory</h1>
 <pre class="r"><code>setwd(&quot;path/for/your/directory&quot;)</code></pre>
 <p>Install and load the following packages</p>
-<pre class="r"><code>packages &lt;- c(&quot;coronavirus&quot;, &quot;deSolve&quot;, &quot;dplyr&quot;, &quot;tidyr&quot;, &quot;ggplot2&quot;, &quot;lubridate&quot;) </code></pre>
+<pre class="r"><code>packages &lt;- c(&quot;coronavirus&quot;, &quot;deSolve&quot;, &quot;dplyr&quot;, &quot;tidyr&quot;, &quot;ggplot2&quot;, &quot;lubridate&quot;, 
+              &quot;phytools&quot;, &quot;ape&quot;, &quot;phangorn&quot;) </code></pre>
 <pre class="r"><code># Install packages not yet installed
 installed_packages &lt;- packages %in% rownames(installed.packages())
 
@@ -287,7 +290,7 @@ infected_us &lt;- data.frame(infected_us, Days)
 head(infected_us)</code></pre>
 <pre class="r"><code>plot(infected_us$Days, infected_us$value, type = &quot;b&quot;, 
      ylab = &quot;Infected&quot;, xlab = &quot;Days since the first case&quot;)</code></pre>
-<p>We can see that there is trend in the number of confirmed Infected subjects since the first case registered in the US, happily, the number of reported cases are declining steadily since mid-January.</p>
+<p>We can see that there is trend in the number of confirmed Infected subjects since the first case registered in the US, happily, the number of reported cases are declining steadily since mid-January. This is really good news! If you want to explore with more detail these dynamics in the United Sates the website <a href="https://covid19-explorer.org"><strong>covid19.Explorer</strong></a> developed by Liam Revell can help you. This website is accompanied with a nice <a href="https://www.medrxiv.org/content/10.1101/2021.02.15.21251782v1">pre-print paper</a> in which Liam explains the methodology he used to arrange and visualize the data.</p>
 <p><em>How do you feel about that?</em> <em>Please explain the trend in a temporal way, in other words, the pikes in the number of cases match with the US holidays?</em> <em>What about the number of recovered subjects?</em></p>
 </div>
 <div id="sir-model" class="section level1">
@@ -440,7 +443,7 @@ points(Days, Infected)</code></pre>
 </div>
 <div id="reproduction-number-r_0-r-naught" class="section level2">
 <h2>Reproduction number <span class="math inline">\(R_0\)</span> (R naught)</h2>
-<p>Although our SIR model does not fit the observed data accurately, we can still use it to estimate the basic reproduction number <span class="math inline">\(R_0\)</span> (AKA reproductive ratio). The <span class="math inline">\(R_0\)</span> give us an approximate estimation of how many <span class="math inline">\(S\)</span> subjects get infected by a sick subject (<span class="math inline">\(I\)</span>) on average. To calculate <span class="math inline">\(R_0\)</span> we just need to obtain the ratio between <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\gamma\)</span>:</p>
+<p>Although our SIR model does not fit the observed data accurately, we can still use it to estimate the basic reproduction number <span class="math inline">\(R_0\)</span> (AKA reproductive ratio). The <span class="math inline">\(R_0\)</span> give us an approximate estimation of how many <span class="math inline">\(S\)</span> subjects get infected by a sick subject (<span class="math inline">\(I\)</span>) on average–i.e., the transmission probability per contact (Ashby &amp; Best 2021). Importantly, <span class="math inline">\(R_0\)</span> is not a fixed value and can vary over time and between populations. To calculate <span class="math inline">\(R_0\)</span> we just need to obtain the ratio between <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\gamma\)</span>:</p>
 <p><span class="math display">\[R_0 = \frac{\beta}{\gamma}\]</span></p>
 <pre class="r"><code>R0 &lt;- setNames(Opt_par[&quot;Beta&quot;] / Opt_par[&quot;Gamma&quot;], &quot;R0&quot;)
 round(R0, 3)</code></pre>
@@ -502,7 +505,10 @@ fit_incidence[fit_incidence$I == max(fit_incidence$I), c(&quot;time&quot;, &quot
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>
+<p>Ashby, B., &amp; Best, A. (2021). Herd immunity. Current Biology. <a href="doi:10.1016/j.cub.2021.01.006" class="uri">doi:10.1016/j.cub.2021.01.006</a></p>
+<p>Bartsch, S. M., O’Shea, K. J., Ferguson, M. C., Bottazzi, M. E., Wedlock, P. T., Strych, U., … Lee, B. Y. (2020). Vaccine Efficacy Needed for a COVID-19 Coronavirus Vaccine to Prevent or Stop an Epidemic as the Sole Intervention. American Journal of Preventive Medicine, 59(4), 493–503. <a href="doi:10.1016/j.amepre.2020.06.011" class="uri">doi:10.1016/j.amepre.2020.06.011</a></p>
 <p>Bjørnstad, O. N. (2018). Epidemics: models and data using R. <a href="doi:10.1007/978-3-319-97487-3" class="uri">doi:10.1007/978-3-319-97487-3</a></p>
+<p>Revell, L. J. (2021). covid19.Explorer: A web application and R package to explore United States COVID-19 data. <a href="doi:10.1101/2021.02.15.21251782" class="uri">doi:10.1101/2021.02.15.21251782</a></p>
 <p>Wu, S. L., Mertens, A. N., Crider, Y. S., Nguyen, A., Pokpongkiat, N. N., Djajadi, S., … Benjamin-Chung, J. (2020). Substantial underestimation of SARS-CoV-2 infection in the United States. Nature Communications, 11(1). <a href="doi:10.1038/s41467-020-18272-4" class="uri">doi:10.1038/s41467-020-18272-4</a></p>
 <p>That’s all!</p>
 </div>

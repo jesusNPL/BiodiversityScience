@@ -2,11 +2,15 @@
 title: 'Intro to Infetious Diseases'
 author: Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares
 output:
+  pdf_document: default
   html_document: 
     theme: readable
     toc: yes
-  pdf_document: default
 ---
+
+Today we will have one more lab and will explore basic aspects of models for Spread of Disease or Compartmental models that are used to simplify the mathematical modeling of infectious diseases, more specifically, we will explore the basic $SIR$ (Susceptible, Infectious, Recovered) model that is used to predict disease spreads, the total number of infected subjects of the duration of a pandemic. To do so, we will use real data obtained from the [**Centers for Disease Control and Prevention**](https://www.cdc.gov) that reports aggregate counts of COVID-19 at State level for the United States. 
+
+Before starting the lab let's set some groups to read and discuss this interesting piece published this last Saturday in the New York Times and that entitled [When Could the United States Reach Herd Immunity? It’s Complicated](https://www.nytimes.com/interactive/2021/02/20/us/us-herd-immunity-covid.html) and that is related to this amazing paper published in the **American Journal of Preventive Medicine** that entitles [Vaccine Efficacy Needed for a COVID-19 Coronavirus Vaccine to Prevent or Stop an Epidemic as the Sole Intervention](https://www.ajpmonline.org/article/S0749-3797(20)30284-1/abstract). Another nice paper to understand the **herd immunity** concept was published in **Current Biology**, you can get access to that conceptual paper by clicking [HERE](https://www.cell.com/current-biology/fulltext/S0960-9822(21)00039-7).
 
 # Set up your data and your working directory
 
@@ -17,7 +21,8 @@ setwd("path/for/your/directory")
 Install and load the following packages
 
 ```{r, eval=FALSE}
-packages <- c("coronavirus", "deSolve", "dplyr", "tidyr", "ggplot2", "lubridate") 
+packages <- c("coronavirus", "deSolve", "dplyr", "tidyr", "ggplot2", "lubridate", 
+              "phytools", "ape", "phangorn") 
 ```
 
 ```{r, eval=FALSE}
@@ -139,7 +144,7 @@ plot(infected_us$Days, infected_us$value, type = "b",
      ylab = "Infected", xlab = "Days since the first case")
 ```
 
-We can see that there is trend in the number of confirmed Infected subjects since the first case registered in the US, happily, the number of reported cases are declining steadily since mid-January.
+We can see that there is trend in the number of confirmed Infected subjects since the first case registered in the US, happily, the number of reported cases are declining steadily since mid-January. This is really good news! If you want to explore with more detail these dynamics in the United Sates the website [**covid19.Explorer**](https://covid19-explorer.org) developed by Liam Revell can help you. This website is accompanied with a nice [pre-print paper](https://www.medrxiv.org/content/10.1101/2021.02.15.21251782v1) in which Liam explains the methodology he used to arrange and visualize the data.
 
 *How do you feel about that?*
 *Please explain the trend in a temporal way, in other words, the pikes in the number of cases match with the US holidays?*
@@ -390,7 +395,7 @@ Hmmm, looks like the fitted model does recover the number of infected cases in t
 
 ## Reproduction number $R_0$ (R naught)
 
-Although our SIR model does not fit the observed data accurately, we can still use it to estimate the basic reproduction number $R_0$ (AKA reproductive ratio). The $R_0$ give us an approximate estimation of how many $S$ subjects get infected by a sick subject ($I$) on average. To calculate $R_0$ we just need to obtain the ratio between $\beta$ and $\gamma$: 
+Although our SIR model does not fit the observed data accurately, we can still use it to estimate the basic reproduction number $R_0$ (AKA reproductive ratio). The $R_0$ give us an approximate estimation of how many $S$ subjects get infected by a sick subject ($I$) on average--i.e., the transmission probability per contact (Ashby & Best 2021). Importantly, $R_0$ is not a fixed value and can vary over time and between populations. To calculate $R_0$ we just need to obtain the ratio between $\beta$ and $\gamma$: 
 
 $$R_0 = \frac{\beta}{\gamma}$$
 
@@ -476,7 +481,13 @@ The challenge for this assignment is to repeat the process by selecting other st
 
 # References
 
+Ashby, B., & Best, A. (2021). Herd immunity. Current Biology. doi:10.1016/j.cub.2021.01.006
+
+Bartsch, S. M., O’Shea, K. J., Ferguson, M. C., Bottazzi, M. E., Wedlock, P. T., Strych, U., … Lee, B. Y. (2020). Vaccine Efficacy Needed for a COVID-19 Coronavirus Vaccine to Prevent or Stop an Epidemic as the Sole Intervention. American Journal of Preventive Medicine, 59(4), 493–503. doi:10.1016/j.amepre.2020.06.011
+
 Bjørnstad, O. N. (2018). Epidemics: models and data using R. doi:10.1007/978-3-319-97487-3
+
+Revell, L. J. (2021). covid19.Explorer: A web application and R package to explore United States COVID-19 data. doi:10.1101/2021.02.15.21251782
 
 Wu, S. L., Mertens, A. N., Crider, Y. S., Nguyen, A., Pokpongkiat, N. N., Djajadi, S., … Benjamin-Chung, J. (2020). Substantial underestimation of SARS-CoV-2 infection in the United States. Nature Communications, 11(1). doi:10.1038/s41467-020-18272-4
 

@@ -224,7 +224,7 @@ Now using the empty raster we will **rasterize** the species identities in each 
 
 ```{r, eval = FALSE}
 f_sr_raster <- rasterize(franges, neo_ras, field = "SCINAME", 
-                         fun = function(x,...){length(unique(na.omit(x)))})
+                         fun = function(x, ...){length(unique(na.omit(x)))})
 # this will take a while (~30 secs in Jesús's computer), please be patient.
 ```
 
