@@ -2,15 +2,15 @@
 title: 'Measuring phylogenetic diversity within communities'
 author: Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares
 output:
-  pdf_document: default
   html_document: 
     theme: readable
     toc: yes
+  pdf_document: default
 ---
 
 The main goal of this practice is to present basic understanding about measuring phylogenetic diversity within communities or best known as the analysis of community phylogenetics. The community phylogenetics integrates ecological and evolutionary concepts and explores the mechanisms (e.g., biotic interactions or environmental filters) governing the assembly of ecological communities. 
 
-There are different sources of information and web pages with a lot of information about this field. The most common and useful are the web pages of the books: [Modern Phylogenetic Comparative Methods and Their Application in Evolutionary Biology](http://www.mpcm-evolution.org/) and [Phylogenies in Ecology](https://www.utsc.utoronto.ca/~mcadotte/page-3/). Among the most influential papers in this field are [Phylogenies and Community Ecology](https://www.annualreviews.org/doi/abs/10.1146/annurev.ecolsys.33.010802.150448) and [The merging of community ecology and phylogenetic biology](https://onlinelibrary.wiley.com/doi/10.1111/j.1461-0248.2009.01314.x).
+There are different sources of information and web pages with a lot of information about this field. The most common and useful are the web pages of the books: [Modern Phylogenetic Comparative Methods and Their Application in Evolutionary Biology](http://www.mpcm-evolution.org/) and [Phylogenies in Ecology](https://www.utsc.utoronto.ca/~mcadotte/page-3/). Among the most influential papers in this field are [Phylogenies and Community Ecology by Campbell Webb et al. (2002)](https://www.annualreviews.org/doi/abs/10.1146/annurev.ecolsys.33.010802.150448) and [The merging of community ecology and phylogenetic biology by Jeannine Cavender-Bares et al. (2009)](https://onlinelibrary.wiley.com/doi/10.1111/j.1461-0248.2009.01314.x).
 
 # Install and load packages
 Check if you are in the correct working directory.
@@ -40,13 +40,13 @@ lapply(packages, library, character.only = TRUE)
 require(V.PhyloMaker)
 ```
 
-For today's practice we will use data from the **National Ecological Observatory Network**-[NEON](https://www.neonscience.org). We strongly recommend to look at the NEON
-website to get a deeper understanding of the work at NEON. Also you can read these papers: [A continental strategy for the National Ecological Observatory Network](https://esajournals.onlinelibrary.wiley.com/doi/10.1890/1540-9295%282008%296%5B282%3AACSFTN%5D2.0.CO%3B2) and [The plant diversity sampling design for The National Ecological Observatory Network](https://esajournals.onlinelibrary.wiley.com/doi/full/10.1002/ecs2.2603). 
+For today's practice we will use data from the [**National Ecological Observatory Network (NEON)](https://www.neonscience.org). We strongly recommend to look at the NEON
+website to get a deeper understanding about NEON and how it works. Also you can read these papers: [A continental strategy for the National Ecological Observatory Network](https://esajournals.onlinelibrary.wiley.com/doi/10.1890/1540-9295%282008%296%5B282%3AACSFTN%5D2.0.CO%3B2) and [The plant diversity sampling design for The National Ecological Observatory Network](https://esajournals.onlinelibrary.wiley.com/doi/full/10.1002/ecs2.2603). 
 
 # Prepare data
 ## Download community data from NEON
 
-We will download data of plant communities directly from NEON and to do that we will use the **R** package {**neonUtilities**} and the function '*loadByProduct*'. Before proceed let's take a look at the core information required in this function. To do that you can type **?loadByProduct** in your console and the documentation for this function will appear in the Help window of RStudio.
+We will download data of plant communities directly from NEON and to do that we will use the **R** package {**neonUtilities**} and the function '*loadByProduct*'. Before proceed let's take a look at the core information required in this function. To do that you just can type **?loadByProduct** in your console and the documentation for this function will appear in the Help window of RStudio.
 
 The core information we need to inform in the '*loadByProduct*' function are:
 
@@ -56,16 +56,16 @@ The core information we need to inform in the '*loadByProduct*' function are:
 
 3. __package__ = Either 'basic' or 'expanded', indicating which data package to download. Defaults to basic.
 
-As you can see, the __dpID__ and __site__ correspond to the kind of data we want to download and the site to the location where the data were collected. We can open the NEON website to find the information required for downloading the data for [**plant presence and percent cover**](https://data.neonscience.org/data-products/DP1.10058.001/RELEASE-2021/). Also, you can look at the map of [NEON sites](https://data.neonscience.org/data-products/explore) to see the distribution of sites across The United States.
+As you can see, the __dpID__ and __site__ correspond to the kind of data we want to download and the site to the location where the data were collected, respectively. We can open the NEON website to find the information required for downloading the data for [**plant presence and percent cover**](https://data.neonscience.org/data-products/DP1.10058.001/RELEASE-2021/). Also, you can look at the map of [NEON sites](https://data.neonscience.org/data-products/explore) to see the distribution of NEON sites across The United States.
 
-For this practice we will use the next information: __dpID__ = __"DP1.10058.001"__ and __site__ = __c("HARV", "CPER","ABBY")__ that correspond to __plant presence and percent cover__ and three sites: __HARV__(Harvard Forest & Quabbin Watershed NEON, MA), __CPER__(Central Plains Experimental Range NEON, CO) and __ABBY__(Abby Road NEON, WA). Note that you can download data only for one site but for the sake of getting more practice of data management in R we will download the full data of plant community data for three sites (you can download data for more sites if you prefer).
+For this practice we will use the next information: __dpID__ = __"DP1.10058.001"__ and __site__ = __c("HARV", "CPER","ABBY")__ that correspond to __plant presence and percent cover__ and three sites: __HARV__(Harvard Forest & Quabbin Watershed NEON, MA), __CPER__(Central Plains Experimental Range NEON, CO) and __ABBY__(Abby Road NEON, WA). Note that you can download data only for one site but for the sake of getting more practice in data management in R we will download the full data of plant community data for three sites (you can download data for more sites if you prefer).
 
 ```{r, results = "hide", warnings = FALSE, message = FALSE, eval = FALSE}
 # Set global option to NOT convert all character variables to factors
 options(stringsAsFactors = F)
 
 NEON_data <- loadByProduct(dpID = "DP1.10058.001", 
-                        site = c("HARV", "CPER","ABBY"), 
+                        site = c("HARV", "CPER", "ABBY"), 
                         package = "expanded", check.size = TRUE)
 
 # type "y" (with no quotes) in your console to start downloading the data from NEON
@@ -128,15 +128,15 @@ unique(HARV$siteID)
 head(HARV)
 ```
 
-The data corresponding to HARV for the 2018 contains 2161 rows and 17 columns. If we look at the data, specifically to the column __scientificName__ we can see that the taxonomy used in NEON correspond to the taxonomy used by the [USDA](https://plants.sc.egov.usda.gov/classification.html), however this taxonomy is not necessarily used by scientist [:(] that rely for example on the taxonomy of the APG [Angiosperm Phylogeny Group](http://www.mobot.org/MOBOT/research/APweb/) for Angiosperms and WCSP [World Checklist of Conifers](http://wcsp.science.kew.org/prepareChecklist.do?checklist=selected_families%40%40080210320211453826) for Gymnosperms. 
+The data corresponding to NEON site HARV for the 2018 contains 2161 rows and 17 columns. If we look at the data, specifically to the column __scientificName__ we can see that the taxonomy used in NEON correspond to the taxonomy used by the [USDA](https://plants.sc.egov.usda.gov/classification.html), however this taxonomy is not necessarily used by scientist [:(] that rely for example on the taxonomy of the APG [Angiosperm Phylogeny Group](http://www.mobot.org/MOBOT/research/APweb/) for Angiosperms and WCSP [World Checklist of Conifers](http://wcsp.science.kew.org/prepareChecklist.do?checklist=selected_families%40%40080210320211453826) for Gymnosperms. 
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 View(HARV)
 ```
 
-In any case, we need to standardize the species names in order to proced with the calculation of metrics.
+In any case, we need to standardize the species names in order to proceed with the calculation of metrics.
 
-To do that, we will use the package {**Taxonstand**} that allow matching the taxonomy among different sources using the working list of all known plant species produced by the botanical community or __The Plant List__ [(TPL)](http://www.theplantlist.org). 
+To do that, we will use the package {**Taxonstand**} that allow matching the taxonomy among different sources using the working list of all known plant species produced by the botanical community or [__The Plant List (TPL)__](http://www.theplantlist.org). 
 
 Note - this process will take some time (~120 seconds) and return several warning messages but please do not pay attention to those messages.
 
@@ -186,7 +186,7 @@ save(HARV, HARV_data, taxonomy, file = "Data/NEON/CleanData_NEON_lab5.RData")
 rm(HARV, NEON_data, sel, spp_check, taxonomy, installed_packages, packages, spp)
 ```
 
-As a last step the cleaned data will be transformed from the long format to a wide format.
+As a last step the cleaned data will be transformed from the long format to a wide format, in other words, we will transform the NEON data to a matrix in wich the species are the columns and the plots (or communities) are the rows.
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 HARV_mat <- sample2matrix(HARV_data[, c(2, 7, 6)])
@@ -206,14 +206,14 @@ sppPhylo <- sppPhylo %>%
   separate(sciName, sep = "_", into = c("genus", "ephitet")) %>% 
   select(species, genus, family)
   
-sppPhylo <- unique(sppPhylo[c("species", "genus", "family")])
+sppPhylo <- unique(sppPhylo[ c("species", "genus", "family")])
 
 head(sppPhylo)
 ```
 Prepare the phylogeny and plot it.
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
-result <- phylo.maker(sppPhylo, scenarios = "S3")
+result <- phylo.maker(sppPhylo, scenarios = "S3") # this will take some time.
 
 phylo <- multi2di(result$scenario.3)
 is.binary.phylo(phylo)
@@ -222,7 +222,7 @@ is.ultrametric(phylo)
 plot(phylo, show.tip.label = FALSE)
 ```
 
-Before continuing with the lab let's check again if our data (phylogeny and community) match each other. To do this we will use the awesome function **match.phylo.com()** from the package {**picante**}.
+Before continuing with the lab let's check again if our data (phylogeny and community) match each other. To do this we will use the amazing function **match.phylo.com()** from the package {**picante**}.
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 matched <- picante::match.phylo.comm(phy = phylo, comm = HARV_mat)
@@ -230,9 +230,9 @@ matched$phy
 matched$comm
 ```
 
-Alright, we have all data necessary for calculating different phylogenetic diversity metrics, Yay!
+Alright, we have all data necessary for calculating different phylogenetic diversity metrics, hooray!
 
-Save the phylogenetic data and clean the environment.
+Save the phylogenetic data and clean the R environment.
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 save(phylo, sppPhylo, result, file = "Data/NEON/Phylo_NEON_lab5.RData")
@@ -260,7 +260,7 @@ Awesome, we are now ready to explore some the of the **jungle** of metrics for t
 
 Let's calculate some metrics manually and then using the package {**picante**} we will calculate the same metrics but for all communities at once.
 
-Phylogenetic diversity is just the sum of the total branch lengths in the community. In this case we are calculating PD using all species in the phylogeny, in other words, assuming that a single community contain the same amount of species as the phylogeny.
+Phylogenetic diversity is just the sum of the total branch lengths in the community. In this case we are calculating PD using all species in the phylogeny, in other words, assuming that a single community contain the same number of species as the phylogeny.
 
 ```{r, results = "hide", warnings = FALSE, message = FALSE, eval = FALSE}
 sum(matched$phy$edge.length) #  sum of the total branch lengths in the community
@@ -272,6 +272,7 @@ Here using the package {**picante**} we can calculate the same metric for each c
 HARV_PD <- pd(matched$comm, matched$phy, include.root = FALSE) # Faith's PD
 head(HARV_PD)
 ```
+As you can see both metrics SR and PD are highly correlated, that is because PD is highly sensitive to the sample size, i.e., as more species are added to the community more branch lengths are added to the phylogeny and consequently the expected relationship is high.
 
 ```{r, results = "hide", warnings = FALSE, message = FALSE, eval = FALSE}
 cor.test(HARV_PD$SR, HARV_PD$PD)
@@ -321,11 +322,11 @@ The analyses of community phylogenetic started making inferences about the mecha
 
 Now, let's calculate some of the most common metrics.
 
-PD - phylogenetic diversity is the sum of the total phylogenetic branch length for one or multiple samples.
-
 Note - we will use the object __HARV_CDM__ to store all the results.
 
 ### Phylogenetic diversity in a community - PD
+
+PD or phylogenetic diversity is the sum of the total phylogenetic branch length for one or multiple samples.
 
 ```{r, results = "hide", warnings = FALSE, message = FALSE, eval = FALSE}
 # We can also calculate the standardized effect size of PD in each community
@@ -398,6 +399,7 @@ HARV_CDM$PSR <- HARVpsr[, 1]
 ```
 
 ### Phylogenetic species evenness - PSE
+
 Phylogenetic species evenness is the metric PSV modified to incorporate relative species abundances.
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
@@ -478,7 +480,7 @@ Repeat all process but select two NEON sites across the United States, compare t
 
 * **Option 2** 
 
-Another option is to calculate the phylogenetic diversity metrics for each year on a NEON site. For example, you can use the data from HARV but instead of doing the analysis only for the 2018 (as we did here) you can repeat the process for all years from 2013 to 2020.
+Another option is to calculate the phylogenetic diversity metrics for each year on a NEON site. For example, you can use the data from HARV but instead of doing the analysis only for the 2018 (as we did here) you can repeat the process for all years from 2013 to 2020 and discuss if the taxonomic and phylogenetic diversities changed.
 
 # References
 
@@ -486,7 +488,7 @@ Barnett, D. T., Adler, P. B., Chemel, B. R., Duffy, P. A., Enquist, B. J., Grace
 
 Cadotte, M. W. and Davies, T. J. (2016). Phylogenies in Ecology: A Guide to Concepts and Methods. Princeton: Princeton University Press.
 
-Cavender-Bares, J., Kozak, K. H., Fine, P. V. A. and Kembel, S. W. (2009). The merging of community ecology and phylogenetic biology. Ecology letters 12, 693–715.
+Cavender-Bares, J., Kozak, K. H., Fine, P. V. A., & Kembel, S. W. (2009). The merging of community ecology and phylogenetic biology. Ecology Letters, 12(7), 693–715. doi:10.1111/j.1461-0248.2009.01314.x
 
 Garamszegi, L. Z. (2014). Modern Phylogenetic Comparative Methods and Their Application in Evolutionary Biology. (ed. Garamszegi, L. Z.) Berlin: Springer-Verlag.
 
@@ -496,11 +498,12 @@ Keller, M., Schimel, D. S., Hargrove, W. W., & Hoffman, F. M. (2008). A continen
 
 Pausas, J. G. and Verdú, M. (2010). The Jungle of Methods for Evaluating Phenotypic and Phylogenetic Structure of Communities. BioScience 60, 614–625.
 
-Pinto-Ledezma, J. N., Jahn, A. E., Cueto, V. R., Diniz-Filho, J. A. F., & Villalobos, F. (2019). Drivers of Phylogenetic Assemblage Structure of the Furnariides, a Widespread Clade of Lowland Neotropical Birds. The American Naturalist, E000–E000.
+Pinto-Ledezma, J. N., Jahn, A. E., Cueto, V. R., Diniz-Filho, J. A. F., & Villalobos, F. (2019). Drivers of Phylogenetic Assemblage Structure of the Furnariides, a Widespread Clade of Lowland Neotropical Birds. The American Naturalist, 193(2), E41–E56. doi:10.1086/700696
 
 Rao, C. R. 1982. Diversity and dissimilarity coefficients: a unified approach. Theoretical Population Biology 21:2443.
 
-Smith, S. A., & Brown, J. W. (2018). Constructing a broadly inclusive seed plant phylogeny. American Journal of Botany, 105(3), 302–314.
+Smith, S. A., & Brown, J. W. (2018). Constructing a broadly inclusive seed plant phylogeny. American Journal of Botany, 105(3), 302–314. doi:10.1002/ajb2.1019
 
 Scheiner, S. M. (2012). A metric of biodiversity that integrates abundance, phylogeny, and function. Oikos, 121(8), 1191–1202.
 
+Webb, C. O., Ackerly, D. D., McPeek, M. A., & Donoghue, M. J. (2002). Phylogenies and Community Ecology. Annual Review of Ecology and Systematics, 33(1), 475–505. doi:10.1146/annurev.ecolsys.33.010802.150448
