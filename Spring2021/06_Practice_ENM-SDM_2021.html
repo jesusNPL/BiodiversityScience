@@ -300,7 +300,7 @@ plot(countriesCoarse, add = TRUE, lwd = 2)</code></pre>
       long.col = &quot;decimalLongitude&quot;, 
       lat.col = &quot;decimalLatitude&quot;,
       spec.col = &quot;scientificName&quot;,
-      thin.par = 5, # points have at least a minimum distance of 1 km from each other
+      thin.par = 5, # points have at least a minimum distance of 5 km from each other
       reps = 1, 
       locs.thinned.list.return = TRUE, 
       write.files = FALSE, 
@@ -322,8 +322,7 @@ plot(countriesCoarse, add = TRUE, lwd = 2)</code></pre>
 <p>Now let’s save the data processed and keep <strong>thinned_spt</strong> for further analyses.</p>
 <pre class="r"><code>save(occ_quealb, quealb_spt, thinning, thinned_spt, 
      file = &quot;Data/OCC/quealb_OCC_processed.RData&quot;)
-rm(gbif_data, occ_quealb, quealb_spt, thinning)
-#write.csv(hyacinth_coords, &quot;Data/OCC/hyacinth_data.csv&quot;)</code></pre>
+rm(gbif_data, occ_quealb, quealb_spt, thinning)</code></pre>
 <p>Until here we have downloaded and cleaned species occurrence data, now we will prepare the environmental data that is going to be used as predictors for constructing ENM/SDM for our species.</p>
 </div>
 <div id="prepare-environmental-data" class="section level1">

@@ -2,10 +2,10 @@
 title: 'Ecological niche models and species distributions'
 author: Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares
 output:
-  pdf_document: default
   html_document: 
     theme: readable
     toc: yes
+  pdf_document: default
 ---
 
 In this lab, we will explore some Correlative models using data at species level (occurrence data points) and environmental data at large spatial scales. We will download occurrence data for oak species distributed in the Americas from [**GBIF**](https://www.gbif.org) and environmental (climatic) data from [**WorldClim**](https://www.worldclim.org).
@@ -153,7 +153,7 @@ thinning <- thin(
       long.col = "decimalLongitude", 
       lat.col = "decimalLatitude",
       spec.col = "scientificName",
-      thin.par = 5, # points have at least a minimum distance of 1 km from each other
+      thin.par = 5, # points have at least a minimum distance of 5 km from each other
       reps = 1, 
       locs.thinned.list.return = TRUE, 
       write.files = FALSE, 
@@ -193,7 +193,7 @@ Now let's save the data processed and keep **thinned_spt** for further analyses.
 save(occ_quealb, quealb_spt, thinning, thinned_spt, 
      file = "Data/OCC/quealb_OCC_processed.RData")
 rm(gbif_data, occ_quealb, quealb_spt, thinning)
-#write.csv(hyacinth_coords, "Data/OCC/hyacinth_data.csv")
+
 ```
 
 Until here we have downloaded and cleaned species occurrence data, now we will prepare the environmental data that is going to be used as predictors for constructing ENM/SDM for our species.
