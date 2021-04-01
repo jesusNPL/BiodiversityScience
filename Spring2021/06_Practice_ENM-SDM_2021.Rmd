@@ -2,10 +2,10 @@
 title: 'Ecological niche models and species distributions'
 author: Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares
 output:
+  pdf_document: default
   html_document: 
     theme: readable
     toc: yes
-  pdf_document: default
 ---
 
 In this lab, we will explore some Correlative models using data at species level (occurrence data points) and environmental data at large spatial scales. We will download occurrence data for oak species distributed in the Americas from [**GBIF**](https://www.gbif.org) and environmental (climatic) data from [**WorldClim**](https://www.worldclim.org).
@@ -41,7 +41,7 @@ if (any(installed_packages == FALSE)) {
 Although we installed several packages in the previous lines a package is missing, the R package {**sdm**}. This package is the engine for modeling the environmental niches (**shadows**) or Grinnellian niches. We will install this package separately because it has several dependencies.
 
 ```{r, eval = FALSE}
-installed.packages("sdm", dependencies = TRUE)
+install.packages("sdm", dependencies = TRUE)
 ```
 
 ```{r, eval = FALSE}

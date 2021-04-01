@@ -240,7 +240,7 @@ if (any(installed_packages == FALSE)) {
   install.packages(packages[!installed_packages], dependencies = TRUE)
 }</code></pre>
 <p>Although we installed several packages in the previous lines a package is missing, the R package {<strong>sdm</strong>}. This package is the engine for modeling the environmental niches (<strong>shadows</strong>) or Grinnellian niches. We will install this package separately because it has several dependencies.</p>
-<pre class="r"><code>installed.packages(&quot;sdm&quot;, dependencies = TRUE)</code></pre>
+<pre class="r"><code>install.packages(&quot;sdm&quot;, dependencies = TRUE)</code></pre>
 <pre class="r"><code>lapply(packages, library, character.only = TRUE)
 library(sdm)</code></pre>
 <p>A last step for setting up the R package {<strong>sdm</strong>} is to use the command <strong>installAll()</strong> this will install any missing package and will guarantee the complete functionality if the package. Yes, this is annoying but is the way of how the package was designed.</p>
