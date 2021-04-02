@@ -206,7 +206,7 @@ sppPhylo <- sppPhylo %>%
   separate(sciName, sep = "_", into = c("genus", "ephitet")) %>% 
   select(species, genus, family)
   
-sppPhylo <- unique(sppPhylo[ c("species", "genus", "family")])
+sppPhylo <- unique(sppPhylo[, c("species", "genus", "family")])
 
 head(sppPhylo)
 ```
