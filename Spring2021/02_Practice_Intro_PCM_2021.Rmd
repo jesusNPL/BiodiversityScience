@@ -59,7 +59,9 @@ OK. You should be ready to go.
 
 # Working with trees
 
-Let’s start by looking at the phylogeny of these lizards and learning a bit about how to work with trees in R. What does your tree look like?
+Let’s start by looking at the phylogeny of these lizards and learning a bit about how to work with trees in R. 
+
+*What does your tree look like?*
 
 ```{r, eval = FALSE}
 plot(anoleTree)
@@ -144,9 +146,9 @@ names(awe) <- rownames(anoleData)
 # This is how to do that.
 ```
 
-In lecture, we talked about one model of character evolution, called a Brownian Motion model. This model assumes that a trait evolves from a starting state (**z0**) according to a random walk with the variance specified by the rate parameter $\sigma^{2}$ (**sigma-squared**). In short, Brownian motion describes a process in which tip states are modelled under the assumption of a multi-variate normal distribution. On a phylogeny, the multi-variate mean of tip states is equal to the root state estimate, and variance accummulates linearly through time.
+In lecture, we talked about one model of character evolution, called a Brownian Motion model. This model assumes that a trait evolves from a starting state (**z0**) according to a random walk with the variance specified by the rate parameter $\sigma^{2}$ (**sigma-squared**). In short, Brownian motion describes a process in which tip states are modeled under the assumption of a multivariate normal distribution. On a phylogeny, the multivariate mean of tip states is equal to the root state estimate, and variance accumulates linearly through time.
 
-What does Brownian Motion evolution of Awesomeness in lizards look like?
+*What does Brownian Motion evolution of Awesomeness in lizards look like?*
 
 ```{r, eval = FALSE}
 brownianModel <- fitContinuous(anoleTree, awe)
