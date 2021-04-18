@@ -418,7 +418,8 @@ preds
 If you have some issues installing the package {**mecofun**} please use the next lines of code. The function **select07_v2** is the very same from the package {mecofun}. In this case I just extracted the function from the package in order to avoid installation issues.
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
-source("R-Functions/select07_mod.R")
+#source("R-Functions/select07_mod.R")
+source("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2021/R-Functions/select07_mod.R")
 # Run select07()
 covar_sel <- select07_v2(X = quealb_bios[, -c(1:5)], # only predictors data
                     y = quealb_bios$Occurrence, # presence-absence data
