@@ -45,7 +45,7 @@ install.packages("sdm", dependencies = TRUE)
 ```
 
 ```{r, eval = FALSE}
-lapply(packages, library, character.only = TRUE)
+sapply(packages, require, character.only = TRUE)
 library(sdm)
 ```
 
@@ -409,6 +409,23 @@ covar_sel$pred_sel
 
 According to the **select07()** function six predictors best fit the data and also have low correlation. Assuming that this is correct, we will use these variables for further analyses. The selected variables are: "bio15", "bio12", "bio2", "bio10", "bio7" and "bio8".
 
+
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
+preds <- covar_sel$pred_sel
+preds
+```
+
+If you have some issues installing the package {**mecofun**} please use the next lines of code. The function **select07_v2** is the very same from the package {mecofun}. In this case I just extracted the function from the package in order to avoid installation issues.
+
+```{r, warnings = FALSE, message = FALSE, eval = FALSE}
+source("R-Functions/select07_mod.R")
+# Run select07()
+covar_sel <- select07_v2(X = quealb_bios[, -c(1:5)], # only predictors data
+                    y = quealb_bios$Occurrence, # presence-absence data
+                    threshold = 0.7) # here you can change the threshold for one
+```
+
+This extracted function will return the same outputs.
 
 ```{r, warnings = FALSE, message = FALSE, eval = FALSE}
 preds <- covar_sel$pred_sel
