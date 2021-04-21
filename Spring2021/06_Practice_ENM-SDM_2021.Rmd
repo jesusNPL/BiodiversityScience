@@ -2,10 +2,10 @@
 title: 'Ecological niche models and species distributions'
 author: Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares
 output:
-  pdf_document: default
   html_document: 
     theme: readable
     toc: yes
+  pdf_document: default
 ---
 
 In this lab, we will explore some Correlative models using data at species level (occurrence data points) and environmental data at large spatial scales. We will download occurrence data for oak species distributed in the Americas from [**GBIF**](https://www.gbif.org) and environmental (climatic) data from [**WorldClim**](https://www.worldclim.org).
@@ -637,7 +637,7 @@ head(dt)
 
 prediction <- raster::extract(quealb_ENM_ensemble, dt[, c("Longitude", "Latitude")])
 
-evaluation <- evaluates(df$Occurrence, prediction) # observed versus expected
+evaluation <- sdm::evaluates(dt$Occurrence, prediction) # observed versus expected
 
 threshold_sel <- evaluation@threshold_based$threshold[2]
 

@@ -566,7 +566,7 @@ head(dt)
 
 prediction &lt;- raster::extract(quealb_ENM_ensemble, dt[, c(&quot;Longitude&quot;, &quot;Latitude&quot;)])
 
-evaluation &lt;- evaluates(df$Occurrence, prediction) # observed versus expected
+evaluation &lt;- sdm::evaluates(dt$Occurrence, prediction) # observed versus expected
 
 threshold_sel &lt;- evaluation@threshold_based$threshold[2]
 
