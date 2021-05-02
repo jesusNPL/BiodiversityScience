@@ -2,10 +2,10 @@
 title: 'Ecological niche models and species distributions'
 author: Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares
 output:
+  pdf_document: default
   html_document: 
     theme: readable
     toc: yes
-  pdf_document: default
 ---
 
 In this lab, we will explore some Correlative models using data at species level (occurrence data points) and environmental data at large spatial scales. We will download occurrence data for oak species distributed in the Americas from [**GBIF**](https://www.gbif.org) and environmental (climatic) data from [**WorldClim**](https://www.worldclim.org).
@@ -678,7 +678,7 @@ Please respond each question based on the practice.
 
 2. Do you think the observations are a reasonable representation of the distribution (and ecological niche) of the species?
 
-3. There is a best model? Explain your answer.
+3. Is there a best model? Explain your answer.
 
 4. Can we use ENM/SDM to aid the conservation of *Quercus alba*? Explain your answer.
 

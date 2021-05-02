@@ -2,10 +2,12 @@
 title: 'Measuring phylogenetic diversity within communities'
 author: Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares
 output:
+  md_document:
+    variant: markdown_github
+  pdf_document: default
   html_document: 
     theme: readable
     toc: yes
-  pdf_document: default
 ---
 
 The main goal of this practice is to present basic understanding about measuring phylogenetic diversity within communities or best known as the analysis of community phylogenetics. The community phylogenetics integrates ecological and evolutionary concepts and explores the mechanisms (e.g., biotic interactions or environmental filters) governing the assembly of ecological communities. 

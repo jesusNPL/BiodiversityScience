@@ -2,10 +2,12 @@
 title: 'Using hyperspectral remote sensing data to predict biodiversity'
 author: Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares
 output:
-  pdf_document: default
   html_document: 
     theme: readable
     toc: yes
+  pdf_document: default
+  md_document:
+    variant: markdown_github
 ---
 
 In this lab we will explore some aspects of **hyperspectral** remote sensing obtained from the National Ecological Observatory Network ([NEON](https://data.neonscience.org)) with the goal of predicting biodiversity from the sky. Specifically, we will use hyperspectral remote sensing data from the **NEON** Airborne Observation Platform (**AOP**) (more information [here](https://www.neonscience.org/data-collection/airborne-remote-sensing) and [here](https://data.neonscience.org/data-products/DP3.30006.001)). As you will see, working with hyperspectral information/data is similar to work with any other information/data (e.g., species abundance, presence-absence) and consequently it can be used to calculate any metric of biodiversity. In this sense, **spectral diversity** can be considered as a dimension of biodiversity. 
