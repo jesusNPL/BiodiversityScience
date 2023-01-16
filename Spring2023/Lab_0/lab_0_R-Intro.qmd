@@ -6,7 +6,7 @@ author:
   - name: Dr. Jesús N. Pinto-Ledezma 
     url: https://jesusnpl.github.io
     affiliation: Ecology, Evolution & Behavior, University of Minnesota
-                Biodiversity Science - EBB (3534 | 5534)
+                Biodiversity Science - EBB (5534)
     affiliation-url: https://github.com/jesusNPL/BiodiversityScience
 title-block-banner: true
 #title-block-banner: "#562457"
