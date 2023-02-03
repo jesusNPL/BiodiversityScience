@@ -1,0 +1,806 @@
+---
+title: "Introduction to Phylogenies and the Comparative Method"
+description: Showing some neat features of R!
+date: today # other options: now, last-modified
+author:
+  - name: Jesús N. Pinto-Ledezma and Jeannine Cavender-Bares 
+    url: https://jesusnpl.github.io
+    affiliation: Ecology, Evolution & Behavior, University of Minnesota
+                Biodiversity Science - EBB (5534)
+    affiliation-url: https://github.com/jesusNPL/BiodiversityScience
+title-block-banner: true
+#title-block-banner: "#562457"
+format: 
+  html: 
+    embed-resources: true # save contained file.
+    theme: darkly # check other themes https://quarto.org/docs/output-formats/html-themes.html
+    code-fold: true
+    toc: true
+    number-sections: true
+bibliography: lab_0_Intro-R.bib
+link-citations: yes
+csl: ../apa-single-spaced.csl
+---
+
+:::{.callout-note}
+In this lab, you will learn basic tools in R for visualizing phylogenies, optimizing ancestral states for a discrete and continuous characters, testing models of character evolution, and performing phylogenetic correction of a regression model. This lab is based in part on one designed by Luke Harmon for a workshop that he and others ran; the original can be seen [here](http://lukejharmon.github.io/ilhabela/instruction/2015/07/03/PGLS/) There are many other useful labs in comparative analysis from that [workshop](http://lukejharmon.github.io/ilhabela/) that you can peruse at your leisure. 
+:::
+
+You will need two datasets, that will be provided for you:
+  1. A data.frame with species traits **anolisDataAppended.csv**
+  2. A phylogenetic tree **anolis.phy**
+
+
+# Set up your data and your working directory
+
+You will need to have a set of R packages to do this lab. Install the following packages:
+
+```{r}
+packages <- c("ape", "geiger", "nlme", "phytools", "rr2") 
+# Package vector names
+```
+
+:::{.callout-tip}
+## Function install.packages()
+You can use the function **install.packages()** to install the packages.
+:::
+
+If you don't want to install the packages one by one, you can use the next command 
+```{r}
+# Install packages not yet installed
+installed_packages <- packages %in% rownames(installed.packages())
+
+if (any(installed_packages == FALSE)) {
+  install.packages(packages[!installed_packages], dependencies = TRUE)
+}
+```
+
+Load installed packages
+
+```{r}
+library(ape)
+library(geiger)
+library(nlme)
+library(phytools)
+library(rr2)
+```
+
+Set up a working directory and put the two data files in that directory. Tell R that this is the directory you will be using, and read in your data:
+
+```{r}
+#| eval: false
+setwd("path/for/your/directory")
+```
+
+You can download the data directly on your computer by clicking [**HERE**](https://www.dropbox.com/s/mdfxwaak7dmvx89/anolis.phy?dl=0) and [**HERE**](https://www.dropbox.com/s/4x3nk1gwkcf35jn/anolisDataAppended.csv?dl=0) and store them in a folder named **Data"**.
+
+```{r}
+anoleData <- read.csv("Data/anolisDataAppended.csv", row.names = 1)
+anoleTree <- read.tree("Data/anolis.phy")
+```
+
+OK. You should be ready to go.
+
+
+
+
+
+R is a language and a statistical programming environment and graphics or also called an **“object-oriented programming”**, which means that using R involves the creation and manipulation of objects on a screen, where the user has to say exactly what they want to do rather than simply press a button **(black box paradox)**. So, the main advantage of R is that the user has control over what is happening and also a full understanding of what they want before performing any analysis.
+
+With R, it is possible to manipulate and analyze data, make graphics and write from small commands to entire programs. Basically, R is the open version of the S language, created by Bell’s Lab in 1980. Interestingly, the S language is super popular among different areas of science and is the base for commercial products such as SPSS, STATA, and SAS, among others. Thus, if we have to add another advantage to R, is that R is an **open language and free**!
+
+There are different sources and web-pages with a lot of information about R, most of them are super useful and can be found at [DataCamp](https://www.datacamp.com/), [CRAN](https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf), [R Tutorial](http://www.r-tutor.com/r-introduction).
+
+Also, when we are reporting our results in the form of a report, scientific paper or any kind of document, we would need to cite the used software, the easiest to cite R is using the internal function **citation()**.
+
+```{r}
+citation()
+```
+
+# First steps
+
+First that all, we need to know about **WHERE** are we working at. In other words, our working directory. To get information that information we just need to type **getwd()** in the script or the console.
+
+```{r}
+getwd()
+```
+
+If the working directory is not the correct one, we just need to order R to **SET** the correct address.
+
+```{r}
+#| eval: false
+setwd("Your path or directory")
+```
+
+There is an R package called **{here}** that is super convenient for setting your working directory if the path is really long. You didn't hear that from me ;p!
+
+Ok, we are now in the correct place, so we can continue with the practice.
+
+## Directory structure
+For training purposes, we will create a **directory structure** where the main folder is our current working environment, so we will create a series of **subfolders** where we store, the data, the scripts and whatever we want… To do that we will use the function **dir.create()**. Let's practice!
+
+:::{.callout-caution collapse="true"}
+## Expand to learn more about this issue
+Every class you will need to check your working directory in order follow the labs without issues.
+:::
+
+```{r}
+?dir.create
+```
+
+```{r}
+#| eval: false
+dir.create("BioSci") # this can be your main folder and you can change the name
+
+dir.create("Data") # folder that store the data 
+
+dir.create("R-scripts") # folder that store the scripts used in the course
+
+dir.create("Figures") # folder that store the figures created in the course
+
+dir.create("Results") # The results
+
+dir.create("Temp") 
+```
+
+To check if the subfolders were created within the main folder, just use the function **dir()**, this simple function will print in the console the name of the files that are currently in your working directory.
+
+We can SET our working directory into one of the subfolders that we just created using the function **setwd()**
+
+```{r} 
+#| eval: false
+setwd("Results")
+```
+
+However, for practicality it is **super-ultra-mega** recommendable to work in the **MAIN FOLDER**, so go back to the previous folder or main folder by just using the function **setwd()**, instead of using a folder name, we will use simply two dots, yes two dots **".."**. This simple operation will return to the main folder.
+
+```{r} 
+#| eval: false
+setwd("..")
+```
+
+## The importance of the question mark “?” or the help function
+Maybe, the most important (at least for Jesús) function of R is **help** or **?**. Using help or the question mark, we can ask to R about almost anything (sadly we can’t order pizza, yet)… so, let's practice!
+
+```{r}
+#| eval: false
+help("logarithm")
+```
+
+```{r}
+#| eval: false
+?log
+```
+
+```{r}
+#| eval: false
+??log
+```
+
+Other important and useful functions in R, are: **head()**, **tail()**, **dim()**, **str**, **summary()**, **names()**, **class()**, **rm()**, **save.image**, **saveRDS() and readRDS()**, **load()**, **source()**, all these simple functions will help us to understand our data.
+
+# Objects: creation and manipulation
+
+In **R** you can create and manipulate different kind of data, from a simple numeric vector to complex spatial and/or phylogenetic data frames. The main six kinds of objects that you can create and manipulate in R, are: vector, factor, matrix, data frame, list and functions. 
+
+So, let's start with the first object, the **Vector**.
+
+## Vector
+Vectors are the basic object in R and basically, contains elements of the same type (e.g., numbers, characters). Within vector exist three types: numeric, character and logic.
+
+#### Numeric vector
+**IMPORTANT** R is case sensitive, so you need to pay attention when you name the objects.
+
+```{r}
+a <- 10 # numeric value 
+
+b <- c(1, 2, 3, 4, 5) # numeric vector
+
+class(b) # ask to R which type of object is b
+
+seq_test <- seq(from = 1, to = 20, by = 2) # Here is a sequence of numbers from 1 to 20, every two numbers
+
+x = seq(10, 30) # This is a sequence from 10 to 30. What is the difference with the previous numeric vector? 
+
+sample(seq_test, 2, replace = T) # Sort two numbers within the object seq_test
+
+rep_test <- rep(1:2, c(10, 3)) # Repeat the number one, ten times and the number 2 three times
+
+ex <- c(1:10) # Create a sequence of 1 to 10
+
+length(ex) # Length of the object example
+
+aa <- length(ex) # What we are doing in here?
+
+str(seq_test) # Look at the structure of the data
+```
+
+#### Character vector
+We can also create vector of characters, which mean that instead of storing numbers we can store characters.
+
+```{r}
+research_groups <- c(Jeannine = "Plants", Jesus = "Birds and plants", Laura = "Plants")
+
+research_groups
+```
+
+Explore the character vector using the function **str()**
+
+```{r}
+str(research_groups) 
+```
+
+You can try to create a different character vector, for example, using the names of your peers.
+
+#### Logic vector
+This kind of vector is super useful when the purpose is to create or build functions. The elements of a logic vector are **TRUE, FALSE, NA** (not available).
+
+```{r}
+is.factor(ex) # Is it a factor? (FALSE)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+is.matrix(ex) # Is it a matrix? (FALSE)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+is.vector(ex) # Is it a vector? (TRUE)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+a < 1   # 'a' is lower than 1? (FALSE)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+a == 1   # 'a' is equal to 1? (TRUE)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+a >= 1   # 'a' is higher or equal to 1? (TRUE)
+```
+
+```{r, warnings = FALSE, message = FALSE}
+a != 2   # the object 'a' is different of two? (TRUE) (!= negation)
+```
+
+## Factor
+A factor is useful to create categorical variables, that is very common in statistical analyses, such as the Anova.
+
+```{r}
+data <- factor(c("small", "medium", "large"))
+```
+
+```{r}
+is.factor(data) # Check if the object is correct.
+```
+
+## Matrix
+A matrix is bidimensional arrangement of **vectors**, where the vectors need to be of the same type, that is, two or more numeric vectors, or two or more character vectors.
+
+```{r}
+matx <- matrix(1:45, nrow = 15)
+rownames(matx) <-  LETTERS[1:15] # names of the rows
+colnames(matx) <- c("Sample01", "Sample02", "Sample03") # names of the columns or headers
+```
+
+```{r}
+matx # Inspect the matrix
+```
+
+```{r}
+class(matx) # Ask, which kind of data is?
+```
+
+```{r}
+matx[, 1] # We can use brackets to select a specific column
+```
+
+```{r}
+matx[1, ] # We can use brackets to select a specific row
+```
+
+```{r}
+head(matx)
+```
+
+```{r}
+tail(matx)
+```
+
+```{r}
+str(matx)
+```
+
+```{r}
+summary(matx) # summary statistics of the data in the matrix
+```
+
+In general, when we are exploring our data for example using **head()** the function will return only the 6 first rows of our matrix, however, we can add another argument into the function. For example, **head(matx, 10)**, just add the number 10 after the comma and is possible to see the first 10 lines. This simple operation is useful specially when our matrix is large **>100 rows**.
+
+:::{.callout-tip}
+## Function tail
+You can use the function **tail()** to check the last rows of your data.
+:::
+
+## Data frame
+The difference between a matrix and a data frame is that a data frame can handle different types of vectors. You can explore more about the data frames asking R **?data.frame**. Let's create a data frame and explore its properties.
+
+```{r}
+df <- data.frame(species = c("rufus", "cristatus", "albogularis", "paraguayae"), 
+                 habitat = factor(c("forest", "savanna", "urban", "transition")), 
+                 high = c(10, 2, 7, 4), distance = c(3, 9, 5, 6))
+```
+
+```{r}
+class(df)
+```
+
+```{r}
+matx2 <- as.data.frame(matx) # We can also transform our matrix to a data frame
+class(matx2) 
+```
+
+```{r}
+str(df)
+```
+
+## List
+The list is an object that consists of an assembly of objects sorted in a hierarchical way. Here we will use the data previously created.
+
+```{r}
+lst <- list(data, df, matx)
+```
+
+We can now go ahed and inspect the list.
+
+```{r}
+str(lst)
+```
+
+And also check if the object created is, in fact, a list.
+
+```{r}
+class(lst)
+```
+
+Now, inspect the objects that are stored into our object **lst**. To do this, we just need to use two brackets **[[]]**.
+
+```{r}
+lst[[1]]
+```
+
+```{r}
+lst[[2]]
+```
+
+```{r}
+lst[[3]]
+```
+
+At to this point, we have explored the most common objects in R. Understanding the structure of each class of objects (from vectors to lists) is maybe the most critical step to learning R.
+
+# Install and load packages
+
+Although R is a programming language, it is also possible to use different auxiliary packages that are available for free to download and to install in our computers.
+Install new packages into R is easy and just needs a simple function **install.packages()** and of course, an Internet connection. For more information on how to install new packages, you just need to ask R using **?install.packages**
+
+```{r}
+#| eval: false
+install.packages("PACKAGE NAME")
+```
+
+The reverse function is **remove.packages()**.
+
+Most of the time, we do not remember if we already have a package installed on our computer, so if we are tired and do not want to go to our R folder packages and check if the package is, in fact, installed, we can use the following command.
+
+```{r}
+#| eval: false
+if ( ! ("PACKAGE NAME" %in% installed.packages())) 
+  {install.packages("PACKAGE NAME", dependencies = TRUE)}
+```
+
+To load an installed package you can just type, **library() or require()**
+
+```{r}
+#| eval: false
+library("PACKAGE NAME")
+require("PACKAGE NAME")
+```
+
+Sometimes we need to install a lot of packages, and installing them one by one will require time and patience, which, most of the time, we don't have Lol. To solve that issue, we can create a vector with the names of the packages and create a simple function that helps us to install R with just one click!
+
+```{r}
+# Package vector names
+packages <- c("ggplot2", "phytools", "picante", "tidyr", "dplyr") 
+```
+
+```{r, eval = FALSE}
+#| eval: false
+# Install packages not yet installed
+installed_packages <- packages %in% rownames(installed.packages())
+if (any(installed_packages == FALSE)) {
+  install.packages(packages[!installed_packages])
+}
+```
+
+Now we can load all the packages listed in last vector.
+
+```{r, eval = FALSE}
+#| eval: false
+# Packages loading
+invisible(lapply(packages, library, character.only = TRUE))
+```
+
+:::{.callout-tip}
+## R Package {pacman}
+{pacman} is an R package that allows you to install and load several packages at once just by using one command line, for example:
+
+pacman::p_load(packages) # packages object is a vector we created before.
+:::
+
+# R as a calculator
+
+R can be used as a calculator, for example, we can use the information created before to make some arithmetic operations.
+
+```{r}
+b[4]+seq_test[10] # b and seq_test are numeric vectors created before, here we are just
+# obtaining the position 4 and 10 from those vectors and summing the values
+```
+
+```{r}
+b[4]*seq_test[10] # same but multiplying the two values
+```
+
+```{r}
+seq_test[5]/df[3, 3] # df is a data frame and here we are extracting the value in the 
+# row 3 and column 3 and using it as a divisor of the values in the position 5 of the 
+# vector seq_test.
+```
+
+```{r}
+matx[, 3][4]-df[4, 4] # What is difference of this equation compared to the previous?
+```
+
+```{r}
+seq_test^7 # power function in which each values is raised to the seventh power.
+```
+
+```{r}
+seq_test*7 # what happen in here?
+```
+
+```{r}
+seq_test+7
+```
+
+```{r}
+seq_test-7
+```
+
+```{r}
+mean(seq_test) # mean value of the numeric vector seq_test
+```
+
+```{r}
+max(seq_test)
+```
+
+```{r}
+min(seq_test)
+```
+
+```{r}
+sum(seq_test)
+```
+
+```{r}
+log(seq_test)
+```
+
+```{r}
+sqrt(seq_test)
+```
+
+```{r}
+cor(matx[, 1], matx[, 2])
+```
+
+# Data import/export
+
+As indicated before, using **R** you can handle different kind of information (from vectors to data frames) and basically most of our data is usually stored in an Excel spreadsheet or in files that have the extension of **.csv** (comma-separated values file) or **.txt** (Text X Text or text file that contains unformatted text). 
+
+Most of these files are imported in R are **data frames**, but, as we were practicing, we now have the tools to handle or transform the information into different objects. 
+
+The function to import data to R is simple **read.table()** or **read.csv()**, and using these simple functions, you can import the data and transform it in other kind of objects So, lets practice!
+
+```{r}
+dat <- read.table("Data/lab_0/Sample.txt")
+
+dat2 <- read.table("Data/lab_0/Sample.txt", row.names = 1, header = TRUE)
+
+dat3 <- read.csv("Data/lab_0/Sample.csv")
+```
+
+```{r}
+class(dat)
+```
+
+```{r}
+class(dat2)
+```
+
+```{r}
+class(dat3)
+```
+
+We can also extract a sample of our data frame.
+
+```{r}
+dat3Sample <- dat3[1:50, 1:4]
+
+dim(dat3Sample)
+```
+
+We can also import the data frame as a matrix.
+
+```{r}
+dat4 <- na.omit(as.matrix(read.csv("Data/lab_0/Sample.csv", row.names = 1, header = TRUE)))
+class(dat4)
+```
+
+```{r}
+head(dat4, 10)
+```
+
+```{r}
+dat4[1:20, 1:4] # Show the first 20 rows and 4 columns.
+```
+
+You can also import your data using the same functions, but without specifying the address. Notice that we do not recommend this procedure as you can't control the **directory structure**, but is useful when you just are exploring data.
+
+```{r}
+#| eval: false
+dat5 <- na.omit(read.csv(file.choose()))
+```
+
+You can also save your data from R using the function **write.table()** or **write.csv()**. Lets save the dat3Sample. Notice that always we need to specify the correct address, in our case we will save the data in the subolder **Data**.
+
+```{r}
+#| eval: false
+is.na(dat3Sample)
+
+write.csv(dat3Sample, file = "Data/Lab_0/dat3Sample.csv")
+```
+
+# Phylogenetic data
+
+To study biodiversity is important to first understand the data we are using and one common data used now is the phylogenetic data or phylogenetic trees that describe the evolutionary relationships between and among lineages. From here until the end of this short tutorial we will try to explain the basics of how to import/export and handle phylogenetic information. You can find extra information in the second chapter of the [MPCM Book](https://www.mpcm-evolution.com/book-sections/part-introduction/2-working-tree-life-comparative-studies-build-tailor-phylogenies-interspecific-datasets).
+
+## Formats
+The two most common formats in which the phylogenies are stored are the Newick and Nexus [@10.1093/sysbio/46.4.590]. 
+
+```{r}
+"((A:10,B:9)D:5,C:15)F;"
+```
+
+Using this notation, the parenthesis links the lineages to a specific node of the tree and the comma **","** separates the lineages that descend from that node. The colon punctuation **":"** can be used after the name of the node and the subsequent numeric values represent the branch length. Finally, the semicolon punctuation **";"** indicate the end of the phylogenetic tree.
+
+Now we can see how this format works, but first, check if we have the R packages for this purpose. Here we will use the R package *Analyses of Phylogenetics and Evolution*, AKA **ape**.
+
+```{r}
+if ( ! ("ape" %in% installed.packages())) {install.packages("ape", dependencies = TRUE)}
+```
+
+```{r}
+require(ape)
+```
+
+Now we can read the phylogenetic tree we just created above in Newick format.
+
+```{r}
+## Here we will create a phylogenetic tree in Newick format
+newick_tree <- "((A:10,B:9)D:5,C:15)F;"
+
+## Read the tre
+newick_tree <- read.tree(text = newick_tree)
+```
+
+And now we can plot the phylogentic tree
+
+```{r}
+plot(newick_tree, show.node.label = TRUE)
+```
+
+The other format is the **Nexus**, and after some time using it, we can say that the Nexus format have more flexibility for working. An example of a Nexus format is as follow:
+
+```{r}
+"#NEXUS
+BEGIN TAXA;
+DIMENSIONS NTAXA=3;
+TaxLabels A B C;
+END;
+BEGIN TREES;
+TREE=((A:10,B:9)D:5,C:15)F;
+END;"
+```
+
+We can create and save a nexus file from scratch using the next code.
+
+```{r}
+## First create a Nexus file in the working directory 
+cat(
+ "#NEXUS
+ BEGIN TAXA;
+ DIMENSIONS NTAXA=3;
+ TaxLabels A B C;
+ END;
+ BEGIN TREES;
+ TREE=((A:10,B:9)D:5,C:15)F;
+ END;",
+file = "../Data/Lab_0/Nexus_tree.nex"
+)
+```
+
+Now, using the function **read.nexus()** we can read the nexus file.
+
+```{r}
+## Now read the phylogenetic tree, but look that instead of using read.tree we are using read.nexus
+nexus_tree <- read.nexus("../Data/Lab_0/Nexus_tree.nex")
+```
+
+And also plot the imported nexus file.
+
+```{r}
+## lets plot the example
+plot(nexus_tree, show.node.label = TRUE)
+```
+
+Now, let's inspect our phylogenetic trees.
+
+```{r}
+str(nexus_tree)
+```
+
+```{r}
+nexus_tree$tip.label
+```
+
+If we want to know about the branch length of the tree we just need to select **edge.lenght**
+
+```{r}
+nexus_tree$edge.length
+```
+
+An important component of a phylo object is the matrix object called **edge**. In this matrix, each **row** represents a **branch** in the tree and the **first column** shows the index of the ancestral node of the branch and the **second column** shows the descendant node of that branch. Let's inspect!
+
+```{r}
+nexus_tree$edge
+```
+
+We know it is a little hard to follow even with small trees as the example, but if we plot the phylogenetic tree, the information within it it's easier to understand.
+
+```{r}
+# Lets plot the tree
+plot(nexus_tree, show.tip.label = FALSE)
+# Add the internal nodes
+nodelabels()
+# Add the tips or lineages
+tiplabels()
+```
+
+Finally, the phylogenies can also be imported in form of a list and in phylogenetic comparative methods this list of phylogenies is called **multiPhylo**, and we can import/export these multiPhylos in the two formats.
+
+```{r}
+# Simulate 10 phylogenies, each one with 5 species
+multitree <- replicate(10, rcoal(5), simplify = FALSE)
+# Store the list of trees as a multiPhylo object
+class(multitree) <- "multiPhylo"
+```
+
+```{r}
+# Plot a single tree from the 10
+plot(multitree[[10]])
+```
+
+```{r}
+par(mfrow = c(2, 2))
+plot(multitree[[1]])
+plot(multitree[[3]])
+plot(multitree[[7]])
+plot(multitree[[10]])
+```
+
+```{r}
+# Exporting the phylogenies as a single Newick file. 
+write.tree(phy = multitree, file = "../Data/Lab_0/multitree_example_newick.txt")
+multitree_example_newick <- read.tree("../Data/Lab_0/multitree_example_newick.txt")
+multitree_example_newick
+```
+
+```{r, warnings = FALSE, message = FALSE}
+# Exporting the phylogenies as a single Nexus file. 
+write.nexus(phy = multitree, file = "Data/Lab_0/multitree_example_nexus.nex")
+multitree_example_nexus <- read.nexus("Data/Lab_0/multitree_example_nexus.nex")
+multitree_example_nexus
+```
+
+:::{.callout-tip}
+## The :: operator
+If you know exactly which package contains the function you want to use you can reference it directly using the **::** operator. Simply place the {package name} before the operator and the name of the function after the operator to retrieve it. 
+
+In simple words, if you just want to use a specific function of an R package and not the entire package, the **::** operator can do it for you. for example: 
+
+multitree_example_nexus <- ape::read.nexus("Data/Lab_0/multitree_example_nexus.nex")
+
+:::
+
+# Gentle intro to loops
+
+In programming one of the most important tool is the **loop** AKA **for**. Basically, a loop runs for **n** number of steps in a previously defined statement.
+
+The basic syntax struture of a loop is:
+
+```{r} 
+#| eval: false
+for (variable in vector) {
+  execute defined statements
+}
+```
+
+When we are writing some piece of code it is common to use the loop variable **i** to determine the number of steps. Why not other letter?, well **i** is the first letter of the word **iteration** —duh! Anyway, you can use any letter or word as a loop variable.
+
+So, let's take a look.
+
+```{r}
+for (i in 1:10){
+  cat(i, sep = '')
+}
+```
+
+Notice that the number of steps is determined by the loop variable and in this example is a sequence of steps from 1 to 10, that correspond to the second element of the **for loop**, the **vector**.
+
+You can modify the previous statement to obtain different results, for example:
+
+```{r}
+for (i in 1:10){
+  cat(i, sep = '\n')
+}
+```
+
+Or using a previous object:
+
+```{r}
+for (i in 5:length(ex)){
+  cat(i, sep = '\n')
+}
+```
+
+Or to make calculations
+
+```{r}
+for (i in 5:length(ex)){
+  b2 <- b^2
+  b3 <- b*2
+  b4 <- b+10
+}
+```
+
+To finish this short tutorial, we will welcome all of the members of the Biodiversity Science cohort 2023.
+
+```{r}
+
+BioSciNames <- read.csv("Data/lab_0/BioSci_2023.csv")[, 1]
+
+```
+
+```{r, warnings = FALSE, message = FALSE}
+for (i in 1:length(BioSciNames)){ 
+  
+  print(paste0("Hi ", BioSciNames[i], ", welcome to the first practice of Biodiversity Science 2023!"))
+  
+  Sys.sleep(2) # wait two seconds before the next iteration or name
+}
+```
+
+We have covered basic aspects of R, from exploring and managing objects to import/export data and basics into loops. We hope that this short tutorial can be helpful not only for the **Biodiversity Science** course but for your specific projects. Remember, practice, practice, practice!
+
