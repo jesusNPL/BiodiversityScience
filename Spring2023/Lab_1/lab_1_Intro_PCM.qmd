@@ -514,7 +514,7 @@ habitat_anc <- make.simmap(furnaTree, habitat, model = "SYM", nsim = 100)
 
 This analysis results in a "Q" matrix showing the relative probabilities of change from state to state. For this character, this would represent dispersal events between habitats. The higher the value, the higher the probability of that type of change.
 
-*Which pair of islands shows the highest probability of interchange?* 
+*Which pair of habitats shows the highest probability of interchange?* 
 
 *Which pair shows the least?* 
 
@@ -536,7 +536,7 @@ plotSimmap(habitat_anc[[1]], fsize = 0.5) # this plots the first of 100 simulati
 *Using the command above, but changing the index from 1 to other values, look at a number of reconstructions. How much variation do you see?*
 
 
-We can summarize these simulations and estimate the relative probability of each island as an ancestor for each node on our tree:
+We can summarize these simulations and estimate the relative probability of each habitat as an ancestor for each node on our tree:
 
 ```{r}
 #| eval: false
