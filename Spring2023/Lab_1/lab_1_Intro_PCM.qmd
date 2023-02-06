@@ -104,9 +104,29 @@ furnaData <- read_csv("https://raw.githubusercontent.com/jesusNPL/BiodiversitySc
 furnaTree <- read.nexus("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2023/Lab_1/Data/furnariides_tree.nex")
 
 ```
+
+Another option is downloading the data and storing it on your computer. You can use the following lines to do that. These lines will do: 1) check your working directory, 2) download the lab data in a zip file, and 3) unzip the downloaded data.
+
+```{r}
+#| eval: false
+main.dir <- getwd() # Will get the working directory
+
+urls <- "https://www.dropbox.com/s/z80ba99eyzmo6p3/Lab_1.zip?dl=1" # Name of the file to download
+
+download.file(url = urls, file.path(main.dir, "Data/Lab_1.zip"), mode = "wb") # download the file in a specific folder
+
+unzip("Data/Lab_1.zip")
+
+```
+
+:::{.callout-caution collapse="true"}
+## Double-check your working directory
+Previous lines of code will only work if you have set your **working directory (WD)** and only if you have the folder **Data** within the WD. You can check the Intro-R lab for more details.
+:::
+
 OK. You should be ready to go.
 
-let's inspect the data first, to do that we will use the function **"glimpse()"** of the R package **{dplyr}** 
+Let's inspect the data first, to do that we will use the function **"glimpse()"** of the R package **{dplyr}** 
 
 :::{.callout-tip}
 ## The pipe (%>%) operator
