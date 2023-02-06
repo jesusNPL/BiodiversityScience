@@ -436,9 +436,9 @@ aicw(c(brownianModel$opt$aicc, OUModel$opt$aicc, EBModel$opt$aicc))
 ```
 
 
-*Make a table with the AIC and lnL values for each model. Which model provides the best fit for Habd-wing index?* 
+*Make a table with the AIC and lnL values for each model. Which model provides the best fit for Hand-wing index?* 
 
-*Now, add the results for a model fitting analysis of the Hostility trait to this table.*
+*Now, add the results for a model fitting analysis of the range size trait to this table.*
 
 So, we were wrong. An OU model fits HWI better (and you should be able to explain how we know that). Unfortunately, a PGLS analysis with an OU model specified is currently computationally difficult. The best we can do is report the results from our model fitting analysis, and realize that the parameters from BM might not be the best fit.
 

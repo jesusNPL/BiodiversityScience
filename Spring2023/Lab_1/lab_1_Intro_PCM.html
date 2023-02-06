@@ -3282,8 +3282,8 @@ Exploring the data
 <div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">aicw</span>(<span class="fu">c</span>(brownianModel<span class="sc">$</span>opt<span class="sc">$</span>aicc, OUModel<span class="sc">$</span>opt<span class="sc">$</span>aicc, EBModel<span class="sc">$</span>opt<span class="sc">$</span>aicc))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p><em>Make a table with the AIC and lnL values for each model. Which model provides the best fit for Habd-wing index?</em></p>
-<p><em>Now, add the results for a model fitting analysis of the Hostility trait to this table.</em></p>
+<p><em>Make a table with the AIC and lnL values for each model. Which model provides the best fit for Hand-wing index?</em></p>
+<p><em>Now, add the results for a model fitting analysis of the range size trait to this table.</em></p>
 <p>So, we were wrong. An OU model fits HWI better (and you should be able to explain how we know that). Unfortunately, a PGLS analysis with an OU model specified is currently computationally difficult. The best we can do is report the results from our model fitting analysis, and realize that the parameters from BM might not be the best fit.</p>
 <p>However, we can still test our hypothesis that species with large HWI also present large range size, and account for phylogeny when we do. First, we should compare the uncorrected linear model of range size as a function of HWI vs the PGLS that uses the covariance structure of the residuals under a Brownian Motion model.</p>
 <div class="cell">
