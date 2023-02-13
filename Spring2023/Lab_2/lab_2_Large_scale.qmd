@@ -300,7 +300,16 @@ To load the Furnariides geographical ranges we will use the function **st_read()
 franges <- st_read("Data/Lab_2/Ranges/Furnarii_ranges_geo.shp") 
 
 ```
-Explore the imported data
+Explore the imported data. 
+
+```{r}
+#| eval: false
+
+class(franges)
+```
+
+Now see all the data information.
+
 ```{r}
 #| eval: false
 
@@ -471,7 +480,7 @@ values(neo_ras_4dg) <- 0
 neo_ras_6dg <- raster()
 # Set the raster "extent" 
 extent(neo_ras_6dg) <- extent(franges)
-res(neo_ras_6dg) <- 4
+res(neo_ras_6dg) <- 6
 neo_ras_6dg
 values(neo_ras_6dg) <- 0
 
@@ -529,7 +538,7 @@ So, is there an effect of scale?
 
 ### Species richness as a function of evolutionary history
 
-Let's try to rasterize another information from the polygon data set. We will use the information in the column **RD**, this data correspond to the numbers of nodes from the tips to the root of a phylogenetic tree or just **root distance**, thus, will use the RD to calculate the MRD metric **(mean root distance)** that measures the evolutionary derivedness of species within an assemblage [@kerr_relative_1999] and can be used to determine whether a local fauna is constituted primarily by early-diverged or by recently originated species [@hawkins_different_2012; @pinto-ledezma_geographical_2017]. 
+Let's try to rasterize another information from the polygon data set. We will use the information in the column **RD**, this data correspond to the numbers of nodes from the tips to the root of a phylogenetic tree or just **root distance**, thus, will use the RD to calculate the MRD metric **(mean root distance)** that measures the evolutionary derivedness of species within an assemblage [@kerr_relative_1999] and can be used to determine whether a local fauna is constituted primarily by early-diverged or by recently originated species [@hawkins_different_2012; @pinto-ledezma_geographical_2017]. In other words, high MRD values means that the community (i.e., grid-cell) is composed mostly by recently originated species, whereas low MRD values by early-diverged species.
 
 ```{r}
 #| eval: false
@@ -634,6 +643,22 @@ data_sr_mrd %>%
 Hmmm. What happened in here? Please answer the next questions.
 
 *From the mean root distance map, it is possible to explain the Furnariides diversity gradient? If so, please explain from an evolutionary perspective*.
+
+:::{.callout-tip}
+## Save the figures
+There are multiple options to save the figures. Jesús particularly like saving his figures in **PDF**. To save the figures in a pdf file, you can use the following code.
+
+pdf("association_MRD_SR.pdf", height = 5, width = 7)
+
+data_sr_mrd %>% 
+  ggplot(aes(x = MRD, y = SR)) + 
+  geom_point(color = "darkgray") + 
+  geom_smooth(method = "lm")
+  
+dev.off()
+
+This lines will save your figure in your working directory.
+:::
 
 ### Species richness as a function of environment
 
