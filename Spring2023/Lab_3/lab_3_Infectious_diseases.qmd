@@ -24,47 +24,21 @@ csl: ../apa-single-spaced.csl
 ---
 
 :::{.callout-note}
+
 Today we will have one more lab and will explore basic aspects of models for Spread of Disease or Compartmental models that are used to simplify the mathematical modeling of infectious diseases, more specifically, we will explore the basic $SIR$ (Susceptible, Infectious, Recovered) model that is used to predict disease spreads, the total number of infected subjects of the duration of a pandemic. To do so, we will use real data obtained from the [**Centers for Disease Control and Prevention**](https://www.cdc.gov) that reports aggregate counts of COVID-19 at State level for the United States. 
 
-Before starting the lab let's set some groups to read and discuss this interesting piece published this last Saturday in the New York Times and that entitled [When Could the United States Reach Herd Immunity? It’s Complicated](https://www.nytimes.com/interactive/2021/02/20/us/us-herd-immunity-covid.html) and that is related to this amazing paper published in the **American Journal of Preventive Medicine** that entitles [Vaccine Efficacy Needed for a COVID-19 Coronavirus Vaccine to Prevent or Stop an Epidemic as the Sole Intervention](https://www.ajpmonline.org/article/S0749-3797(20)30284-1/abstract). Another nice paper to understand the **herd immunity** concept was published in **Current Biology**, you can get access to that conceptual paper by clicking [HERE](https://www.cell.com/current-biology/fulltext/S0960-9822(21)00039-7).
+In an amazing paper published in the **American Journal of Preventive Medicine** that entitles [Vaccine Efficacy Needed for a COVID-19 Coronavirus Vaccine to Prevent or Stop an Epidemic as the Sole Intervention](https://www.ajpmonline.org/article/S0749-3797(20)30284-1/abstract) by [@bartsch_vaccine_2020], we can get information about **herd immunity**. Another nice paper to understand the **herd immunity** concept was published in **Current Biology** by [@ashby_herd_2021], you can get access to that conceptual paper by clicking [HERE](https://www.cell.com/current-biology/fulltext/S0960-9822(21)00039-7).
+
 :::
 
-Today we will learn basic tools in R for visualizing species distributions, build geographical ranges, testing drivers of gradients of biodiversity under different approaches.
-
-You will need three datasets, that will be provided for you:
-
-1. Species occurrence data points -- **live.oaks.txt** 
-
-2. Species geograhical ranges -- **Furnarii_ranges_geo.shp** 
-
-3. Environmental predictors -- **bio1.bil and bio12.bil**
-
 # Set up your data and your working directory
-
-Set up a working directory and put the data files in that directory. Tell R that this is the directory you will be using, and read in your data:
-
-You can download the data directly on your computer by clicking [**Occurrences**](https://www.dropbox.com/sh/15unznp4wdkdccl/AAB3XEZbHHpTD2SwiBntT1ija?dl=0),  [**Geographical Ranges**](https://www.dropbox.com/sh/lw5xhtj35b9k1em/AABAHZDFZTX6kYWiCaSrk-h3a?dl=0), and [**Environmental predictors**](https://www.dropbox.com/sh/n1h94pp4o99uyun/AADc2aIzBIoZSa7KPKK4kOXEa?dl=0) and store them in the folder named **Data"**.
-
-You can also go ahead and run the next lines if you don't want to copy a paste the links provided above.
-
-```{r}
-#| eval: false
-main.dir <- getwd() # Will get the working directory
-
-urls <- "https://www.dropbox.com/s/nzyhcz9h4r4zi8b/Lab_2.zip?dl=1" # Name of the file to download
-
-download.file(url = urls, file.path(main.dir, "Data/Lab_2.zip"), mode = "wb") # download the file in a specific folder
-
-unzip("Data/Lab_2.zip", exdir = "Data/")
-
-```
 
 To do this laboratory you will need to have a set of R packages. Install the following packages:
 
 ```{r}
 #| eval: false
 
-packages <- c("coronavirus", "deSolve", "lubridate", "scales") 
+packages <- c("coronavirus", "deSolve", "lubridate", "scales", "PrettyCols") 
 # Package vector names
 
 ```
@@ -93,9 +67,13 @@ Load installed packages:
 
 ```{r}
 #| eval: false
+
 library(tidyverse)
 library(lubridate)
 library(coronavirus)
+library(PrettyCols)
+library(scales)
+library(deSolve)
 
 ```
 
@@ -122,6 +100,8 @@ glimpse(coronavirus)
 To to get the most updated dataset we can use the function **refresh_coronavirus_jhu()** and store the UPDATED data in our **Environment** as a new object named *corona*.
 
 ```{r}
+#| eval: false
+
 corona <- refresh_coronavirus_jhu()
 
 corona %>% 
@@ -129,11 +109,17 @@ corona %>%
 
 ```
 
-If you receive an error while uploading or updating the coronavirus data, use the nex code 
+If you received an error while uploading or updating the coronavirus data, use the next code. If not, please skip this lines.
+
 ```{r}
 #| eval: false
 
-source()
+githubURL <- "https://github.com/jesusNPL/BiodiversityScience/raw/master/Spring2023/Lab_3/Data/corona.RData"
+
+load(url(githubURL))
+
+glimpse(corona)
+
 ```
 
 Let's start exploring the total numbers of confirmed cases by country. 
@@ -142,13 +128,13 @@ Let's start exploring the total numbers of confirmed cases by country.
 #| eval: false
 
 # Get top confirmed cases by country
-coronavirus %>%
-  filter(type == "confirmed") %>%
-  group_by(country) %>%
-  summarise(total = sum(cases)) %>%
+corona %>%
+  filter(data_type == "cases_new") %>%
+  group_by(location) %>%
+  summarise(total = sum(value)) %>%
   arrange(-total) %>% 
   head(20) %>% 
-  ggplot(aes(y = as.factor(country), x = total)) + 
+  ggplot(aes(y = as.factor(location), x = total)) + 
   geom_bar(stat = "identity") 
 
 ```
@@ -171,14 +157,14 @@ theme_nice <- function() {
 }
 
 # Get top confirmed cases by country
-coronavirus %>%
-  filter(type == "confirmed") %>%
-  group_by(country) %>%
-  summarise(total = sum(cases)) %>%
+corona %>%
+  filter(data_type == "cases_new") %>%
+  group_by(location) %>%
+  summarise(total = sum(value)) %>%
   arrange(-total) %>% 
   head(20) %>% 
-  ggplot(aes(y = as.factor(country), x = total)) + 
-  geom_bar(stat = "identity") + 
+  ggplot(aes(y = as.factor(location), x = total)) + 
+  geom_bar(stat = "identity", alpha = 0.7) + 
   scale_x_continuous(labels = scales::label_number(suffix = " M", scale = 1e-6)) + 
   labs(x = "Number of cases", y = "Countries with more reported cases") + 
   theme_nice()
@@ -188,8 +174,11 @@ coronavirus %>%
 Much, much better!
 
 *What about the 20 countries with less number of reported cases?* 
+
 *Which countries reported fewer cases of COVID-19?* 
+
 *What about the number of reported recovered cases?* 
+
 *How do feel about that?*
 
 By quickly exploring the coronavirus dataset we can see that the United States is the country with more reported cases, not new information is added to our current knowledge, however, we can learn more about the COVID-19 dynamics in the US by looking at its changes over time--you can select any other country if you wish.
@@ -227,907 +216,464 @@ recovered_us <- corona %>%
 head(infected_us)
 ```
 
+let's plot the new cases. 
 ```{r}
 #| eval: false
 
 corona_us %>% 
-  arrange(desc(date)) %>% 
   filter(data_type == "cases_new") %>% 
-  ggplot(aes(x = date, y = value)) + 
+  ggplot(aes(x = as.POSIXct(date), y = value)) + 
   geom_point(color = "gray") + 
-  geom_line(color = "red", linewidth = 1) + 
+  labs(x = NULL, y = "COVID-19 new cases") + 
+  geom_line(mapping = aes(x = as.POSIXct(date)), linewidth = 2,
+            colour = alpha(PrettyCols::prettycols("Purples")[4], 0.3)) +
+  geom_smooth(colour = PrettyCols::prettycols("Purples")[1], linewidth = 2) +
   scale_y_continuous(labels = scales::label_number(suffix = " M", scale = 1e-6)) + 
+  scale_x_datetime(date_breaks = "2 month", labels = scales::label_date_short()) + 
   theme_nice()
 
 ```
 
-Ugh, ugly figure, let's try adding a new column that represent the data increasing since the first day in this dataset (i.e., 22/01/2020).
+We can see a trend in the number of confirmed Infected subjects since the first case was registered in the US. Happily, the number of reported cases has declined steadily since mid-September 2022. This is really great news! If you want to explore with more detail these dynamics in the United Sates the website [**covid19.Explorer**](https://covid19-explorer.org) developed by [@revell_covid19explorer_2021] can help you. This website is accompanied with a nice [paper](https://peerj.com/articles/11489/) in which Liam explains the methodology he used to arrange and visualize the data.
+
+*How do you feel about that?*
+
+*Please explain the trend temporally; in other words, do the spikes in the number of cases match the US holidays?*
+
+*What about the number of deaths and the number of recovered people?*
+
+# SIR model 
+
+## Data preparation
+
+The first step to build our first ***SIR*** model is to get data of a disease, well, we already have data of coronavirus for each country in the world, however, as this dataset is at country level we probably will be missing some relevant information that occurs only at local scale, i.e., by States. In this sense, we will use data from the [**Centers for Disease Control and Prevention**](https://www.cdc.gov) that reports aggregate counts of COVID-19 at State level within the United States, how good is that? Okay, let's go for it!
+
+```{r}
+#| eval: false
+
+# https://covid.cdc.gov/covid-data-tracker/#trends_weeklycases_select_27
+# Get data from the CDC
+url_data <- "https://data.cdc.gov/api/views/9mfq-cb36/rows.csv?accessType=DOWNLOAD"
+
+covid_us <- read.csv(url_data)
+
+glimpse(covid_us)
+
+```
+
+Let's explore the data and clean it little bit.
+
+```{r}
+#| eval: false
+
+covid_us %>% 
+  arrange(state) %>% 
+  drop_na(tot_cases) %>% 
+  ggplot(aes(y = state, x = tot_cases)) + 
+  geom_bar(stat = "identity") + 
+  labs(x = "Number of cases", y = "Reported cases by State") + 
+  scale_x_continuous(labels = scales::label_number(suffix = " M", scale = 1e-6)) + 
+  theme_nice()
+
+```
+
+Let's reformat the dates and order the data in an ascending order.
+
+```{r}
+#| eval: false
+
+covid_us <- covid_us %>% 
+  mutate(Date = submission_date) %>% 
+  mutate(Date = mdy(Date)) %>% 
+  select(Date, everything()) %>% 
+  separate(submission_date, sep = "/", into = c("month", "day", "year")) 
+
+# Sort the data in an increasing order
+covid_us <- covid_us[order(covid_us$Date), ]
+
+head(covid_us)
+
+```
+As we can see there are a lot of **NA** values in the dataset, these NA values are because there were no cases reported in the US in the first two months of the 2020. 
+
+The data is still very broad, let's select data for the State of Minnesota.
+
+```{r}
+#| eval: false
+
+covid_mn <- covid_us %>% 
+  filter(state == "MN")
+
+head(covid_mn)
+
+```
+Now we can explore the data in a similar way we did for the entire United States.
 
 ```{r, eval=FALSE}
-Days <- 1:nrow(infected_us)
-infected_us <- data.frame(infected_us, Days)
-head(infected_us)
+#| eval: false
+
+covid_mn %>% 
+  ggplot(aes(x = as.POSIXct(Date), y = new_case)) + 
+  geom_point(color = "gray") + 
+  labs(x = NULL, y = "COVID-19 new cases") + 
+  geom_line(mapping = aes(x = as.POSIXct(Date)), linewidth = 2,
+            colour = alpha(PrettyCols::prettycols("Purples")[4], 0.3)) +
+  geom_smooth(colour = PrettyCols::prettycols("Purples")[1], linewidth = 2) +
+  scale_y_continuous(labels = scales::label_number(suffix = " M", scale = 1e-6)) + 
+  scale_x_datetime(date_breaks = "2 month", labels = label_date_short()) + 
+  theme_nice()
+
 ```
+
+We can see that there are some days that no cases were reported, however, it looks like follows the same pattern as the entire United States.
+
+Let's see what happens if we plot the cumulative number of cases. 
+
+```{r}
+#| eval: false
+
+covid_mn %>% 
+  ggplot(aes(x = as.POSIXct(Date), y = tot_cases)) + 
+  geom_point(color = "gray") + 
+  labs(x = NULL, y = "Total COVID-19 cases") + 
+  geom_line(mapping = aes(x = as.POSIXct(Date)), linewidth = 2,
+            colour = alpha(PrettyCols::prettycols("Purples")[4], 0.3)) +
+  geom_smooth(colour = PrettyCols::prettycols("Purples")[1], linewidth = 1) +
+  scale_y_continuous(labels = scales::label_number(suffix = " M", scale = 1e-6)) + 
+  scale_x_datetime(date_breaks = "2 month", labels = label_date_short()) + 
+  theme_nice()
+
+```
+
+It look like the after three year the cumulative number of cases is reaching a plateau. 
+
+We can also see the number of deaths caused by COVID-19 in the state of Minnesota.
+
+```{r}
+#| eval: false
+
+covid_mn %>% 
+  ggplot(aes(x = as.POSIXct(Date), y = abs(new_death))) + 
+  geom_point(color = "gray") + 
+  labs(x = NULL, y = "Number of Deaths") + 
+  geom_line(mapping = aes(x = as.POSIXct(Date)), linewidth = 2,
+            colour = alpha(PrettyCols::prettycols("Purples")[4], 0.3)) +
+  geom_smooth(colour = PrettyCols::prettycols("Purples")[1], linewidth = 1) +
+  scale_y_continuous(labels = scales::label_number(suffix = " K", scale = 1e-6)) + 
+  scale_x_datetime(date_breaks = "2 month", labels = label_date_short()) + 
+  theme_nice()
+
+```
+
+## Modeling SIR 
+
+Now using the data from the US we will fit the SIR model to predict the changes in the number of Infected cases. The basic idea of the SIR model is, in fact, quite simple. First, we can see that the SIR model is composed of a set of three groups of people or compartments: 
+
+1. Those who are healthy but susceptible to the disease (**S**), 
+2. the infected (**I**), 
+3. the recovered (**R**).
+    
+Then, these compartments in turn are used to model the dynamics of an outbreak. However, first of all we need to understand a little bit the *Math* behind the scenes. Jeannine provided a nice introduction to the math in her last lecture, but if you want to dig a little bit more you can watch this amazing video by Trevor Bazett [The MATH of Epidemics | Intro to the SIR Model](https://www.youtube.com/watch?v=Qrp40ck3WpI) on YouTube. But, if you want to learn more details on this topic, the Book [**Epidemics: models and data using R**](https://www.springer.com/gp/book/9783319974866) by [@bjornstad_epidemics_2018] can help you.
+
+Anyhow, let's recap a little bit how the math works. To do that, we need three *differential equations*, one for the change in each group or compartment, where $\beta$ (represent the infection rate) is the parameter that controls the transition between $S$ and $I$ and $\gamma$ (gamma) which controls the transition between $I$ and $R$, and represents the removal or recovery rate. 
+
+The first equation indicates that the number of susceptible subjects ($S$) decreases with the number of newly infected subjects. In other words, every new infected subject is the result of the infection rate ($\beta$) times the number of susceptible individuals ($S$) who had a contact with an infected subject ($I$).
+
+$$\frac{dS}{dt} = - \frac{\beta IS}{N}$$
+
+The second equation indicates that the number of infected subjects ($I$) increases as new infected individuals are added to the pool ($\beta IS$) minus the recovered subjects ($\gamma I$), where, $\gamma I$ is the removal rate $\gamma$ times the infected subjects $I$.
+
+
+$$\frac{dI}{dt} = \frac{\beta IS}{N} - \gamma I$$ 
+
+
+Finally, the third equation indicates that the number of recovered subjects $R$ increases with the number of subjects who either recovered or died ($\gamma I$).
+
+$$\frac{dR}{dt} = \gamma I$$
+
+Okay, we are almost there. But first let's see how an epidemic develops. 
+
+* Step zero - An outbreak starts when no subject in the population has anti-bodies, in other words, when $S$ (susceptible subjects) equal the entire population $N$.
+* Step one - Once one subject in the population get infected ($I$), this subject change the state from $S$ to $I$. Thus, $S$ decreases by **1** as new $I$ are added to the population. 
+* Step two - Each $I$ (before recovering or dying) in turn infect other subjects in the population.
+* Step three - The dynamic continues as newly $I$ subjects infect other $S$ subjects in the population before they recover (or died) or until some **Interventions** are applied (e.g., quarantine, wearing masks).
+* Step four - Vaccines are developed (**YAY**), so a counteract can be applied to reduce the number of $S$ or to increase the number of $R$.
+
+As we now understand how the $SIR$ model works, we can build an **R function** that allow us to model the dynamic of a disease. 
+
+```{r}
+#| eval: false
+
+SIR <- function(time, state, parameters) {
+  par <- as.list(c(state, parameters))
+  with(par, { 
+    dS <- -Beta * I * S / N # Equation one
+    dI <- Beta * I * S / N - Gamma * I # Equation two
+    dR <- Gamma * I # Equation three
+    list(c(dS, dI, dR)) 
+    })
+}
+
+```
+
+Now to fit the $SIR$ model to the data (Minnesota dataset) we need a ***solver*** and an ***optimizer***, why is that? Well, the $SIR$ model is an ***Ordinary Differential Equation*** (**ODE**), thus, a solver function is needed to help us to solve the equations. We will use the function "**ode**" of the package {**deSolve**} and the "**optim**" function of {**R base**} as an optimizer.
+
+More specifically, in order to solve the equations we need is to minimize the sum of the squared differences ($RSS$) between the number of $I$ subjects (infected) and time $t$--$I(t)$--and the number of predicted cases by our model, i.e., $\hat{I}(t)$:
+
+$$RSS(\beta, \gamma) = \sum_t \big(I(t) - \hat{I}(t) \big)^2$$
+
+Before start solving the $SIR$ model, let's write another function that allows the $RSS$ estimation.
+
+```{r}
+#| eval: false
+
+RSS <- function(parameters) {
+  names(parameters) <- c("Beta", "Gamma") 
+  out <- ode(y = init, times = Days, func = SIR, parms = parameters) 
+  # the out object includes the SIR function we wrote above
+  fit <- out[, 3] 
+  sum((Infected - fit)^2)
+}
+
+```
+
+Okay, we now have almost all information needed to fit our first $SIR$ model. The last information we need is to set of initial values for $N$ (population size), $S$, $I$ and $R$.
+
+By observing the trend in the number of cases for MN, we can see that the first record of infected subject was in **March 06 2020** (you can double check to confirm that date), so, let's set that day as a starting point for our $SIR$ model. Moreover, as more than a year has passed since the pandemic started, the variability in the number of cases in very huge, so let's select the first 60 days of cases to fit our model and then using the fitted model to predict for the next couple of months.
+
 ```{r, eval=FALSE}
-plot(infected_us$Days, infected_us$value, type = "b", 
-     ylab = "Infected", xlab = "Days since the first case")
+N <- 5686649 # Total population for the State of Minnesota for the 2020
+
+start_date <- "2020-03-06"
+end_date <- "2020-05-10"
+
+# isolating the infected subjects in the state of Minnesota since the start date
+
+Infections <- covid_mn %>% 
+  filter(Date >= ymd(start_date) & Date <= ymd(end_date))
+
+#Infected2 <- subset(covid_mn, Date >= ymd(start_date) & Date <= ymd(end_date))$new_case
+
 ```
 
-We can see that there is trend in the number of confirmed Infected subjects since the first case registered in the US, happily, the number of reported cases are declining steadily since mid-January. This is really good news! If you want to explore with more detail these dynamics in the United Sates the website [**covid19.Explorer**](https://covid19-explorer.org) developed by Liam Revell can help you. This website is accompanied with a nice [pre-print paper](https://www.medrxiv.org/content/10.1101/2021.02.15.21251782v1) in which Liam explains the methodology he used to arrange and visualize the data.
-
-*How do you feel about that?*
-*Please explain the trend in a temporal way, in other words, the pikes in the number of cases match with the US holidays?*
-*What about the number of recovered subjects?*
-
-
-
-
-
-
-Load species occurrences data points. We will use occurrences from Live oaks, that were obtained from iDigBio between 20 and 24 July 2018 by Jeannine. Notice that these occurrence data points were visually examined and any localities that were outside the known range of the species, or in unrealistic locations (e.g., water bodies, crop fields) were discarded. 
+Let's plot this data and see how it looks.
 
 ```{r}
 #| eval: false
 
-oaks_occ <- read_delim("Data/Lab_2/OCC/live.oaks.txt") %>% 
-  filter(Species != "Hybrid")
-
-oaks_occ %>% 
-  count(Species) # check how many species and how many observations per species
-
-# to sf object, specifying variables with coordinates and projection
-oaks_occ_sf <- st_as_sf(oaks_occ, coords = c("Longitude", "Latitude"), crs = 4326) %>%
-  #group_by(species) %>%
-  st_cast("MULTIPOINT") %>% 
-  group_by(Species) %>% 
-  summarize()
-
-glimpse(oaks_occ_sf)
-
-```
-*What variables we have in the oaks_occ object? How many oak species are in the dataset?*
-
-What we did in the previous code was simply to transform a the data.frame object into a **spatial data.frame**. We can plot the results.
-
-```{r}
-#| eval: false
-ggplot() +
-  geom_sf(data = neighbours, color = "white") +
-  geom_sf(data = NApoly) + 
-  geom_sf(data = oaks_occ_sf, aes(color = Species), alpha = 0.7) + 
-  coord_sf(
-     xlim = c(-125, -65),
-    ylim = c(10, 50)
-  ) +
-  theme(
-    plot.background = element_rect(fill = "#f1f2f3"),
-    panel.background = element_rect(fill = "lightblue"),
-    panel.grid = element_blank(),
-    line = element_blank(),
-    rect = element_blank()
-  )
-```
-Nice!
-
-## Range maps from point data
-
-In this section we will learn how to create “simple” range maps based on geometry (e.g. minimum convex polygons, etc.), without considering environmental variables (e.g., ENMs or SDMs). Note that these range maps are geographical abstractions of the species ranges. **A species range is the area where a particular species can be found during its lifetime. Species range includes areas where individuals or communities can migrate or hibernate**
-
-We will explore two alternative, one based on simple **convex hull** and the other is the **smoothed convex hull**
-
-### Convex hull
-
-```{r}
-#| eval: false
-oaks_CH <- st_convex_hull(oaks_occ_sf) 
-
-# plot hulls
-ggplot() +
-  geom_sf(data = neighbours, color = "white") +
-  geom_sf(data = NApoly) +
-  geom_sf(data = oaks_CH, aes(fill = Species), alpha = 0.7) +
-  scale_fill_scico_d(palette = "davos", direction = -1, end = 0.9, guide = FALSE) +
-  coord_sf(
-    xlim = c(-125, -65),
-    ylim = c(10, 50)
-  ) +
-  theme(
-    plot.background = element_rect(fill = "#f1f2f3"),
-    panel.background = element_rect(fill = "lightblue"),
-    panel.grid = element_blank(),
-    line = element_blank(),
-    rect = element_blank()
-  )
+Infections %>% 
+  ggplot(aes(x = as.POSIXct(Date), y = log(new_case))) + 
+  geom_point(color = "gray") + 
+  #geom_line(mapping = aes(x = as.POSIXct(Date)), linewidth = 2,
+   #         colour = alpha(PrettyCols::prettycols("Purples")[4], 0.3)) +
+  geom_smooth(colour = PrettyCols::prettycols("Purples")[1], linewidth = 1) + 
+  labs(x = NULL, y = "log - COVID-19 cases") + 
+  theme_nice()
 
 ```
 
-Now try the smoothed version.
+We can see that the confirmed cases in Minnesota were increasing rapidly since the first case of COVID-19 was reported.
 
-```{r}
-#| eval: false
-oaks_SCH <- st_convex_hull(oaks_occ_sf) %>% 
-  smoothr::smooth()
-
-# plot smoothed hulls
-ggplot() +
-  geom_sf(data = neighbours, color = "white") +
-  geom_sf(data = NApoly) +
-  geom_sf(data = oaks_SCH, aes(fill = Species), alpha = 0.7) +
-  scale_fill_scico_d(palette = "davos", direction = -1, end = 0.9, guide = FALSE) +
-  coord_sf(
-    xlim = c(-125, -65),
-    ylim = c(10, 50)
-  ) +
-  theme(
-    plot.background = element_rect(fill = "#f1f2f3"),
-    panel.background = element_rect(fill = "lightblue"),
-    panel.grid = element_blank(),
-    line = element_blank(),
-    rect = element_blank()
-  )
-
-```
-
-*Please explain the results. How do you feel about that?*
-
-Until here we have explored how to plot, clean and build species geographical ranges using occurrences. Now we will use species geographical ranges of the largest continental endemic radiation (**Furnariides**) to explore the geographical gradients of species diversity.
-
-# Diversity gradients
-
-## Prepare data and mapping
-
-The geographical ranges correspond to the Infraorder Furnariides (Aves). This data is available thorough [BirdLife International](http://datazone.birdlife.org/species/requestdis) and you can use any other group available on IUCN or BIEN (for plants in the Americas). In any case, you first need to download the polygons in shapefile format.
-
-To load the Furnariides geographical ranges we will use the function **st_read()** from the package **{sf}**.
+As we now know that the number of $I$ were increasing during the first days of the pandemic, let's model de dynamic of COVID-19 during that period of time. Why we selected that period of time and not all data? Well, the main reason is that this kind of models are used to explore the first stages of a disease in order to identify if the disease has the potential to become a pandemic and to approximate its reproductive ratio $R_0$.
 
 ```{r}
 #| eval: false
 
-franges <- st_read("Data/Lab_2/Ranges/Furnarii_ranges_geo.shp") 
+# ODE does not like tidy format, so we are going to isolate the number of cases in R base.
+
+Infected <- Infections$new_case
+
+Days <- 1:length(Infected) # Number of days since the first case
+
+init <- c(
+  S = N - Infected[1], # Susceptible group
+  I = Infected[1], # Infected group
+  R = 0 # Recovered group.
+)
 
 ```
-Explore the imported data. 
 
-```{r}
-#| eval: false
+Now we can combine all information and run our model. Using the information provided above, we can find the values of $\beta$ and $\gamma$ that give the smallest $RSS$ that represent the best fit to the data. Let's start exploring with values of **0.5** for each step and constrain those values to an interval from 0 to 1. 
 
-class(franges)
-```
-
-Now see all the data information.
-
-```{r}
-#| eval: false
-
-glimpse(franges)
-
-```
-*What variables are present in the spatial polygon object?* and *How many species?*
-
-Let's plot a couple of species. 
-
-```{r}
-#| eval: false
-
-selSPP <- franges %>% 
-  filter(SCINAME == "Furnarius rufus" | SCINAME == "Anabazenops dorsalis")
-
-# country subset
-SApoly <- worldMap %>% 
-  filter(continent == "South America")
-  #filter(admin == "United States of America" | admin == "Mexico")
-
-```
+You can play with the initial values by changing the **c(0.5, 0.5)** to lower or higher values (e.g., 0.1 or 0.7), but remember, the estimates of $\beta$ and $\gamma$ will change. A nice post that explains in more detail the impact of changing the initial values can be found [HERE](https://blog.ephorie.de/contagiousness-of-covid-19-part-i-improvements-of-mathematical-fitting-guest-post).
 
 
 ```{r}
 #| eval: false
 
-# plot the selected ranges
-ggplot() +
-  #geom_sf(data = worldMap, color = "white") +
-  geom_sf(data = SApoly) +
-  geom_sf(data = selSPP, aes(color = SCINAME), alpha = 0.7, size = 2) +
-  scale_fill_scico_d(palette = "davos", direction = -1, end = 0.9, guide = FALSE) +
-  coord_sf(
-    xlim = c(-80, -35),
-    ylim = c(10, -60)
-  ) +
-  theme(
-    plot.background = element_rect(fill = "#f1f2f3"),
-    panel.background = element_rect(fill = "lightblue"),
-    panel.grid = element_blank(),
-    line = element_blank(),
-    rect = element_blank()
-  )
+Opt <- optim(c(0.5, 0.5),
+  RSS,
+  method = "L-BFGS-B",
+  lower = c(0, 0),
+  upper = c(1, 1)
+)
 
 ```
 
-*Explain the distribution for both species (i.e., Furnarius rufus [blue polygon] and Anabazenops dorsalis [red polygon])* *Are these species distributed in sympatry or allopatry? Explain the selected distribution pattern.* 
-
-## Raster of species richness
-
-Species richness is the number of different species represented in an ecological community, landscape or region. Species richness is simply a count of species, and it does not take into account the abundances of the species or their relative abundance distributions.
-
-Now, let's create a map that represent the species richness of Furnariides.
-
-First create an empty raster for the Neotropics using the extent of the Furnariides ranges under a spatial resolution of 1º long-lat or 111 km at the equator.
+Check if the model converged.
 
 ```{r}
 #| eval: false
 
-library(raster)
+# optimize with some sensible conditions
+Opt$message
 
-neo_ras <- raster() # empty raster
-
-extent(neo_ras) <- extent(franges) # Set the raster "extent" 
-
-res(neo_ras) <- 1 # Set the raster "resolution" 
-
-neo_ras # print the raster object in the console
-
-values(neo_ras) <- 0 # assign O values to all pixels in the raster
-
+# [1] "CONVERGENCE: REL_REDUCTION_OF_F <= FACTR*EPSMCH"
 ```
 
-Now using the empty raster we will **rasterize** the species identities in each cell or pixel. The resulting raster will be the species richness of Furnariides across the Neotropics.
+Yay! our model show convergence.
+
+From the optimized model we can obtain the $\beta$ and $\gamma$ values, and remember, these values controls for the transition between $S$ (susceptible) and $I$ (infectious) and $I$ and $R$ (recovered), respectively.
 
 ```{r}
 #| eval: false
 
-f_sr_raster <- raster::rasterize(x = franges, # species geographical ranges
-                         y = neo_ras, # empty raster
-                         field = "SCINAME", # field required to rasterize
-                         fun = function(x, ...){length(unique(na.omit(x)))})
-# this will take a while (~20 secs in Jesús's computer), please be patient.
+Opt_par <- setNames(Opt$par, c("Beta", "Gamma"))
+
+Opt_par
 
 ```
 
-Plot the resulting raster.
+Now using the fitted $\beta$ and $\gamma$ values, we can see if our model recovers the observed trend in the state of Minnesota for the first two months since the first positive $I$ case was reported.
 
 ```{r}
 #| eval: false
 
-plot(f_sr_raster)
+# get the fitted values from our SIR model
+fit_incidence <- data.frame(ode(
+  y = init, times = Days,
+  func = SIR, parms = Opt_par
+))
+
+head(fit_incidence)
+tail(fit_incidence)
 
 ```
 
-Let's try changing the colors using the package {viridis}
+Let's plot the estimated $I$ over the first two months. We will use a kind of plot named **semi-log plot**, this plot allow us the read the difference between the expected (fitted) and observed number of confirmed cases over time.
 
 ```{r}
 #| eval: false
 
-SApoly_sp <- as(SApoly, "Spatial") # transform the sf object to a sp object
 
-plot(f_sr_raster, col = viridis::turbo(10), axes = FALSE, box = FALSE, 
-     zlim = c(minValue(f_sr_raster), maxValue(f_sr_raster)), 
-     xlab = "Furnariides richness", legend.width = 2) 
-
-plot(SApoly_sp, add = TRUE) ## overlay SA countries to the SR map
-
-```
-
-Or we can try a more fancy way to plot the number of Furnariids' species. To do that we can use the package {rasterVis} for plotting and the package {RColorBrewer} for selecting color combinations.
-
-```{r}
-#| eval: false
-
-library(rasterVis)
-library(RColorBrewer)
-
-# First set a theme
-mapTheme <- rasterTheme(region = rev(brewer.pal(11, "Spectral")),
-  layout.widths = list(right.padding = 10),
-  axis.line = list(col = "transparent"),
-  tick = list(col = 'transparent'))
-
-## Now we can plot the raster
-p_furna_SR <- levelplot(f_sr_raster,
-  maxpixels = 1e10,
-  margin = FALSE, 
-  main = list('Furnariides \n species richness', col = 'darkgray'), 
-  par.settings = mapTheme,
-  scales = list(x = list(draw = TRUE),
-                y = list(draw = TRUE)),
-  zlim = c(0, 110))
-
-p_furna_SR
+matplot(fit_incidence$time, fit_incidence$I, 
+        type = "l", log = "y", 
+        xlab = "Days", ylab = "Number of infected subjects", 
+        lwd = 2, lty = 1)
+points(Days, Infected)
 
 ```
 
-*Awesome, right?. Now, please, describe the observed pattern!*
-
-## Scale dependency
-
-Now we will explore one of the oldest problems in ecology and evolution, the **scale dependency** in the data. So to explore this scale dependence, we will rasterize the Furnariides ranges, but using different spatial resolutions from 2º to 6º degrees of long-lat.
-
-Set the empty rasters.
-
-```{r}
-#| eval: false
-
-# 2º degrees
-neo_ras_2dg <- raster()
-# Set the raster "extent" 
-extent(neo_ras_2dg) <- extent(franges)
-res(neo_ras_2dg) <- 2
-neo_ras_2dg
-values(neo_ras_2dg) <- 0
-
-# 4º degrees
-neo_ras_4dg <- raster()
-# Set the raster "extent" 
-extent(neo_ras_4dg) <- extent(franges)
-res(neo_ras_4dg) <- 4
-neo_ras_4dg
-values(neo_ras_4dg) <- 0
-
-# ^º degrees
-neo_ras_6dg <- raster()
-# Set the raster "extent" 
-extent(neo_ras_6dg) <- extent(franges)
-res(neo_ras_6dg) <- 6
-neo_ras_6dg
-values(neo_ras_6dg) <- 0
-
-```
-
-Now, rasterize the species richness to the desired pixel size.
-
-```{r}
-#| eval: false
-
-# Furnariides at 2º of long-lat
-f_sr_2dg_raster <- rasterize(franges, neo_ras_2dg, field = "SCINAME", 
-                             fun = function(x,...){length(unique(na.omit(x)))})
-
-# Furnariides at 4º of long-lat
-f_sr_4dg_raster <- rasterize(franges, neo_ras_4dg, field = "SCINAME", 
-                             fun = function(x,...){length(unique(na.omit(x)))})
-
-# Furnariides at 6º of long-lat
-f_sr_6dg_raster <- rasterize(franges, neo_ras_6dg, field = "SCINAME", 
-                             fun = function(x,...){length(unique(na.omit(x)))})
-
-```
-
-Plot the four maps.
-
-```{r}
-#| eval: false
-
-par(mfrow = c (2, 2))
-
-plot(f_sr_raster, main = "Furnariides richness 1dg")
-plot(SApoly_sp, add = TRUE)
-
-plot(f_sr_2dg_raster, main = "Furnariides richness 2dg")
-plot(SApoly_sp, add = TRUE)
-
-plot(f_sr_4dg_raster, main = "Furnariides richness 4dg")
-plot(SApoly_sp, add = TRUE)
-
-plot(f_sr_6dg_raster, main = "Furnariides richness 6dg")
-plot(SApoly_sp, add = TRUE)
-
-#dev.off()
-
-```
-
-So, is there an effect of scale? 
-
-*Explain the differences between the four maps*
+Hmmm, looks like the fitted model does recover the number of infected cases in the Minnesota. However, although seems that the model tend to underestimate the number of reported cases, we can see an steady increment on the number of cases since the first reported case. 
 
 *How do you feel about that?*
 
-## Correlative relationships
+*Do you see any other interested pattern? If so, please explain*
 
-### Species richness as a function of evolutionary history
+## Reproduction number $R_0$ (R naught)
 
-Let's try to rasterize another information from the polygon data set. We will use the information in the column **RD**, this data correspond to the numbers of nodes from the tips to the root of a phylogenetic tree or just **root distance**, thus, will use the RD to calculate the MRD metric **(mean root distance)** that measures the evolutionary derivedness of species within an assemblage [@kerr_relative_1999] and can be used to determine whether a local fauna is constituted primarily by early-diverged or by recently originated species [@hawkins_different_2012; @pinto-ledezma_geographical_2017]. In other words, high MRD values means that the community (i.e., grid-cell) is composed mostly by recently originated species, whereas low MRD values by early-diverged species.
+Although our SIR model does not fit the observed data accurately, we can still use it to estimate the basic reproduction number $R_0$ (AKA reproductive ratio). The $R_0$ give us an approximate estimation of how many $S$ subjects get infected by a sick subject ($I$) on average--i.e., the transmission probability per contact [@ashby_herd_2021]. Importantly, $R_0$ is not a fixed value and can vary over time and between populations. To calculate $R_0$ we just need to obtain the ratio between $\beta$ and $\gamma$: 
 
-```{r}
-#| eval: false
-
-franges
-
-```
-
-Rasterize the species' **Root distance** to create a map of **Mean Root Distance**.
+$$R_0 = \frac{\beta}{\gamma}$$
 
 ```{r}
 #| eval: false
 
-f_MRD_raster <- rasterize(franges, neo_ras, field = "RD", fun = mean)
+R0 <- setNames(Opt_par["Beta"] / Opt_par["Gamma"], "R0")
+
+round(R0, 3)
 
 ```
+
+The estimated $R_0$ is 1.232 which suggests that for every sick subject 1.2 subjects can get infected by COVID-19. This value is lower when compared to other diseases and even lower than the estimated $R_0$ for COVID-19 in the literature that ranges between 2.5 and 3. One potential explanation for this low $R_0$ can be due the fact the first 60 days, the number of observed cases were very low when compared with the large population size ($N$) in the state of Minnesota. 
+
+Another reason could be that the number of reported cases of COVID-19 in US are not true, in other words, the reported cases are lower than the true cases [@wu_substantial_2020]. This is critical when we are constructing any kind of model, as potentially we would be facing the **GIGO** metaphor--*garbage-in, garbage-out*--that indicates that if the data used in a model are not reliable, then the results are not useful. In other words, you can be using the best mathematical model ever constructed, but if your data is not reliable or coherent, then your results are not useful (are garbage).
+
+## Evaluating the outbreak under no intervention
+
+To fit our model we used data of the first two months since the first reported case, now let's explore what would it happen if no public intervention (i.e., quarantine) was applied. Here, using the fitted model we will extrapolate up to 350 days
 
 ```{r}
 #| eval: false
 
-plot(f_MRD_raster)
-plot(SApoly_sp, add = TRUE)
+times <- 1:350 # time in days
+
+fit_350 <- data.frame(ode( 
+  y = init, times = times, 
+  func = SIR, parms = Opt_par))
+
+head(fit_350)
+tail(fit_350)
 
 ```
 
-Let's try changing the colors.
+To better explore the data, let's make some figures that allow us to see what would happened the first 150 days of the pandemic in the state of Minnesota in a hypothetical case of no intervention.
 
 ```{r}
 #| eval: false
 
-## Now we can plot the raster
-p_furna_MRD <- levelplot(f_MRD_raster,
-  maxpixels = 1e10,
-  margin = FALSE, 
-  main = list('Furnariides \n mean root distance', col = 'darkgray'), 
-  par.settings = mapTheme,
-  scales = list(x = list(draw = TRUE),
-                y = list(draw = TRUE)),
-  zlim = c(0, 25))
-
-p_furna_MRD
-
-```
-
-*Based on the description provided above, please describe the MRD pattern*
-
-Let's plot both raster.
-
-```{r}
-#| eval: false
-
-par(mfrow = c(1, 2))
-plot(f_sr_raster, col = viridis::plasma(10), axes = FALSE, box = FALSE, 
-     zlim = c(minValue(f_sr_raster), maxValue(f_sr_raster)), 
-     xlab = "Furnariides richness", legend.width = 2)
-
-plot(f_MRD_raster, col = viridis::plasma(10), axes = FALSE, box = FALSE, 
-     zlim = c(minValue(f_MRD_raster), maxValue(f_MRD_raster)), 
-     xlab = "Furnariides mean root distance", legend.width = 2)
-
-#dev.off()
-
-```
-
-Check if there is a relationship between the species richness and the evolutionary derivedness.
-
-```{r}
-#| eval: false
-
-cor.test(values(f_sr_raster), values(f_MRD_raster))
-
-```
-
-Or as in the previous lab, we can create a model that explain the association.
-
-```{r}
-#| eval: false
-
-obj <- lm(values(f_sr_raster) ~ values(f_MRD_raster))
-
-summary(obj)
-
-```
-
-```{r, eval = FALSE}
-#| eval: false
-
-data_sr_mrd <- data.frame(coordinates(f_sr_raster), 
-                          SR = values(f_sr_raster), 
-                          MRD = values(f_MRD_raster)) %>% 
-  drop_na(MRD)
-
-
-data_sr_mrd %>% 
-  ggplot(aes(x = MRD, y = SR)) + 
-  geom_point(color = "darkgray") + 
-  geom_smooth(method = "lm")
-
-
-```
-
-Hmmm. What happened in here? Please answer the next questions.
-
-*From the mean root distance map, it is possible to explain the Furnariides diversity gradient? If so, please explain from an evolutionary perspective*.
-
-:::{.callout-tip}
-## Save the figures
-There are multiple options to save the figures. Jesús particularly like saving his figures in **PDF**. To save the figures in a pdf file, you can use the following code.
-
-pdf("association_MRD_SR.pdf", height = 5, width = 7)
-
-data_sr_mrd %>% 
-  ggplot(aes(x = MRD, y = SR)) + 
-  geom_point(color = "darkgray") + 
-  geom_smooth(method = "lm")
-  
-dev.off()
-
-This lines will save your figure in your working directory.
-:::
-
-### Species richness as a function of environment
-
-Load the environmental variables that correspond to bio1 (**Annual Mean Temperature**) and bio12 (**Annual Precipitation**). These data correspond to two variables out of 19 from WorldClim (http://www.worldclim.org/current). We will use these two variables just for educational purposes, rather to make a complete evaluation of the species-environmental relationships.
-
-```{r}
-#| eval: false
-
-bio1 <- raster("Data/Lab_2/BioClim/bio1.bil")
-bio1
-
-bio12 <- raster("Data/Lab_2/BioClim/bio12.bil")
-bio12
-
-```
-
-Plot the environmental variables
-
-```{r}
-#| eval: false
-
-plot(bio1)
-plot(bio12)
-
-```
-
-Ok, the bio1 and bio12 layers are at global scale, so now will need to crop them to the extent of the Neotropics.
-
-```{r}
-#| eval: false
-
-bio1_neo <- crop(bio1, extent(franges))
-bio12_neo <- crop(bio12, extent(franges))
+cols <- 1:3 # colors: black = susceptible, red = infected and green = recovered
 
 ```
 
 ```{r}
 #| eval: false
 
-par(mfrow = c(1, 2))
-plot(bio1_neo/10, main = "Annual Mean Temperature", col = rev(viridis::inferno(10)))
-plot(bio12_neo, main = "Annual Precipitation", col = rev(viridis::inferno(10)))
-
+matplot(fit_350$time, fit_350[, 2:4], type = "l", 
+        xlab = "Days", ylab = "Number of subjects", 
+        lwd = 2, lty = 1, col = cols)
+legend("left", c("Susceptible", "Infected", "Recovered"), 
+       lty = 1, lwd = 2, col = cols, inset = 0.05)
 
 ```
 
-Much better!
-
-Now we will obtain the coordinates from the Furnariides diversity raster. These coordinates then will be used to extract the information from the bio1 and bio12 climatic layers.
+Same figure but in log scale and adding the observed cases
 
 ```{r}
 #| eval: false
 
-f_ras_coords <- xyFromCell(f_sr_raster, 1:length(values(f_sr_raster)))
-
-head(f_ras_coords)
-
-```
-
-Obtain the values from bio1, bio12, SR and MRD for each cell or pixel using the coordinates.
-
-```{r}
-#| eval: false
-
-f_ras_bios <- extract(stack(bio1_neo, bio12_neo), f_ras_coords)
-
-fdata <- na.omit(data.frame(f_ras_coords, SR = values(f_sr_raster), 
-                            MRD = values(f_MRD_raster), f_ras_bios)) %>% 
-  rename(MAT = bio1, MAP = bio12)
-
-head(fdata)
+matplot(fit_350$time, fit_350[ , 2:4], type = "l", 
+        xlab = "Days", ylab = "Number of subjects", 
+        lwd = 2, lty = 1, col = cols, log = "y")
+## Warning in xy.coords(x, y, xlabel, ylabel, log = log): 1 y value <= 0
+## omitted from logarithmic plot
+points(Days, Infected)
+legend("bottomright", c("Susceptible", "Infected", "Recovered"), 
+       lty = 1, lwd = 2, col = cols, inset = 0.05)
+title("SIR model 2019-nCoV United States", outer = TRUE, line = -2)
 
 ```
-
-Now make a simple correlation between the Furnariides richness and bio1 and bio12.
-
-```{r}
-#| eval: false
-
-cor.test(fdata$SR, fdata$MAT)
-
-```
-
-```{r}
-#| eval: false
-
-cor.test(fdata$SR, fdata$MAP)
-
-```
-And also the linear model...
-
-```{r}
-#| eval: false
-
-lmbio1 <- lm(SR ~ MAT, data = fdata)
-summary(lmbio1)
-
-lmbio12 <- lm(SR ~ MAP, data = fdata)
-summary(lmbio12)
-
-```
-
-*Which environmental variable is more related with Furnariides richness?*
-
-*Please explain the relationship from an ecological perspective*
-
-```{r}
-#| eval: false
-
-fdata %>% 
-  ggplot(aes(x = MAT, y = SR)) + 
-  geom_point(color = "darkgray") + 
-  geom_smooth(method = "lm")
-
-fdata %>% 
-  ggplot(aes(x = MAP, y = SR)) + 
-  geom_point(color = "darkgray") + 
-  geom_smooth(method = "lm")
-
-```
-
-## Considering spatial autocorrelation
-
-This paragraph was extracted entirely from [@f_dormann_methods_2007]:
-The analysis of spatial data is complicated by a phenomenon known as spatial autocorrelation. Spatial autocorrelation **(SAC)** occurs when the values of variables sampled at nearby locations are not independent from each other [@tobler_computer_1970]. The causes of spatial autocorrelation are manifold, but three factors are particularly common: 1) biological processes such as speciation, extinction, dispersal or species interactions are distance‐related; 2) non‐linear relationships between environment and species are modelled erroneously as linear; 3) the statistical model fails to account for an important environmental determinant that in itself is spatially structured and thus causes spatial structuring in the response [@besag_spatial_1974]. Since they also lead to autocorrelated residuals, these are equally problematic. A fourth source of spatial autocorrelation relates to spatial resolution, because coarser grains lead to a spatial smoothing of data. In all of these cases, SAC may confound the analysis of species distribution data.
-
-We know that a correlation is not a causation, so, to explore the relationship we need to build a model or fit a model. To explore this relationships we will first explore a simple Ordinary Least Square regression or OLS.
-
-```{r}
-#| eval: false
-
-fols <- lm(SR ~ MAT + MAP, data = fdata)
-summary(fols)
-
-```
-
-Let's complicate our model a little bit... Now let's include the MRD values as a predictor.
-
-```{r}
-#| eval: false
-
-fols2 <- lm(SR ~ MAT + MAP + MRD, data = fdata)
-summary(fols2)
-
-```
-
-*What is telling us these two OLS models?*
-
-Now, explore the spatial autocorrelation of the Furnariides richness gradient. Spatial autocorrelation (it can also be temporal) is a measure of similarity (**correlation**) between nearby observations. In other words, the spatial autocorrelation describe the degree two which observations (values) at spatial locations (whether they are points, areas, or raster cells), are similar to each other. 
-
-```{r}
-#| eval: false
-
-autocor_SR <- ncf::correlog(fdata$x, fdata$y, z = fdata$SR, na.rm = TRUE, 
-                         increment = 1, resamp = 1)
-
-```
-
-Let's use an correlogram to explore the spatial autocorrelation. Remember, spatial autocorrelation (it can also be temporal or phylogenetic) is a measure of similarity (**correlation**) between nearby observations. Thus, high values means high spatial autocorrelation.
-
-```{r}
-#| eval: false
-
-plot(autocor_SR$correlation[1:50], type = "b", pch = 1, cex = 1.2, lwd = 1.5,
-     ylim = c(-1, 1), xlab = "Distance class", ylab = "Moran's I", cex.lab = 1.2, 
-     cex.axis = 1.2)
-abline(h = 0)
-
-```
-
-*Is there a spatial autocorrelation in the data?*
-
-What about the residuals? Let's explore the spatial autocorrelation in the residuals.
-
-```{r}
-#| eval: false
-
-coords <- fdata[1:2]
-coords <- as.matrix(coords)
-
-```
-
-Build a neighborhood contiguity by distance. The distance used in this example is **1.5 degrees** but you can try with a large distance if you wish to explore more models. 
-
-```{r}
-#| eval: false
-
-library(spdep)
-
-nb1.5 <- spdep::dnearneigh(coords, 0, 1.5)
-
-```
-
-Using the neighborhood contiguity build a spatial weights for neighbor lists.
-
-```{r}
-#| eval: false
-
-nb1.5.w <- spdep::nb2listw(neighbours = nb1.5, 
-                           glist = NULL, 
-                           style = "W", 
-                           zero.policy = TRUE)
-
-```
-
-Extract the residuals from the OLS model
-
-```{r}
-#| eval: false
-
-residuals_ols <- residuals(fols2)
-plot(residuals_ols)
-
-```
-
-Calculate a univariate spatial correlogram.
-
-```{r}
-#| eval: false
-
-autocor_ols_res <- ncf::correlog(x = fdata$x, 
-                            y = fdata$y, 
-                            z = residuals(fols), 
-                            increment = 1, 
-                            resamp = 1)
-
-```
-
-plot the autocorrelagram for the residuals
-
-```{r}
-#| eval: false
-
-plot(autocor_ols_res$correlation[1:50], type = "b", pch = 1, cex = 1.2, lwd = 1.5,
-     ylim = c(-0.5, 1), xlab = "distance", ylab = "Moran's I", cex.lab = 1.5, 
-     cex.axis = 1.2)
-abline(h = 0)
-title(main = "OLS residuals", cex = 1.5)
-
-```
-
-Ohhh, seems that the residuals have a strong spatial autocorrelation, that is a problem because if we found autocorrelation in the residuals much of the explanation that we obtain can be biased. See explanation above.
-
-Let's inspect the two autocorrelograms.
-
-```{r}
-#| eval: false
-
-par(mfrow = c(2, 1))
-
-plot(autocor_SR$correlation[1:50], type = "b", pch = 1, cex = 1.2, lwd = 1.5,
-     ylim = c(-1, 1), xlab = "Distance class", ylab = "Moran's I", cex.lab = 1.2, 
-     cex.axis = 1.2)
-abline(h = 0)
-title(main = "OLS model", cex = 1.5)
-
-plot(autocor_ols_res$correlation[1:50], type = "b", pch = 1, cex = 1.2, lwd = 1.5,
-     ylim = c(-0.5, 1), xlab = "Distance class", ylab = "Moran's I", cex.lab = 1.5, 
-     cex.axis = 1.2)
-abline(h = 0)
-title(main = "OLS residuals", cex = 1.5)
-
-```
-
-Hmmm, seems that there is a strong spatial autocorrelation, thus any conclusion using the OLS model can be biased.
 
 *How do you feel about that?*
 
-To try to solve this important issue, we will use **spatial simultaneous autoregressive error model estimation (Aka SAR model)**, this kind of models account for spatial autocorrelation by adding an extra term (**autoregressive**) in the form of a spatial-weight matrix that specifies the neighborhood of each cell or pixel and the relative weight of each neighbor.
+*Please explain the trend of each compartment in a temporal way?*
 
-Let's fit the SAR model.
+## Additional summary statistics 
 
-```{r}
-#| eval: false
+Using the fitted model we can also estimate some additional statistics that could help us to better understand the dynamics of a pandemic:
 
-sar_nb1.5.w <- spatialreg::errorsarlm(fols2, 
-                                      listw = nb1.5.w, 
-                                      data = fdata,
-                                      quiet = FALSE, 
-                                      zero.policy = TRUE, 
-                                      na.action = na.exclude)
-# this will take a while, ~20 seconds in Jesús's computer
+* Peak of the pandemic
+* Fatality rate
 
-```
+### Peak of the pandemic
 
 ```{r}
 #| eval: false
 
-summary(sar_nb1.5.w)
-
-residuals_sar_nb1.5.w <- residuals(sar_nb1.5.w) # extract the residuals from SAR model
+# Peak of the pandemic for the first 60 days
+fit_incidence[fit_incidence$I == max(fit_incidence$I), c("time", "I")]
 
 ```
-
-Now estimate the spatial autocorrelation of the SAR model.
+### Fatality rate
 
 ```{r}
 #| eval: false
 
-autocor_sar_nb1.5.w <- ncf::correlog(x = fdata$x, 
-                                     y = fdata$y, 
-                                     z = residuals(sar_nb1.5.w), 
-                                     na.rm = TRUE, 
-                                     increment = 1, 
-                                     resamp = 1)
+max(fit_incidence$I) * 0.02 # Assuming 2% of fatality rate
 
 ```
 
-Plot the autocorrelogram under the SAR model.
+# The challenge 
 
-```{r}
-#| eval: false
+The challenge for this assignment is to repeat the process by selecting other state in the United States and discuss if the $R_0$ obtained differ to the obtained for the state of Minnesota.
 
-plot(autocor_sar_nb1.5.w$correlation[1:50], type = "b", pch = 4, cex = 1.2, lwd = 1.5,
-     ylim = c(-0.5, 1), xlab = "distance", ylab = "Moran's I", cex.lab = 1.5, 
-     cex.axis = 1.2)
-abline(h = 0)
-title(main = "SARerr residuals", cex = 1.5)
-
-```
-
-Ohhh, where is the autocorrelation in the residuals? Now compare the two autocorrelograms.
-
-```{r}
-#| eval: false
-
-par(mfrow = c(2, 1))
-plot(autocor_ols_res$correlation[1:50], type = "b", pch = 1, cex = 1.2, lwd = 1.5,
-     ylim = c(-0.5, 1), xlab = "distance", ylab = "Moran's I", cex.lab = 1.5, 
-     cex.axis = 1.2)
-abline(h = 0)
-title(main = "OLS residuals", cex = 1.5)
-
-plot(autocor_sar_nb1.5.w$correlation[1:50], type = "b", pch = 4, cex = 1.2, lwd = 1.5,
-     ylim = c(-0.5, 1), xlab = "distance", ylab = "Moran's I", cex.lab = 1.5, 
-     cex.axis = 1.2)
-abline(h = 0)
-title(main = "SARerr residuals", cex = 1.5)
-
-```
-
-Ok, now we know that the SAR model can solve the problem in the spatial autocorrelation in the residuals, let's try to make some inferences.
-
-```{r}
-#| eval: false
-
-summary(sar_nb1.5.w)
-
-```
-
-```{r}
-#| eval: false
-
-summary(fols2)
-
-```
-
-*By looking to the summary of the SAR and OLS models, explain the differences in the coefficients between both models.*
-
-Now let's compare the prediction of both models. To calculate a R2 to the SAR model, we will use the function **SARr2()** from Jesús's GitHub.
-
-```{r}
-#| eval: false
-
-source("https://raw.githubusercontent.com/jesusNPL/BetaDivNA/master/SARr2.R")
-
-```
-
-```{r}
-#| eval: false
-
-SARr2(Lfull = sar_nb1.5.w$LL, Lnull = sar_nb1.5.w$logLik_lm.model, N = nrow(fdata))
-
-```
-
-Comparing the two models (OLS and SAR), please answer the following questions:
-
-*1. Which model have the best explanation?*
-
-*2. What can we conclude from these results?*
-
-*3. Do the slopes (betas) change from the OLS to the SAR? What about the R2?* 
-
-*4. How do you feel about that?*
-
-The end! for now...
