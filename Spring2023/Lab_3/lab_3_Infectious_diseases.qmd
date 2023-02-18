@@ -261,6 +261,19 @@ glimpse(covid_us)
 
 ```
 
+If the previous lines return an error, please use these ones.
+
+```{r}
+#| eval: false
+
+githubURL <- "https://github.com/jesusNPL/BiodiversityScience/raw/master/Spring2023/Lab_3/Data/covidUS.RData"
+
+load(url(githubURL))
+
+glimpse(covid_us)
+
+```
+
 Let's explore the data and clean it little bit.
 
 ```{r}
@@ -555,7 +568,6 @@ Let's plot the estimated $I$ over the first two months. We will use a kind of pl
 ```{r}
 #| eval: false
 
-
 matplot(fit_incidence$time, fit_incidence$I, 
         type = "l", log = "y", 
         xlab = "Days", ylab = "Number of infected subjects", 
@@ -607,7 +619,7 @@ tail(fit_350)
 
 ```
 
-To better explore the data, let's make some figures that allow us to see what would happened the first 150 days of the pandemic in the state of Minnesota in a hypothetical case of no intervention.
+To better explore the data, let's make some figures that allow us to see what would happened the first 350 days of the pandemic in the state of Minnesota in a hypothetical case of no intervention.
 
 ```{r}
 #| eval: false
