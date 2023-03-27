@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2023-03-22">
+<meta name="dcterms.date" content="2023-03-27">
 <meta name="description" content="Showing some neat features of R!">
 
 <title>Measuring phylogenetic diversity within communities</title>
@@ -2656,7 +2656,7 @@ vertical-align: -.125em;
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">March 22, 2023</p>
+        <p class="date">March 27, 2023</p>
       </div>
     </div>
     
@@ -2675,27 +2675,34 @@ vertical-align: -.125em;
   <ul class="collapse">
   <li><a href="#download-community-data-from-neon" id="toc-download-community-data-from-neon" class="nav-link" data-scroll-target="#download-community-data-from-neon"><span class="toc-section-number">2.1</span>  Download community data from NEON</a></li>
   </ul></li>
-  <li><a href="#phylogenetic-diversity-metrics" id="toc-phylogenetic-diversity-metrics" class="nav-link" data-scroll-target="#phylogenetic-diversity-metrics"><span class="toc-section-number">3</span>  Phylogenetic diversity metrics</a>
+  <li><a href="#taxonomic-diversity-metrics" id="toc-taxonomic-diversity-metrics" class="nav-link" data-scroll-target="#taxonomic-diversity-metrics"><span class="toc-section-number">3</span>  Taxonomic diversity metrics</a>
   <ul class="collapse">
-  <li><a href="#explore-diversity-metrics" id="toc-explore-diversity-metrics" class="nav-link" data-scroll-target="#explore-diversity-metrics"><span class="toc-section-number">3.1</span>  Explore diversity metrics</a>
+  <li><a href="#species-richness-s" id="toc-species-richness-s" class="nav-link" data-scroll-target="#species-richness-s"><span class="toc-section-number">3.0.1</span>  Species richness (<em>S</em>)</a></li>
+  <li><a href="#shannon-index-h" id="toc-shannon-index-h" class="nav-link" data-scroll-target="#shannon-index-h"><span class="toc-section-number">3.0.2</span>  Shannon Index (<em>H</em>)</a></li>
+  <li><a href="#simpson-index-d" id="toc-simpson-index-d" class="nav-link" data-scroll-target="#simpson-index-d"><span class="toc-section-number">3.0.3</span>  Simpson Index (<em>D</em>)</a></li>
+  <li><a href="#pielous-evenness-j" id="toc-pielous-evenness-j" class="nav-link" data-scroll-target="#pielous-evenness-j"><span class="toc-section-number">3.0.4</span>  Pielou’s evenness (<em>J</em>)</a></li>
+  </ul></li>
+  <li><a href="#phylogenetic-diversity-metrics" id="toc-phylogenetic-diversity-metrics" class="nav-link" data-scroll-target="#phylogenetic-diversity-metrics"><span class="toc-section-number">4</span>  Phylogenetic diversity metrics</a>
   <ul class="collapse">
-  <li><a href="#phylogenetic-diversity" id="toc-phylogenetic-diversity" class="nav-link" data-scroll-target="#phylogenetic-diversity"><span class="toc-section-number">3.1.1</span>  Phylogenetic diversity</a></li>
-  <li><a href="#mean-pairwise-distance-mpd-and-mean-nearest-pairwise-distance-mntd" id="toc-mean-pairwise-distance-mpd-and-mean-nearest-pairwise-distance-mntd" class="nav-link" data-scroll-target="#mean-pairwise-distance-mpd-and-mean-nearest-pairwise-distance-mntd"><span class="toc-section-number">3.1.2</span>  Mean pairwise distance (MPD) and mean nearest-pairwise distance (MNTD)</a></li>
+  <li><a href="#explore-diversity-metrics" id="toc-explore-diversity-metrics" class="nav-link" data-scroll-target="#explore-diversity-metrics"><span class="toc-section-number">4.1</span>  Explore diversity metrics</a>
+  <ul class="collapse">
+  <li><a href="#phylogenetic-diversity" id="toc-phylogenetic-diversity" class="nav-link" data-scroll-target="#phylogenetic-diversity"><span class="toc-section-number">4.1.1</span>  Phylogenetic diversity</a></li>
+  <li><a href="#mean-pairwise-distance-mpd-and-mean-nearest-pairwise-distance-mntd" id="toc-mean-pairwise-distance-mpd-and-mean-nearest-pairwise-distance-mntd" class="nav-link" data-scroll-target="#mean-pairwise-distance-mpd-and-mean-nearest-pairwise-distance-mntd"><span class="toc-section-number">4.1.2</span>  Mean pairwise distance (MPD) and mean nearest-pairwise distance (MNTD)</a></li>
   </ul></li>
   </ul></li>
-  <li><a href="#community-diversity-metrics" id="toc-community-diversity-metrics" class="nav-link" data-scroll-target="#community-diversity-metrics"><span class="toc-section-number">4</span>  Community diversity metrics</a>
+  <li><a href="#community-phylogenetic-diversity-metrics" id="toc-community-phylogenetic-diversity-metrics" class="nav-link" data-scroll-target="#community-phylogenetic-diversity-metrics"><span class="toc-section-number">5</span>  Community phylogenetic diversity metrics</a>
   <ul class="collapse">
-  <li><a href="#phylogenetic-diversity-in-a-community---pd" id="toc-phylogenetic-diversity-in-a-community---pd" class="nav-link" data-scroll-target="#phylogenetic-diversity-in-a-community---pd"><span class="toc-section-number">4.0.1</span>  Phylogenetic diversity in a community - PD</a></li>
-  <li><a href="#phylogenetic-raos-quadratic-entropy---raod" id="toc-phylogenetic-raos-quadratic-entropy---raod" class="nav-link" data-scroll-target="#phylogenetic-raos-quadratic-entropy---raod"><span class="toc-section-number">4.0.2</span>  Phylogenetic Rao’s quadratic entropy - RaoD</a></li>
-  <li><a href="#mean-pairwise-distance-separating-taxa-in-a-community---mpd" id="toc-mean-pairwise-distance-separating-taxa-in-a-community---mpd" class="nav-link" data-scroll-target="#mean-pairwise-distance-separating-taxa-in-a-community---mpd"><span class="toc-section-number">4.0.3</span>  Mean pairwise distance separating taxa in a community - MPD</a></li>
-  <li><a href="#mean-nearest-taxon-distance-for-taxa-in-a-community---mntd" id="toc-mean-nearest-taxon-distance-for-taxa-in-a-community---mntd" class="nav-link" data-scroll-target="#mean-nearest-taxon-distance-for-taxa-in-a-community---mntd"><span class="toc-section-number">4.0.4</span>  Mean nearest taxon distance for taxa in a community - MNTD</a></li>
-  <li><a href="#phylogenetic-species-variability---psv" id="toc-phylogenetic-species-variability---psv" class="nav-link" data-scroll-target="#phylogenetic-species-variability---psv"><span class="toc-section-number">4.0.5</span>  Phylogenetic species variability - PSV</a></li>
-  <li><a href="#phylogenetic-species-richness---psr" id="toc-phylogenetic-species-richness---psr" class="nav-link" data-scroll-target="#phylogenetic-species-richness---psr"><span class="toc-section-number">4.0.6</span>  Phylogenetic species richness - PSR</a></li>
-  <li><a href="#phylogenetic-species-evenness---pse" id="toc-phylogenetic-species-evenness---pse" class="nav-link" data-scroll-target="#phylogenetic-species-evenness---pse"><span class="toc-section-number">4.0.7</span>  Phylogenetic species evenness - PSE</a></li>
-  <li><a href="#qdp" id="toc-qdp" class="nav-link" data-scroll-target="#qdp"><span class="toc-section-number">4.0.8</span>  qDp</a></li>
+  <li><a href="#phylogenetic-diversity-in-a-community---pd" id="toc-phylogenetic-diversity-in-a-community---pd" class="nav-link" data-scroll-target="#phylogenetic-diversity-in-a-community---pd"><span class="toc-section-number">5.0.1</span>  Phylogenetic diversity in a community - PD</a></li>
+  <li><a href="#phylogenetic-raos-quadratic-entropy---raod" id="toc-phylogenetic-raos-quadratic-entropy---raod" class="nav-link" data-scroll-target="#phylogenetic-raos-quadratic-entropy---raod"><span class="toc-section-number">5.0.2</span>  Phylogenetic Rao’s quadratic entropy - RaoD</a></li>
+  <li><a href="#mean-pairwise-distance-separating-taxa-in-a-community---mpd" id="toc-mean-pairwise-distance-separating-taxa-in-a-community---mpd" class="nav-link" data-scroll-target="#mean-pairwise-distance-separating-taxa-in-a-community---mpd"><span class="toc-section-number">5.0.3</span>  Mean pairwise distance separating taxa in a community - MPD</a></li>
+  <li><a href="#mean-nearest-taxon-distance-for-taxa-in-a-community---mntd" id="toc-mean-nearest-taxon-distance-for-taxa-in-a-community---mntd" class="nav-link" data-scroll-target="#mean-nearest-taxon-distance-for-taxa-in-a-community---mntd"><span class="toc-section-number">5.0.4</span>  Mean nearest taxon distance for taxa in a community - MNTD</a></li>
+  <li><a href="#phylogenetic-species-variability---psv" id="toc-phylogenetic-species-variability---psv" class="nav-link" data-scroll-target="#phylogenetic-species-variability---psv"><span class="toc-section-number">5.0.5</span>  Phylogenetic species variability - PSV</a></li>
+  <li><a href="#phylogenetic-species-richness---psr" id="toc-phylogenetic-species-richness---psr" class="nav-link" data-scroll-target="#phylogenetic-species-richness---psr"><span class="toc-section-number">5.0.6</span>  Phylogenetic species richness - PSR</a></li>
+  <li><a href="#phylogenetic-species-evenness---pse" id="toc-phylogenetic-species-evenness---pse" class="nav-link" data-scroll-target="#phylogenetic-species-evenness---pse"><span class="toc-section-number">5.0.7</span>  Phylogenetic species evenness - PSE</a></li>
+  <li><a href="#qdp" id="toc-qdp" class="nav-link" data-scroll-target="#qdp"><span class="toc-section-number">5.0.8</span>  qDp</a></li>
   </ul></li>
-  <li><a href="#compare-the-metrics" id="toc-compare-the-metrics" class="nav-link" data-scroll-target="#compare-the-metrics"><span class="toc-section-number">5</span>  Compare the metrics</a></li>
-  <li><a href="#the-challenge" id="toc-the-challenge" class="nav-link" data-scroll-target="#the-challenge"><span class="toc-section-number">6</span>  The challenge</a></li>
+  <li><a href="#compare-the-metrics" id="toc-compare-the-metrics" class="nav-link" data-scroll-target="#compare-the-metrics"><span class="toc-section-number">6</span>  Compare the metrics</a></li>
+  <li><a href="#the-challenge" id="toc-the-challenge" class="nav-link" data-scroll-target="#the-challenge"><span class="toc-section-number">7</span>  The challenge</a></li>
   </ul>
 </nav>
 </div>
@@ -2721,7 +2728,7 @@ Note
 <section id="set-up-your-data-and-your-working-directory" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Set up your data and your working directory</h1>
 <p>For today’s practice we will use data from the <a href="https://www.neonscience.org"><strong>National Ecological Observatory Network (NEON)</strong></a>. We strongly recommend to look at the NEON website to get a deeper understanding about NEON and how it works. Also you can read these papers: <a href="https://doi.org/10.1890/1540-9295(2008)6%5B282:ACSFTN%5D2.0.CO;2">A continental strategy for the National Ecological Observatory Network</a> and <a href="https://doi.org/10.1002/ecs2.2603">The plant diversity sampling design for The National Ecological Observatory Network</a>.</p>
-<p>To do this laboratory you will need to have a set of R packages. Install the following packages:</p>
+<p>To do this laboratory you will need to install the following packages:</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -2824,7 +2831,7 @@ Function getwd()
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(NEON_data<span class="sc">$</span>div_1m2Data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>Save raw data in your hard drive - this is a common practice that allow reproducibility and also save you a lot of time.</p>
+<p>Save the raw data in your hard drive - this is a common practice that allow reproducibility and also save you a lot of time.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -2883,7 +2890,7 @@ Function getwd()
 </div>
 <p>In any case, we need to standardize the species names in order to proceed with the calculation of metrics.</p>
 <p>To do that, we will use the package {<strong>Taxonstand</strong>} that allow matching the taxonomy among different sources using the working list of all known plant species produced by the botanical community or <a href="http://www.theplantlist.org"><strong>The Plant List (TPL)</strong></a>.</p>
-<p>Note - this process will take some time (~120 seconds) and return several warning messages but please do not pay attention to those messages.</p>
+<p>Note - this process will take some time (~60 seconds) and return several warning messages but please do not pay attention to those messages.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -2902,7 +2909,7 @@ Function getwd()
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(spp_check)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>Select the necessary information and combine with the HARV data.</p>
+<p>Select the necessary information and combine it with the HARV data.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -2918,7 +2925,7 @@ Function getwd()
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>HARV_data <span class="ot">&lt;-</span> <span class="fu">full_join</span>(HARV, taxonomy, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;scientificName&quot;</span> <span class="ot">=</span> <span class="st">&quot;Taxon&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>Now we can select some specific columns that we will use from now on.</p>
+<p>We can select some specific columns that we will use from now on.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -2940,7 +2947,7 @@ Function getwd()
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(HARV, NEON_data, sel, spp_check, taxonomy, installed_packages, packages, spp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>As a last step the cleaned data will be transformed from the long format to a wide format, in other words, we will transform the NEON data to a matrix in wich the species are the columns and the plots (or communities) are the rows.</p>
+<p>As a last step the cleaned data will be transformed from the long format to a wide format, in other words, we will transform the NEON data to a matrix in which the species are the columns and the plots (or communities) are the rows.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -2953,7 +2960,7 @@ Function getwd()
 <span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ncol</span>(HARV_CDM)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>Alright, until here we have downloaded, cleaned and prepared plant community data for the NEON site HARV. The next step is to prepare the phylogeny for those communities or community level phylogeny. To do that we will use the most up to date phylogeny of vascular plants <a href="https://bsapubs.onlinelibrary.wiley.com/doi/full/10.1002/ajb2.1019">Constructing a broadly inclusive seed plant phylogeny</a> and the R package {<strong>U.PhyloMaker</strong>}.</p>
+<p>Alright, until here we have downloaded, cleaned and prepared plant community data for the NEON site HARV. The next step is to prepare the phylogeny for those communities or a community level phylogeny. To do that we will use the most up to date phylogeny of vascular plants <a href="https://bsapubs.onlinelibrary.wiley.com/doi/full/10.1002/ajb2.1019">Constructing a broadly inclusive seed plant phylogeny</a> and the R package {<strong>V.PhyloMaker</strong>}.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -3010,10 +3017,6 @@ Function getwd()
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(sppPhylo, result)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-</section>
-</section>
-<section id="phylogenetic-diversity-metrics" class="level1" data-number="3">
-<h1 data-number="3"><span class="header-section-number">3</span> Phylogenetic diversity metrics</h1>
 <p>Ok, let’s inspect the data that were stored in the object matched.</p>
 <div class="cell">
 <details>
@@ -3028,45 +3031,106 @@ Function getwd()
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(matched<span class="sc">$</span>phy, <span class="at">show.tip.label =</span> <span class="cn">FALSE</span>, <span class="at">type =</span> <span class="st">&quot;fan&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<section id="explore-diversity-metrics" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="explore-diversity-metrics"><span class="header-section-number">3.1</span> Explore diversity metrics</h2>
-<p>Awesome, we are now ready to explore some the of the <strong>jungle</strong> of metrics for the evaluation of phenotypic and phylogenetic structure of communities (Pausas and Verdú 2010).</p>
-<section id="phylogenetic-diversity" class="level3" data-number="3.1.1">
-<h3 data-number="3.1.1" class="anchored" data-anchor-id="phylogenetic-diversity"><span class="header-section-number">3.1.1</span> Phylogenetic diversity</h3>
+<p>Awesome, we are now ready to explore the <strong>jungle</strong> of metrics for the evaluation of taxonomic, phenotypic and phylogenetic structure of communities <span class="citation" data-cites="pausas_jungle_2010">(<a href="#ref-pausas_jungle_2010" role="doc-biblioref">Pausas &amp; Verdú, 2010</a>)</span>. Let’s start with metrics for the taxonomic dimension.</p>
+</section>
+</section>
+<section id="taxonomic-diversity-metrics" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Taxonomic diversity metrics</h1>
+<p>Let’s explore the most common metrics of taxonomic diversity. For this exercise, we are going to use the R package {vegan}.</p>
+<section id="species-richness-s" class="level3" data-number="3.0.1">
+<h3 data-number="3.0.1" class="anchored" data-anchor-id="species-richness-s"><span class="header-section-number">3.0.1</span> Species richness (<em>S</em>)</h3>
+<p>Simply the number of species recorded in a plot or community.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>HARV_tax <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">S =</span> <span class="fu">specnumber</span>(matched<span class="sc">$</span>comm))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="shannon-index-h" class="level3" data-number="3.0.2">
+<h3 data-number="3.0.2" class="anchored" data-anchor-id="shannon-index-h"><span class="header-section-number">3.0.2</span> Shannon Index (<em>H</em>)</h3>
+<p>Metric that characterizes species diversity in a sample. Assumes that all species are represented in the sample and that individuals within species were sampled randomly.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>HARV_tax <span class="ot">&lt;-</span> HARV_tax <span class="sc">%&gt;%</span> </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">H =</span> <span class="fu">diversity</span>(matched<span class="sc">$</span>comm, </span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">index =</span> <span class="st">&quot;shannon&quot;</span>)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>         )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="simpson-index-d" class="level3" data-number="3.0.3">
+<h3 data-number="3.0.3" class="anchored" data-anchor-id="simpson-index-d"><span class="header-section-number">3.0.3</span> Simpson Index (<em>D</em>)</h3>
+<p>Metric that characterizes species diversity in a sample. Contrary to Shannon’s <em>H</em>, Simpson’s <em>D</em> captures the variance of the species abundance distribution.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>HARV_tax <span class="ot">&lt;-</span> HARV_tax <span class="sc">%&gt;%</span> </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">D =</span> <span class="fu">diversity</span>(matched<span class="sc">$</span>comm, </span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">index =</span> <span class="st">&quot;simpson&quot;</span>)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>         )</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>HARV_tax</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="pielous-evenness-j" class="level3" data-number="3.0.4">
+<h3 data-number="3.0.4" class="anchored" data-anchor-id="pielous-evenness-j"><span class="header-section-number">3.0.4</span> Pielou’s evenness (<em>J</em>)</h3>
+<p>Metric that count the individuals of each species in a sample, rather than the number of species. A <em>J</em> value ranges from 0 (no evenness) to 1 (complete evenness).</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>HARV_tax <span class="ot">&lt;-</span> HARV_tax <span class="sc">%&gt;%</span> </span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">J =</span> H<span class="sc">/</span><span class="fu">log</span>(S)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>         )</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>HARV_tax</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>We just embedded {vegan} functions into {dplyr} to do the taxonomic metric calculations in a tidyverse framework 😬…</p>
+</section>
+</section>
+<section id="phylogenetic-diversity-metrics" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Phylogenetic diversity metrics</h1>
+<section id="explore-diversity-metrics" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="explore-diversity-metrics"><span class="header-section-number">4.1</span> Explore diversity metrics</h2>
 <p>Let’s calculate some metrics manually and then using the package {<strong>picante</strong>} we will calculate the same metrics but for all communities at once.</p>
+<section id="phylogenetic-diversity" class="level3" data-number="4.1.1">
+<h3 data-number="4.1.1" class="anchored" data-anchor-id="phylogenetic-diversity"><span class="header-section-number">4.1.1</span> Phylogenetic diversity</h3>
 <p>Phylogenetic diversity is just the sum of the total branch lengths in the community. In this case we are calculating PD using all species in the phylogeny, in other words, assuming that a single community contain the same number of species as the phylogeny.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(matched<span class="sc">$</span>phy<span class="sc">$</span>edge.length) <span class="co">#  sum of the total branch lengths in the community</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(matched<span class="sc">$</span>phy<span class="sc">$</span>edge.length) <span class="co">#  sum of the total branch lengths in the community</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>We can calculate PD for individual plots or communities, for example the plot <strong>HARV_001</strong></p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select species that are only present in the plot HARV_001</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>HARV_001 <span class="ot">&lt;-</span> matched<span class="sc">$</span>comm <span class="sc">%&gt;%</span> </span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">rownames</span>(.) <span class="sc">==</span> <span class="st">&quot;HARV_001&quot;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">t</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(HARV_001 <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Drop species in the phylogeny that are not present in the plot HARV_001</span></span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>HARV_001_phy <span class="ot">&lt;-</span> <span class="fu">drop.tip</span>(matched<span class="sc">$</span>phy, <span class="fu">setdiff</span>(matched<span class="sc">$</span>phy<span class="sc">$</span>tip.label, <span class="fu">rownames</span>(HARV_001)))</span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(HARV_001_phy<span class="sc">$</span>edge.length)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select species that are only present in the plot HARV_001</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>HARV_001 <span class="ot">&lt;-</span> matched<span class="sc">$</span>comm <span class="sc">%&gt;%</span> </span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">rownames</span>(.) <span class="sc">==</span> <span class="st">&quot;HARV_001&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">t</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(HARV_001 <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Drop species in the phylogeny that are not present in the plot HARV_001</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>HARV_001_phy <span class="ot">&lt;-</span> <span class="fu">drop.tip</span>(matched<span class="sc">$</span>phy, <span class="fu">setdiff</span>(matched<span class="sc">$</span>phy<span class="sc">$</span>tip.label, <span class="fu">rownames</span>(HARV_001)))</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(HARV_001_phy<span class="sc">$</span>edge.length)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>We can confirm the result by calculating PD using the package {<strong>picante</strong>}. However, instead of calculating plot by plot {picante} will calculate PD for all of the plots.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>HARV_PD <span class="ot">&lt;-</span> <span class="fu">pd</span>(<span class="at">samp =</span> matched<span class="sc">$</span>comm, </span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">tree =</span> matched<span class="sc">$</span>phy, </span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">include.root =</span> <span class="cn">FALSE</span>) <span class="co"># Faith&#39;s PD</span></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(HARV_PD)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>HARV_PD <span class="ot">&lt;-</span> <span class="fu">pd</span>(<span class="at">samp =</span> matched<span class="sc">$</span>comm, </span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">tree =</span> matched<span class="sc">$</span>phy, </span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">include.root =</span> <span class="cn">FALSE</span>) <span class="co"># Faith&#39;s PD</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(HARV_PD)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>We NOW can confirm the PD value estimated by hand is equal to the PD estimated using {picante}.</p>
@@ -3087,236 +3151,236 @@ Argument include.root = TRUE
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>HARV_PD <span class="sc">%&gt;%</span> </span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> SR, <span class="at">y =</span> PD)) <span class="sc">+</span> </span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">&quot;darkgray&quot;</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>HARV_PD <span class="sc">%&gt;%</span> </span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> SR, <span class="at">y =</span> PD)) <span class="sc">+</span> </span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">&quot;darkgray&quot;</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Now see correlation between the two metrics</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>HARV_PD <span class="sc">%$%</span> </span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor.test</span>(SR, PD, <span class="at">use =</span> <span class="st">&quot;complete.obs&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>HARV_PD <span class="sc">%$%</span> </span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor.test</span>(SR, PD, <span class="at">use =</span> <span class="st">&quot;complete.obs&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Let’s plot the association again…</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Aux function for visualization</span></span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>theme_nice <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> <span class="co">#base_family = &quot;Noto Sans&quot;) +</span></span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">plot.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="st">&quot;white&quot;</span>, <span class="at">color =</span> <span class="cn">NA</span>),</span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>          <span class="co">#plot.title = element_text(face = &quot;bold&quot;),</span></span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>          <span class="co">#strip.text = element_text(face = &quot;bold&quot;),</span></span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">strip.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="st">&quot;grey80&quot;</span>, <span class="at">color =</span> <span class="cn">NA</span>),</span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>          <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">&quot;bold&quot;</span>, <span class="at">size =</span> <span class="dv">15</span>), </span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>))</span>
-<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
-<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>HARV_PD <span class="sc">%&gt;%</span> </span>
-<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> SR, <span class="at">y =</span> PD)) <span class="sc">+</span> </span>
-<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">&quot;darkgray&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Species richness&quot;</span>, <span class="at">y =</span> <span class="st">&quot;PD (millions of years)&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_nice</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Aux function for visualization</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>theme_nice <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> <span class="co">#base_family = &quot;Noto Sans&quot;) +</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">plot.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="st">&quot;white&quot;</span>, <span class="at">color =</span> <span class="cn">NA</span>),</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>          <span class="co">#plot.title = element_text(face = &quot;bold&quot;),</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>          <span class="co">#strip.text = element_text(face = &quot;bold&quot;),</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">strip.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="st">&quot;grey80&quot;</span>, <span class="at">color =</span> <span class="cn">NA</span>),</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>          <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">&quot;bold&quot;</span>, <span class="at">size =</span> <span class="dv">15</span>), </span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>))</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>HARV_PD <span class="sc">%&gt;%</span> </span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> SR, <span class="at">y =</span> PD)) <span class="sc">+</span> </span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">&quot;darkgray&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Species richness&quot;</span>, <span class="at">y =</span> <span class="st">&quot;PD (millions of years)&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_nice</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
-<section id="mean-pairwise-distance-mpd-and-mean-nearest-pairwise-distance-mntd" class="level3" data-number="3.1.2">
-<h3 data-number="3.1.2" class="anchored" data-anchor-id="mean-pairwise-distance-mpd-and-mean-nearest-pairwise-distance-mntd"><span class="header-section-number">3.1.2</span> Mean pairwise distance (MPD) and mean nearest-pairwise distance (MNTD)</h3>
+<section id="mean-pairwise-distance-mpd-and-mean-nearest-pairwise-distance-mntd" class="level3" data-number="4.1.2">
+<h3 data-number="4.1.2" class="anchored" data-anchor-id="mean-pairwise-distance-mpd-and-mean-nearest-pairwise-distance-mntd"><span class="header-section-number">4.1.2</span> Mean pairwise distance (MPD) and mean nearest-pairwise distance (MNTD)</h3>
 <p>Other common metrics are MPD (mean pairwise distance) and MNTD (mean nearest taxon distance). As in PD, let’s calculate MPD and MNTD manually.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># MPD</span></span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>dist.trMB <span class="ot">&lt;-</span> <span class="fu">cophenetic</span>(HARV_001_phy)</span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>dist.trMB <span class="ot">&lt;-</span> dist.trMB[<span class="fu">lower.tri</span>(dist.trMB, <span class="at">diag =</span> <span class="cn">FALSE</span>)]</span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(dist.trMB)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># MPD</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>dist.trMB <span class="ot">&lt;-</span> <span class="fu">cophenetic</span>(HARV_001_phy)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>dist.trMB <span class="ot">&lt;-</span> dist.trMB[<span class="fu">lower.tri</span>(dist.trMB, <span class="at">diag =</span> <span class="cn">FALSE</span>)]</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(dist.trMB)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># MNTD</span></span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>dist.trMB2 <span class="ot">&lt;-</span> <span class="fu">cophenetic</span>(HARV_001_phy)</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="fu">diag</span>(dist.trMB2) <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">apply</span>(dist.trMB2, <span class="dv">2</span>, min, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">apply</span>(dist.trMB2, <span class="dv">2</span>, min, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># MNTD</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>dist.trMB2 <span class="ot">&lt;-</span> <span class="fu">cophenetic</span>(HARV_001_phy)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="fu">diag</span>(dist.trMB2) <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="fu">apply</span>(dist.trMB2, <span class="dv">2</span>, min, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">apply</span>(dist.trMB2, <span class="dv">2</span>, min, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>And now using the package <strong>picante</strong></p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># MPD</span></span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>HARV_MPD <span class="ot">&lt;-</span> <span class="fu">mpd</span>(matched<span class="sc">$</span>comm, <span class="fu">cophenetic</span>(matched<span class="sc">$</span>phy)) </span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(HARV_MPD)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># MPD</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>HARV_MPD <span class="ot">&lt;-</span> <span class="fu">mpd</span>(matched<span class="sc">$</span>comm, <span class="fu">cophenetic</span>(matched<span class="sc">$</span>phy)) </span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(HARV_MPD)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># MNTD</span></span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>HARV_MNTD <span class="ot">&lt;-</span> <span class="fu">mntd</span>(matched<span class="sc">$</span>comm, <span class="fu">cophenetic</span>(matched<span class="sc">$</span>phy)) </span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(HARV_MNTD)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># MNTD</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>HARV_MNTD <span class="ot">&lt;-</span> <span class="fu">mntd</span>(matched<span class="sc">$</span>comm, <span class="fu">cophenetic</span>(matched<span class="sc">$</span>phy)) </span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(HARV_MNTD)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Until here we just played with the data and also confirmed that we can calculate different metrics by hand. Now let’s do a more formal evaluation of the biodiversity in Harvard Forest &amp; Quabbin Watershed NEON, MA.</p>
 </section>
 </section>
 </section>
-<section id="community-diversity-metrics" class="level1" data-number="4">
-<h1 data-number="4"><span class="header-section-number">4</span> Community diversity metrics</h1>
+<section id="community-phylogenetic-diversity-metrics" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Community phylogenetic diversity metrics</h1>
 <p>The analyses of community phylogenetic started making inferences about the mechanisms structuring the local communities through the evaluation of phylogenetic arrangements in local communities (see <span class="citation" data-cites="cavender-bares_merging_2009">Cavender-Bares et al. (<a href="#ref-cavender-bares_merging_2009" role="doc-biblioref">2009</a>)</span> for an initial criticism). However, new methods are now available, such that more complex balance between ecological and historical processes at local and regional scales can be incorporated into the analyses <span class="citation" data-cites="pigot_new_2015 pinto-ledezma_drivers_2019 pintoledezma_testing_2020">(<a href="#ref-pigot_new_2015" role="doc-biblioref">Pigot &amp; Etienne, 2015</a>; <a href="#ref-pinto-ledezma_drivers_2019" role="doc-biblioref">Pinto-Ledezma et al., 2019</a>; <a href="#ref-pintoledezma_testing_2020" role="doc-biblioref">Pinto‐Ledezma et al., 2020</a>)</span>.</p>
-<p>Now, let’s calculate some of the most common metrics.</p>
+<p>Let’s calculate some of the most common metrics.</p>
 <p>Note - we will use the object <strong>HARV_CDM</strong> to store all the results.</p>
-<section id="phylogenetic-diversity-in-a-community---pd" class="level3" data-number="4.0.1">
-<h3 data-number="4.0.1" class="anchored" data-anchor-id="phylogenetic-diversity-in-a-community---pd"><span class="header-section-number">4.0.1</span> Phylogenetic diversity in a community - PD</h3>
+<section id="phylogenetic-diversity-in-a-community---pd" class="level3" data-number="5.0.1">
+<h3 data-number="5.0.1" class="anchored" data-anchor-id="phylogenetic-diversity-in-a-community---pd"><span class="header-section-number">5.0.1</span> Phylogenetic diversity in a community - PD</h3>
 <p>PD or phylogenetic diversity is the sum of the total phylogenetic branch length for one or multiple samples.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="ot">&lt;-</span> <span class="fu">ses.pd</span>(<span class="at">samp =</span> matched<span class="sc">$</span>comm, </span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">tree =</span> matched<span class="sc">$</span>phy, </span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">runs =</span> <span class="dv">999</span>) <span class="co"># this will take some time</span></span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="ot">&lt;-</span> HARV_CDM <span class="sc">%&gt;%</span> </span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(ntaxa, pd.obs, pd.obs.z)</span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="co">#HARV_CDM &lt;- HARV_CDM[, c(1, 2, 6, 7)]</span></span>
-<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(HARV_CDM)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="ot">&lt;-</span> <span class="fu">ses.pd</span>(<span class="at">samp =</span> matched<span class="sc">$</span>comm, </span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">tree =</span> matched<span class="sc">$</span>phy, </span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">runs =</span> <span class="dv">999</span>) <span class="co"># this will take some time</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="ot">&lt;-</span> HARV_CDM <span class="sc">%&gt;%</span> </span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(ntaxa, pd.obs, pd.obs.z)</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a><span class="co">#HARV_CDM &lt;- HARV_CDM[, c(1, 2, 6, 7)]</span></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(HARV_CDM)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
-<section id="phylogenetic-raos-quadratic-entropy---raod" class="level3" data-number="4.0.2">
-<h3 data-number="4.0.2" class="anchored" data-anchor-id="phylogenetic-raos-quadratic-entropy---raod"><span class="header-section-number">4.0.2</span> Phylogenetic Rao’s quadratic entropy - RaoD</h3>
+<section id="phylogenetic-raos-quadratic-entropy---raod" class="level3" data-number="5.0.2">
+<h3 data-number="5.0.2" class="anchored" data-anchor-id="phylogenetic-raos-quadratic-entropy---raod"><span class="header-section-number">5.0.2</span> Phylogenetic Rao’s quadratic entropy - RaoD</h3>
 <p>Rao’s quadratic entropy (Rao 1982) is a measure of diversity in ecological communities that can optionally take species differences (e.g. phylogenetic dissimilarity) into account.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="ot">&lt;-</span> HARV_CDM <span class="sc">%&gt;%</span> </span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">RaoD =</span> <span class="fu">raoD</span>(matched<span class="sc">$</span>comm, <span class="fu">force.ultrametric</span>(matched<span class="sc">$</span>phy))<span class="sc">$</span>Dkk)</span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(HARV_CDM)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="ot">&lt;-</span> HARV_CDM <span class="sc">%&gt;%</span> </span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">RaoD =</span> <span class="fu">raoD</span>(matched<span class="sc">$</span>comm, <span class="fu">force.ultrametric</span>(matched<span class="sc">$</span>phy))<span class="sc">$</span>Dkk)</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(HARV_CDM)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
-<section id="mean-pairwise-distance-separating-taxa-in-a-community---mpd" class="level3" data-number="4.0.3">
-<h3 data-number="4.0.3" class="anchored" data-anchor-id="mean-pairwise-distance-separating-taxa-in-a-community---mpd"><span class="header-section-number">4.0.3</span> Mean pairwise distance separating taxa in a community - MPD</h3>
+<section id="mean-pairwise-distance-separating-taxa-in-a-community---mpd" class="level3" data-number="5.0.3">
+<h3 data-number="5.0.3" class="anchored" data-anchor-id="mean-pairwise-distance-separating-taxa-in-a-community---mpd"><span class="header-section-number">5.0.3</span> Mean pairwise distance separating taxa in a community - MPD</h3>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SES-MPD</span></span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>HARVsesmpd <span class="ot">&lt;-</span> <span class="fu">ses.mpd</span>(<span class="at">samp =</span> matched<span class="sc">$</span>comm, </span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">dis =</span> <span class="fu">cophenetic</span>(matched<span class="sc">$</span>phy), </span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">null.model =</span> <span class="st">&quot;taxa.labels&quot;</span>, </span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">abundance.weighted =</span> <span class="cn">TRUE</span>, </span>
-<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>                      <span class="at">runs =</span> <span class="dv">999</span>)</span>
-<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>HARVsesmpd <span class="ot">&lt;-</span> HARVsesmpd <span class="sc">%&gt;%</span> </span>
-<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(mpd.obs, mpd.obs.z)</span>
-<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="ot">&lt;-</span> <span class="fu">bind_cols</span>(HARV_CDM, HARVsesmpd)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SES-MPD</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>HARVsesmpd <span class="ot">&lt;-</span> <span class="fu">ses.mpd</span>(<span class="at">samp =</span> matched<span class="sc">$</span>comm, </span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">dis =</span> <span class="fu">cophenetic</span>(matched<span class="sc">$</span>phy), </span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">null.model =</span> <span class="st">&quot;taxa.labels&quot;</span>, </span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">abundance.weighted =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>                      <span class="at">runs =</span> <span class="dv">999</span>)</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>HARVsesmpd <span class="ot">&lt;-</span> HARVsesmpd <span class="sc">%&gt;%</span> </span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(mpd.obs, mpd.obs.z)</span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="ot">&lt;-</span> <span class="fu">bind_cols</span>(HARV_CDM, HARVsesmpd)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
-<section id="mean-nearest-taxon-distance-for-taxa-in-a-community---mntd" class="level3" data-number="4.0.4">
-<h3 data-number="4.0.4" class="anchored" data-anchor-id="mean-nearest-taxon-distance-for-taxa-in-a-community---mntd"><span class="header-section-number">4.0.4</span> Mean nearest taxon distance for taxa in a community - MNTD</h3>
+<section id="mean-nearest-taxon-distance-for-taxa-in-a-community---mntd" class="level3" data-number="5.0.4">
+<h3 data-number="5.0.4" class="anchored" data-anchor-id="mean-nearest-taxon-distance-for-taxa-in-a-community---mntd"><span class="header-section-number">5.0.4</span> Mean nearest taxon distance for taxa in a community - MNTD</h3>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SES-MNTD</span></span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>HARVsesmntd <span class="ot">&lt;-</span> <span class="fu">ses.mntd</span>(<span class="at">samp =</span> matched<span class="sc">$</span>comm, </span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">dis =</span> <span class="fu">cophenetic</span>(matched<span class="sc">$</span>phy), </span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">null.model =</span> <span class="st">&quot;taxa.labels&quot;</span>, </span>
-<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">abundance.weighted =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">runs =</span> <span class="dv">999</span>)</span>
-<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>HARVsesmntd <span class="ot">&lt;-</span> HARVsesmntd <span class="sc">%&gt;%</span> </span>
-<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(mntd.obs, mntd.obs.z)</span>
-<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="ot">&lt;-</span> <span class="fu">bind_cols</span>(HARV_CDM, HARVsesmntd)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SES-MNTD</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>HARVsesmntd <span class="ot">&lt;-</span> <span class="fu">ses.mntd</span>(<span class="at">samp =</span> matched<span class="sc">$</span>comm, </span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">dis =</span> <span class="fu">cophenetic</span>(matched<span class="sc">$</span>phy), </span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">null.model =</span> <span class="st">&quot;taxa.labels&quot;</span>, </span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">abundance.weighted =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">runs =</span> <span class="dv">999</span>)</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>HARVsesmntd <span class="ot">&lt;-</span> HARVsesmntd <span class="sc">%&gt;%</span> </span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(mntd.obs, mntd.obs.z)</span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="ot">&lt;-</span> <span class="fu">bind_cols</span>(HARV_CDM, HARVsesmntd)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
-<section id="phylogenetic-species-variability---psv" class="level3" data-number="4.0.5">
-<h3 data-number="4.0.5" class="anchored" data-anchor-id="phylogenetic-species-variability---psv"><span class="header-section-number">4.0.5</span> Phylogenetic species variability - PSV</h3>
+<section id="phylogenetic-species-variability---psv" class="level3" data-number="5.0.5">
+<h3 data-number="5.0.5" class="anchored" data-anchor-id="phylogenetic-species-variability---psv"><span class="header-section-number">5.0.5</span> Phylogenetic species variability - PSV</h3>
 <p>Phylogenetic species variability quantifies how phylogenetic relatedness decreases the variance of a hypothetical unselected/neutral trait shared by all species in a community.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># PSV or phylogenetic species variability</span></span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="ot">&lt;-</span> HARV_CDM <span class="sc">%&gt;%</span> </span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">PSV =</span> <span class="fu">psv</span>(<span class="at">samp =</span> matched<span class="sc">$</span>comm, </span>
-<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">tree =</span> matched<span class="sc">$</span>phy, </span>
-<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">compute.var =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>PSVs)</span>
-<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>HARV_CDM</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># PSV or phylogenetic species variability</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="ot">&lt;-</span> HARV_CDM <span class="sc">%&gt;%</span> </span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">PSV =</span> <span class="fu">psv</span>(<span class="at">samp =</span> matched<span class="sc">$</span>comm, </span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">tree =</span> matched<span class="sc">$</span>phy, </span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">compute.var =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>PSVs)</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>HARV_CDM</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
-<section id="phylogenetic-species-richness---psr" class="level3" data-number="4.0.6">
-<h3 data-number="4.0.6" class="anchored" data-anchor-id="phylogenetic-species-richness---psr"><span class="header-section-number">4.0.6</span> Phylogenetic species richness - PSR</h3>
+<section id="phylogenetic-species-richness---psr" class="level3" data-number="5.0.6">
+<h3 data-number="5.0.6" class="anchored" data-anchor-id="phylogenetic-species-richness---psr"><span class="header-section-number">5.0.6</span> Phylogenetic species richness - PSR</h3>
 <p>Phylogenetic species richness is the number of species in a sample multiplied by PSV.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># PSR or phylogenetic species richness</span></span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="ot">&lt;-</span> HARV_CDM <span class="sc">%&gt;%</span> </span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">PSR =</span> <span class="fu">psr</span>(<span class="at">samp =</span> matched<span class="sc">$</span>comm, </span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">tree =</span> matched<span class="sc">$</span>phy, </span>
-<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">compute.var =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>PSR)</span>
-<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>HARV_CDM</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># PSR or phylogenetic species richness</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="ot">&lt;-</span> HARV_CDM <span class="sc">%&gt;%</span> </span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">PSR =</span> <span class="fu">psr</span>(<span class="at">samp =</span> matched<span class="sc">$</span>comm, </span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">tree =</span> matched<span class="sc">$</span>phy, </span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">compute.var =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>PSR)</span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>HARV_CDM</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
-<section id="phylogenetic-species-evenness---pse" class="level3" data-number="4.0.7">
-<h3 data-number="4.0.7" class="anchored" data-anchor-id="phylogenetic-species-evenness---pse"><span class="header-section-number">4.0.7</span> Phylogenetic species evenness - PSE</h3>
+<section id="phylogenetic-species-evenness---pse" class="level3" data-number="5.0.7">
+<h3 data-number="5.0.7" class="anchored" data-anchor-id="phylogenetic-species-evenness---pse"><span class="header-section-number">5.0.7</span> Phylogenetic species evenness - PSE</h3>
 <p>Phylogenetic species evenness is the metric PSV modified to incorporate relative species abundances.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># PSE or phylogenetic species evenness</span></span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="ot">&lt;-</span> HARV_CDM <span class="sc">%&gt;%</span> </span>
-<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">PSE =</span> <span class="fu">pse</span>(<span class="at">samp =</span> matched<span class="sc">$</span>comm, </span>
-<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">tree =</span> matched<span class="sc">$</span>phy)<span class="sc">$</span>PSEs)</span>
-<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>HARV_CDM</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># PSE or phylogenetic species evenness</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="ot">&lt;-</span> HARV_CDM <span class="sc">%&gt;%</span> </span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">PSE =</span> <span class="fu">pse</span>(<span class="at">samp =</span> matched<span class="sc">$</span>comm, </span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">tree =</span> matched<span class="sc">$</span>phy)<span class="sc">$</span>PSEs)</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>HARV_CDM</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
-<section id="qdp" class="level3" data-number="4.0.8">
-<h3 data-number="4.0.8" class="anchored" data-anchor-id="qdp"><span class="header-section-number">4.0.8</span> qDp</h3>
+<section id="qdp" class="level3" data-number="5.0.8">
+<h3 data-number="5.0.8" class="anchored" data-anchor-id="qdp"><span class="header-section-number">5.0.8</span> qDp</h3>
 <p><strong>qD(p)</strong> is a metric that measure the variation in species’ divergences within communities. This metric is a modification of the Hill index, weighting a species’ proportional abundance by its relative share of phylogenetic information.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Scheiner 2012 qD(p)</span></span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2021/R-Functions/qDp.R&quot;</span>)</span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="ot">&lt;-</span> HARV_CDM <span class="sc">%&gt;%</span> </span>
-<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">qDP =</span> <span class="fu">qDp</span>(matched<span class="sc">$</span>phy, matched<span class="sc">$</span>comm, <span class="at">q =</span> <span class="dv">2</span>))</span>
-<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>HARV_CDM</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Scheiner 2012 qD(p)</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2021/R-Functions/qDp.R&quot;</span>)</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="ot">&lt;-</span> HARV_CDM <span class="sc">%&gt;%</span> </span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">qDP =</span> <span class="fu">qDp</span>(matched<span class="sc">$</span>phy, matched<span class="sc">$</span>comm, <span class="at">q =</span> <span class="dv">2</span>))</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>HARV_CDM</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>We have calculated several metrics that describe the phylogenetic structure of communities at Harvard Forest &amp; Quabbin Watershed NEON (HARV) site.</p>
 </section>
 </section>
-<section id="compare-the-metrics" class="level1" data-number="5">
-<h1 data-number="5"><span class="header-section-number">5</span> Compare the metrics</h1>
+<section id="compare-the-metrics" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Compare the metrics</h1>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">scatterplotMatrix</span>(HARV_CDM)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">scatterplotMatrix</span>(HARV_CDM)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Hmmm, Kinda ugly…</p>
@@ -3324,67 +3388,67 @@ Argument include.root = TRUE
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>cor_mat <span class="ot">&lt;-</span> <span class="fu">cor</span>(HARV_CDM, <span class="at">method =</span> <span class="st">&#39;spearman&#39;</span>)</span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="fu">corrplot.mixed</span>(cor_mat, </span>
-<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">tl.pos =</span> <span class="st">&quot;lt&quot;</span>, </span>
-<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">tl.cex =</span> <span class="fl">0.7</span>, </span>
-<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>               <span class="at">number.cex =</span> <span class="fl">0.7</span>, </span>
-<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>               <span class="at">addCoefasPercent =</span> <span class="cn">TRUE</span>, </span>
-<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>               <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>cor_mat <span class="ot">&lt;-</span> <span class="fu">cor</span>(HARV_CDM, <span class="at">method =</span> <span class="st">&#39;spearman&#39;</span>)</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="fu">corrplot.mixed</span>(cor_mat, </span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">tl.pos =</span> <span class="st">&quot;lt&quot;</span>, </span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">tl.cex =</span> <span class="fl">0.7</span>, </span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>               <span class="at">number.cex =</span> <span class="fl">0.7</span>, </span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>               <span class="at">addCoefasPercent =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>               <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Explore the correlation among metrics.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="sc">%&gt;%</span> </span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor.table</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="sc">%&gt;%</span> </span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor.table</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>You can also plot the relationship between metrics.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="sc">%&gt;%</span> </span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> RaoD, <span class="at">y =</span> PSE)) <span class="sc">+</span> </span>
-<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">&quot;darkgray&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;RaoD&quot;</span>, <span class="at">y =</span> <span class="st">&quot;PSE&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_nice</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="sc">%&gt;%</span> </span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> RaoD, <span class="at">y =</span> PSE)) <span class="sc">+</span> </span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">&quot;darkgray&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;RaoD&quot;</span>, <span class="at">y =</span> <span class="st">&quot;PSE&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_nice</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p><em>RaoD and PSE are highly correlated; explain why</em></p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>HARV_mds <span class="ot">&lt;-</span> HARV_CDM <span class="sc">%&gt;%</span> </span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(pd.obs.z, mpd.obs.z, mntd.obs.z)) <span class="sc">%&gt;%</span> <span class="co"># MNDS does not like negative values</span></span>
-<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">metaMDS</span>(.)</span>
-<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ordiplot</span>(HARV_mds, <span class="at">type =</span> <span class="st">&quot;t&quot;</span>, <span class="at">display =</span> <span class="st">&quot;species&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>HARV_mds <span class="ot">&lt;-</span> HARV_CDM <span class="sc">%&gt;%</span> </span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(pd.obs.z, mpd.obs.z, mntd.obs.z)) <span class="sc">%&gt;%</span> <span class="co"># MNDS does not like negative values</span></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">metaMDS</span>(.)</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ordiplot</span>(HARV_mds, <span class="at">type =</span> <span class="st">&quot;t&quot;</span>, <span class="at">display =</span> <span class="st">&quot;species&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Let’s use {ggplot2} to make a better figure.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Metrics scores</span></span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>HARV_mds_scores <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(HARV_mds<span class="sc">$</span>species) <span class="sc">%&gt;%</span> </span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Metric =</span> <span class="fu">rownames</span>(.))</span>
-<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>HARV_mds_scores <span class="sc">%&gt;%</span> </span>
-<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> MDS1, <span class="at">y =</span> MDS2, <span class="at">color =</span> Metric)) <span class="sc">+</span> </span>
-<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span> </span>
-<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_nice</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Metrics scores</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>HARV_mds_scores <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(HARV_mds<span class="sc">$</span>species) <span class="sc">%&gt;%</span> </span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Metric =</span> <span class="fu">rownames</span>(.))</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>HARV_mds_scores <span class="sc">%&gt;%</span> </span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> MDS1, <span class="at">y =</span> MDS2, <span class="at">color =</span> Metric)) <span class="sc">+</span> </span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span> </span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_nice</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p><em>What do you think?</em></p>
 <p><em>Which metric would you use for your paper?</em></p>
 </section>
-<section id="the-challenge" class="level1" data-number="6">
-<h1 data-number="6"><span class="header-section-number">6</span> The challenge</h1>
+<section id="the-challenge" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> The challenge</h1>
 <p>The challenge for this assignment is:</p>
 <ul>
 <li><strong>Option 1</strong></li>
@@ -3401,6 +3465,9 @@ Argument include.root = TRUE
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
 <div id="ref-cavender-bares_merging_2009" class="csl-entry" role="doc-biblioentry">
 Cavender-Bares, J., Kozak, K. H., Fine, P. V. A., &amp; Kembel, S. W. (2009). The merging of community ecology and phylogenetic biology. <em>Ecology Letters</em>, <em>12</em>(7), 693–715. <a href="https://doi.org/10.1111/j.1461-0248.2009.01314.x">https://doi.org/10.1111/j.1461-0248.2009.01314.x</a>
+</div>
+<div id="ref-pausas_jungle_2010" class="csl-entry" role="doc-biblioentry">
+Pausas, J. G., &amp; Verdú, M. (2010). The jungle of methods for evaluating phenotypic and phylogenetic structure of communities. <em><span>BioScience</span></em>, <em>60</em>(8), 614–625. <a href="https://doi.org/10.1525/bio.2010.60.8.7">https://doi.org/10.1525/bio.2010.60.8.7</a>
 </div>
 <div id="ref-pigot_new_2015" class="csl-entry" role="doc-biblioentry">
 Pigot, A. L., &amp; Etienne, R. S. (2015). A new dynamic null model for phylogenetic community structure. <em>Ecology Letters</em>, <em>18</em>(2), 153–163. <a href="https://doi.org/10.1111/ele.12395">https://doi.org/10.1111/ele.12395</a>

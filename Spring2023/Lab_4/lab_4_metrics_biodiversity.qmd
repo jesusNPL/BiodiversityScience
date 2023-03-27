@@ -135,8 +135,7 @@ View(NEON_data$div_1m2Data)
 
 ```
 
-
-Save raw data in your hard drive - this is a common practice that allow reproducibility and also save you a lot of time.
+Save the raw data in your hard drive - this is a common practice that allow reproducibility and also save you a lot of time.
 
 ```{r}
 #| eval: false
@@ -207,7 +206,7 @@ In any case, we need to standardize the species names in order to proceed with t
 
 To do that, we will use the package {**Taxonstand**} that allow matching the taxonomy among different sources using the working list of all known plant species produced by the botanical community or [__The Plant List (TPL)__](http://www.theplantlist.org). 
 
-Note - this process will take some time (~120 seconds) and return several warning messages but please do not pay attention to those messages.
+Note - this process will take some time (~60 seconds) and return several warning messages but please do not pay attention to those messages.
 
 ```{r}
 #| eval: false
@@ -230,7 +229,7 @@ View(spp_check)
 
 ```
 
-Select the necessary information and combine with the HARV data.
+Select the necessary information and combine it with the HARV data.
 
 ```{r}
 #| eval: false
@@ -250,7 +249,7 @@ HARV_data <- full_join(HARV, taxonomy, by = c("scientificName" = "Taxon"))
 
 ```
 
-Now we can select some specific columns that we will use from now on.
+We can select some specific columns that we will use from now on.
 
 ```{r}
 #| eval: false
@@ -276,7 +275,7 @@ rm(HARV, NEON_data, sel, spp_check, taxonomy, installed_packages, packages, spp)
 
 ```
 
-As a last step the cleaned data will be transformed from the long format to a wide format, in other words, we will transform the NEON data to a matrix in wich the species are the columns and the plots (or communities) are the rows.
+As a last step the cleaned data will be transformed from the long format to a wide format, in other words, we will transform the NEON data to a matrix in which the species are the columns and the plots (or communities) are the rows.
 
 ```{r}
 #| eval: false
@@ -291,7 +290,7 @@ ncol(HARV_CDM)
 
 ```
 
-Alright, until here we have downloaded, cleaned and prepared plant community data for the NEON site HARV. The next step is to prepare the phylogeny for those communities or community level phylogeny. To do that we will use the most up to date phylogeny of vascular plants [Constructing a broadly inclusive seed plant phylogeny](https://bsapubs.onlinelibrary.wiley.com/doi/full/10.1002/ajb2.1019) and the R package {**U.PhyloMaker**}.
+Alright, until here we have downloaded, cleaned and prepared plant community data for the NEON site HARV. The next step is to prepare the phylogeny for those communities or a community level phylogeny. To do that we will use the most up to date phylogeny of vascular plants [Constructing a broadly inclusive seed plant phylogeny](https://bsapubs.onlinelibrary.wiley.com/doi/full/10.1002/ajb2.1019) and the R package {**V.PhyloMaker**}.
 
 ```{r}
 #| eval: false
@@ -357,8 +356,6 @@ rm(sppPhylo, result)
 
 ```
 
-# Phylogenetic diversity metrics
-
 Ok, let's inspect the data that were stored in the object matched.
 
 ```{r}
@@ -377,13 +374,77 @@ plot(matched$phy, show.tip.label = FALSE, type = "fan")
 
 ```
 
+Awesome, we are now ready to explore the **jungle** of metrics for the evaluation of taxonomic, phenotypic and phylogenetic structure of communities [@pausas_jungle_2010]. Let's start with metrics for the taxonomic dimension.
+
+# Taxonomic diversity metrics
+
+Let's explore the most common metrics of taxonomic diversity. For this exercise, we are going to use the R package {vegan}. 
+
+### Species richness (*S*)
+
+Simply the number of species recorded in a plot or community.
+
+```{r}
+#| eval: false
+
+HARV_tax <- data.frame(S = specnumber(matched$comm))
+
+```
+
+### Shannon Index (*H*) 
+
+Metric that characterizes species diversity in a sample. Assumes that all species are represented in the sample and that individuals within species were sampled randomly.
+
+```{r}
+#| eval: false
+
+HARV_tax <- HARV_tax %>% 
+  mutate(H = diversity(matched$comm, 
+                       index = "shannon")
+         )
+  
+```
+
+### Simpson Index (*D*) 
+
+Metric that characterizes species diversity in a sample. Contrary to Shannon’s *H*, Simpson’s *D* captures the variance of the species abundance distribution.
+
+```{r}
+#| eval: false
+
+HARV_tax <- HARV_tax %>% 
+  mutate(D = diversity(matched$comm, 
+                       index = "simpson")
+         )
+
+HARV_tax
+
+```
+
+### Pielou's evenness (*J*)
+
+Metric that count the individuals of each species in a sample, rather than the number of species. A *J* value ranges from 0 (no evenness) to 1 (complete evenness).
+
+```{r}
+#| eval: false
+
+HARV_tax <- HARV_tax %>% 
+  mutate(J = H/log(S)
+         )
+  
+HARV_tax
+
+```
+
+We just embedded {vegan} functions into {dplyr} to do the taxonomic metric calculations in a tidyverse framework 😬...
+
+# Phylogenetic diversity metrics
+
 ## Explore diversity metrics
 
-Awesome, we are now ready to explore some the of the **jungle** of metrics for the evaluation of phenotypic and phylogenetic structure of communities (Pausas and Verdú 2010).
+Let's calculate some metrics manually and then using the package {**picante**} we will calculate the same metrics but for all communities at once.
 
 ### Phylogenetic diversity
-
-Let's calculate some metrics manually and then using the package {**picante**} we will calculate the same metrics but for all communities at once.
 
 Phylogenetic diversity is just the sum of the total branch lengths in the community. In this case we are calculating PD using all species in the phylogeny, in other words, assuming that a single community contain the same number of species as the phylogeny.
 
@@ -528,11 +589,11 @@ head(HARV_MNTD)
 
 Until here we just played with the data and also confirmed that we can calculate different metrics by hand. Now let's do a more formal evaluation of the biodiversity in Harvard Forest & Quabbin Watershed NEON, MA.
 
-# Community diversity metrics
+# Community phylogenetic diversity metrics
 
 The analyses of community phylogenetic started making inferences about the mechanisms structuring the local communities through the evaluation of phylogenetic arrangements in local communities (see @cavender-bares_merging_2009 for an initial criticism). However, new methods are now available, such that more complex balance between ecological and historical processes at local and regional scales can be incorporated into the analyses [@pigot_new_2015; @pinto-ledezma_drivers_2019; @pintoledezma_testing_2020].
 
-Now, let's calculate some of the most common metrics.
+Let's calculate some of the most common metrics.
 
 Note - we will use the object __HARV_CDM__ to store all the results.
 
