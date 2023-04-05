@@ -32,14 +32,13 @@ Part of the explanation of the different algorithms used in this lad was extract
 
 # Set up your data and your working directory
 
-
 To do this laboratory you will need to install the following packages:
 
 ```{r}
 #| eval: false
 
 packages <- c("raster", "sp", "rgeos", "rworldmap", "dismo", "rgdal", "maptools", 
-              "kernlab", "rgbif", "scrubr", "spThin", "sdmvspecies", "mmap", "sf")
+              "kernlab", "rgbif", "spThin", "sdmvspecies", "mmap", "sf", "maps")
 # Package vector names
 
 ```
@@ -72,12 +71,12 @@ if ( ! ("scrubr" %in% installed.packages())) {remotes::install_github("ropensci/
 
 ```
 
-Although we installed several packages in the previous lines a package is missing, the R package {**sdm**}. This package is the engine for modeling the environmental niches (**shadows**) or Grinnellian niches. We will install this package separately because it has several dependencies.
+Although we installed several packages in the previous lines a package is missing, the R package {**sdm**}. This package is the main wrapper for modeling the environmental niches (**shadows**) or Grinnellian niches. We will install this package separately because it has several dependencies.
 
 ```{r}
 #| eval: false
 
-install.packages("sdm", dependencies = TRUE)
+if ( ! ("sdm" %in% installed.packages())) {install.packages("sdm", dependencies = TRUE)}
 
 ```
 
@@ -94,6 +93,7 @@ sdm::installAll()
 #| eval: false
 
 sapply(packages, require, character.only = TRUE)
+
 library(sdm)
 library(scrubr)
 library(tidyverse)
@@ -133,10 +133,9 @@ gbif_data <- occ_data(scientificName = spp, hasCoordinate = TRUE, limit = 2000)
 
 #decrease the 'limit' if you just want to see how many records there are without waiting all the time that it will take to download the whole dataset.
 
-# Save the raw data
-
-
 ```
+
+Save the raw data
 
 ```{r}
 #| eval: false
@@ -192,7 +191,7 @@ glimpse(occ_quemin)
 occ_quemin <- occ_quemin %>% 
   filter(scientificName == "Quercus minima (Sarg.) Small")
 
-View(occ_quemin)
+glimpse(occ_quemin)
 
 ```
 
@@ -206,6 +205,8 @@ occ_quemin <- occ_quemin %>%
 
 #occ_quealb <- subset(occ_quealb, !is.na(decimalLongitude) & !is.na(decimalLatitude))
 
+occ_quemin
+
 ```
 
 Let's do some further data cleaning with functions of the {**scrubr**} package (but note this cleaning is not exhaustive!). This will clean some unprobable coordinates in the data.
@@ -214,6 +215,8 @@ Let's do some further data cleaning with functions of the {**scrubr**} package (
 #| eval: false
 
 occ_quemin <- coord_incomplete(coord_imprecise(coord_impossible(coord_unlikely(occ_quemin))))
+
+occ_quemin
 
 ```
 
@@ -233,8 +236,8 @@ Now transform our data to a spatial object, this will help us to visualize bette
 
 quemin_spt <- st_as_sf(occ_quemin, 
                        coords = c("decimalLongitude", "decimalLatitude"), 
-                       crs = 4326) %>%
-  st_cast("MULTIPOINT")
+                       crs = 4326) #%>%
+  #st_cast("MULTIPOINT")
 
 # explore the data
 glimpse(quemin_spt)
@@ -265,13 +268,44 @@ Plot the occurrence records
 ```{r}
 #| eval: false
 
-ggplot() +
+map_US <- map_data('world')[map_data('world')$region == "USA", ]
+
+ggplot() + 
+  geom_polygon(data = map_data("world"), 
+               aes(x = long, y = lat, group = group), 
+               color = "#f1f2f3", fill = '#f3f3f3') + 
+  geom_polygon(data = map_US, 
+               aes(x = long, y = lat, group = group), 
+               color = 'lightgray', fill = 'lightgray') + 
+  geom_point(data = occ_quemin, 
+             aes(x = decimalLongitude, y = decimalLatitude), 
+             color = "darkgray", alpha = 0.5) + 
+  coord_map() + 
+  coord_fixed(1.3, 
+              xlim = c(-65, -125), 
+              ylim = c(50, 25)
+              ) + 
+  theme(panel.background = element_rect(fill = "lightblue"))
+
+```
+
+Small joke 😬🫣. 
+
+Now the real map...
+
+```{r}
+#| eval: false
+
+ggplot() + 
+  geom_polygon(data = map_data("world"), 
+               aes(x = long, y = lat, group = group), 
+               color = "#f1f2f3", fill = '#f3f3f3') + 
   geom_sf(data = USpoly) + 
   geom_sf(data = quemin_spt, color = "darkgray", alpha = 0.5) + 
   coord_sf(
      xlim = c(-125, -65), 
      ylim = c(25, 50)
-  ) +
+  ) + 
   theme(
     plot.background = element_rect(fill = "#f1f2f3"),
     panel.background = element_rect(fill = "lightblue"),
@@ -320,8 +354,7 @@ Transform the thinned occurrences to a spatial object
 
 quemin_thinned_sf <- st_as_sf(quemin_thinned, 
                        coords = c("Longitude", "Latitude"), 
-                       crs = 4326) %>%
-  st_cast("MULTIPOINT")
+                       crs = 4326) 
 
 # The below code is using R base. We will use this object for the modelling part
 quemin_thinned_spt <- SpatialPointsDataFrame(coords = quemin_thinned[, 1:2], 
@@ -335,7 +368,10 @@ Now visualize the both spatial objects.
 ```{r}
 #| eval: false
 
-ggplot() +
+ggplot() + 
+  geom_polygon(data = map_data("world"), 
+               aes(x = long, y = lat, group = group), 
+               color = "#f1f2f3", fill = '#f3f3f3') + 
   geom_sf(data = USpoly) + 
   geom_sf(data = quemin_spt, color = "blue", alpha = 0.5) + 
   geom_sf(data = quemin_thinned_sf, color = "red", alpha = 0.3) + 
@@ -381,16 +417,18 @@ bios <- raster::getData("worldclim", var = "bio", res = 10,
 
 ```
 
-:::{.callout-tip}
+You can see that by using the argument **path** within the function **getData()** the bioclimatic variables were also downloaded directly to your hard drive, so you don't need to download the data again. 
+
+:::{.callout-note}
+
 ## Download the climatic data manually
 If you have issues downloading WorldClim data, you can download the data [HERE](https://www.dropbox.com/s/7mvjenr9q47f17o/bio_10m_bil.zip?dl=0) and then store the climatic data within the subfolder **Envi**. 
-:::
 
-You can see that by using the argument **path** within the function **getData()** the bioclimatic variables were also downloaded directly to your hard drive, so you don't need to download the data again. 
+:::
 
 ### Load bioclimatic data stored in your computer
 
-If you donwloaded the biocliamtic data from dropbox please use the next line of code.
+If you downloaded the bioclimatic data from dropbox please use the next line of code.
 
 ```{r}
 #| eval: false
@@ -443,7 +481,7 @@ bios_US <- crop(bios, USpoly_spt)
 
 ```
 
-Let's visualize the results of cropping the bioclimatic data and overlap the occurrences of *Quercus alba*.
+Let's visualize the results of cropping the bioclimatic data and overlap the thinned occurrences of *Quercus minima*.
 
 ```{r}
 #| eval: false
@@ -485,6 +523,7 @@ plot(bios_US[[1]])
 plot(p, add = TRUE, lty = 2)
 plot(out, add = TRUE, lwd = 2)
 #enviSPP <- raster::crop(envi, out)
+
 ```
 
 Nice, we can see that the accessible area for our species is the southeast United States.
@@ -504,7 +543,7 @@ plot(USpoly_spt, add = TRUE, lty = 2)
 
 ```
 
-We will use this accessible area as extent for all the posterior analyses.
+Nothe that we will use this accessible area as extent for all the posterior analyses.
 
 # Pseudoabsences
 
@@ -580,7 +619,7 @@ rm(absence, presence, bios, e, out, p, bb)
 
 ```
 
-Now, we need to decide which variables are necessary to model the niche (Grinnellian niche or Fundamental niche or the Ghost) for our oak species. Here we can rely the selection to the specialist or use statistical tools or both. 
+Now, we need to decide which variables are necessary to model the niche (Grinnellian niche or Fundamental niche or the Ghost) for our oak species. Here we can rely the selection of the variables by asking a specialist or use statistical tools or both. 
 
 # Variable selection
 
@@ -628,6 +667,7 @@ corrplot::corrplot.mixed(cor_mat,
 Looks like that several variables are highly correlated, but let's select the ones that are highly correlated with each other and exclude them for further analysis. However, inspecting predictor by predictor can take forever, what should we do? Well we have two options:
 
 1. Talk with the specialist about which predictors should we use, or 
+
 2. Let the computer decide 
 
 The simple solution is letting the computer decide, thus, for doing that, we will use an amazing function called '**select07()**' from the package {**mecofun**} that will select the predictors bellow the correlation threshold.
@@ -643,8 +683,11 @@ remotes::install_git("https://gitup.uni-potsdam.de/macroecology/mecofun.git")
 ```
 
 The function will return a list of three objects:
+
 1. AIC values for each model
+
 2. The correlation matrix
+
 3. A vector of the selected variables.
 
 ```{r}
@@ -744,7 +787,7 @@ quemin_DATA
 
 We can see that our object has 1 species, 8 features or predictors and the type of data is presence-absence (well is pseudoabsence) and the number of records.
 
-Now let's model the species-environment relationship or Grinnellian niches. Under {sdm} we can model the species-environment relationships using several algorithms at once, but it depend completely on the power of your computer, so use it at your own risk. To get the complete list of algorithms available in the {**sdm**} package just type **getmethodNames('sdm')** in your console.
+Now let's model the species-environment relationship or Grinnellian niches. Under {sdm} we can model the species-environment relationships using several algorithms at once, but it depends completely on the power of your computer, so use it at your own risk. To get the complete list of algorithms available in the {**sdm**} package just type **getmethodNames('sdm')** in your console.
 
 ```{r}
 #| eval: false
@@ -805,6 +848,11 @@ quemin_SDM
 
 We can see that all algorithms worked relatively well. The evaluation table shows four metrics of model evaluation, i.e., AUC, COR, TSS and Deviance, each metric has its own properties but I personally like the true-skill statistics (TSS) metric, because it evaluates the matches and mismatches between observations and predictions. So by looking at the column of TSS we can see that the best algorithms that best fitted the occurrence data are  **random forest**, **gam**, **svm** and **glm**. . Interestingly, these models also have the highest area under the operating curve (AUC) metric values.
 
+:::{.callout-tip}
+## Function getEvaluation()
+You can use the function **getEvaluation()** to pull out the metrics and save them as a data.frame. Remember that we run two replicates so the metrics data.frame will consist of twelve rows. 
+:::
+
 Another way to evaluate the model performance is to plot the AUCs.
 
 ```{r}
@@ -813,6 +861,26 @@ Another way to evaluate the model performance is to plot the AUCs.
 roc(quemin_SDM, smooth = TRUE)
 
 ```
+
+:::{.callout-tip}
+## Function getVarImp()
+The function **getVarImp()** will show the importance of the environmental variables in predicting the niches of *Quercus minima*. See the next example. 
+:::
+
+```{r}
+#| eval: false
+
+# Get the variable importance
+getVarImp(quemin_SDM)
+
+# Get the variable importance for a specific algorithm
+getVarImp(quemin_SDM, method = "rf") # VI for Random Forest algorithm
+
+```
+
+*How do you feel about that?*
+
+*Do the important variables are the same across algorithms?*
 
 Until here we have downloaded and processed occurrence data and fitted and evaluated six different algorithms. Now let's predict the Grinnellian niche for *Quercus minima* in the accessible area. We can do that for all six algorithms at once but it will take a very long time, so let's do algorithm by algorithm. In addition, you can use the fitted object (i.e., quemin_SDM) to make predictions to other regions (e.g., areas with similar environmental conditions or invadable areas) or to project to other periods of time (i.e., to the future or the past).
 
@@ -926,6 +994,7 @@ plot(quemin_ENM_ensemble)
 ```
 
 *How do you feel about that?*
+
 *Does the ensemble prediction outperform single algorithm predictions?*
 
 Let’s try making a nicer map.
@@ -1058,3 +1127,5 @@ Please respond each question based on the practice.
 6. Model the niche and predict the distribution of a different species (you can use one of the species listed at the beginning of the class).
 
 7. Please explain the algorithm used for modeling the niche and predict the distribution of your species and why you decided to use it.
+
+The end, for now 😉!
