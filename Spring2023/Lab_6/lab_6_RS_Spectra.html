@@ -6,10 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2023-04-21">
+<meta name="dcterms.date" content="2023-04-24">
 <meta name="description" content="Showing some neat features of R!">
 
-<title>Ecological niche models and species distributions</title>
+<title>Using hyperspectral remote sensing data to predict biodiversity</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -2635,7 +2635,7 @@ vertical-align: -.125em;
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Ecological niche models and species distributions</h1>
+      <h1 class="title">Using hyperspectral remote sensing data to predict biodiversity</h1>
                   <div>
         <div class="description">
           Showing some neat features of R!
@@ -2666,7 +2666,7 @@ vertical-align: -.125em;
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">April 21, 2023</p>
+        <p class="date">April 24, 2023</p>
       </div>
     </div>
     
@@ -2736,19 +2736,25 @@ Note
 </div>
 <div class="callout-body-container callout-body">
 <p>In this lab we will explore some aspects of <strong>hyperspectral</strong> remote sensing obtained from the National Ecological Observatory Network (<a href="https://data.neonscience.org">NEON</a>) with the goal of predicting biodiversity from the sky. Specifically, we will use hyperspectral remote sensing data from the <strong>NEON</strong> Airborne Observation Platform (<strong>AOP</strong>) (more information <a href="https://www.neonscience.org/data-collection/airborne-remote-sensing">here</a> and <a href="https://data.neonscience.org/data-products/DP3.30006.001">here</a>). As you will see, working with hyperspectral information/data is similar to work with any other information/data (e.g., species abundance, presence-absence) and consequently it can be used to calculate any metric of biodiversity. In this sense, <strong>spectral diversity</strong> can be considered as a dimension of biodiversity.</p>
-<p>Note. Part of the text used in this tutorial was extracted from <a href="https://www.neonscience.org/resources/learning-hub/tutorials/hsi-hdf5-r">here</a> with some modifications.</p>
+<p>Note. Part of the text used in this tutorial was extracted from <a href="https://www.neonscience.org/resources/learning-hub/tutorials/hsi-hdf5-r">here</a> with several modifications.</p>
 </div>
 </div>
 <section id="set-up-your-data-and-your-working-directory" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Set up your data and your working directory</h1>
 <p>Set up a working directory and store the data files in that directory. Tell R that this is the directory you will be using, and read in your data:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">&quot;..your working directory&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <p>To do this laboratory you will need to install the following packages:</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>packages <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;maptools&quot;</span>, <span class="st">&quot;rgdal&quot;</span>, <span class="st">&quot;raster&quot;</span>, <span class="st">&quot;neonUtilities&quot;</span>, <span class="st">&quot;rasterdiv&quot;</span>, </span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;BiocManager&quot;</span>, <span class="st">&quot;tidyverse&quot;</span>, <span class="st">&quot;plyr&quot;</span>, <span class="st">&quot;reshape2&quot;</span>) </span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Package vector names</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>packages <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;maptools&quot;</span>, <span class="st">&quot;rgdal&quot;</span>, <span class="st">&quot;raster&quot;</span>, <span class="st">&quot;neonUtilities&quot;</span>, <span class="st">&quot;rasterdiv&quot;</span>, </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;BiocManager&quot;</span>, <span class="st">&quot;tidyverse&quot;</span>, <span class="st">&quot;plyr&quot;</span>, <span class="st">&quot;reshape2&quot;</span>) </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Package vector names</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="callout-tip callout callout-style-default callout-captioned">
@@ -2768,12 +2774,12 @@ Function install.packages()
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install packages not yet installed</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>installed_packages <span class="ot">&lt;-</span> packages <span class="sc">%in%</span> <span class="fu">rownames</span>(<span class="fu">installed.packages</span>())</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">any</span>(installed_packages <span class="sc">==</span> <span class="cn">FALSE</span>)) {</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">install.packages</span>(packages[<span class="sc">!</span>installed_packages], <span class="at">dependencies =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install packages not yet installed</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>installed_packages <span class="ot">&lt;-</span> packages <span class="sc">%in%</span> <span class="fu">rownames</span>(<span class="fu">installed.packages</span>())</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">any</span>(installed_packages <span class="sc">==</span> <span class="cn">FALSE</span>)) {</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">install.packages</span>(packages[<span class="sc">!</span>installed_packages], <span class="at">dependencies =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>The package {rhdf5} is not available on CRAN, but it is located in “Bioconductor”.</p>
@@ -2781,16 +2787,18 @@ Function install.packages()
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>BiocManager<span class="sc">::</span><span class="fu">install</span>(<span class="st">&quot;rhdf5&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> ( <span class="sc">!</span> (<span class="st">&quot;rhdf5&quot;</span> <span class="sc">%in%</span> <span class="fu">installed.packages</span>())) {BiocManager<span class="sc">::</span><span class="fu">install</span>(<span class="st">&quot;rhdf5&quot;</span>)}</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#BiocManager::install(&quot;rhdf5&quot;)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Call or load all packages</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(packages, require, <span class="at">character.only =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rhdf5)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(packages, require, <span class="at">character.only =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rhdf5)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Double-check your working directory.</p>
@@ -2813,44 +2821,44 @@ Function getwd()
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">&quot;Data&quot;</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">&quot;Data/NEON&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">&quot;Data&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">&quot;Data/NEON&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>The first step is to prepare the information required to download the hyperspectral data from NEON-AOP. To do that we will first download the <strong>Terrestrial Observation System Sampling Locations</strong> dataset. You can download it from <a href="https://www.neonscience.org/data-samples/data/spatial-data-maps">NEON Spatial Data &amp; Maps</a>, specifically under the <strong>Terrestrial Observation System Sampling Locations</strong> tab or by clicking <a href="https://www.neonscience.org/sites/default/files/All_NEON_TOS_Plots_V9_0.zip"><strong>HERE</strong></a>. Once you have downloaded the data, please store it within the folder <strong>NEON</strong> that is located within the folder <strong>Data</strong></p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>NEON_plots <span class="ot">&lt;-</span> <span class="fu">readOGR</span>(<span class="at">dsn =</span> <span class="st">&quot;Data/NEON/All_NEON_TOS_Plots_v9&quot;</span>, </span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">layer =</span> <span class="st">&quot;All_NEON_TOS_Plot_Polygons_V9&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>NEON_plots <span class="ot">&lt;-</span> <span class="fu">readOGR</span>(<span class="at">dsn =</span> <span class="st">&quot;Data/NEON/All_NEON_TOS_Plots_v9&quot;</span>, </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">layer =</span> <span class="st">&quot;All_NEON_TOS_Plot_Polygons_V9&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>From the spatial distribution of the NEON <strong>sites/plots</strong> we loaded into R, we will select the NEON site Harvard Forest &amp; Quabbin Watershed (<a href="https://www.neonscience.org/field-sites/harv"><strong>HARV</strong></a>).</p>
+<p>From the spatial distribution of the NEON <strong>sites/plots</strong> we loaded into R, we will select the NEON site <strong>Harvard Forest &amp; Quabbin Watershed</strong> (<a href="https://www.neonscience.org/field-sites/harv"><strong>HARV</strong></a>).</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>HARV_plots <span class="ot">&lt;-</span> NEON_plots<span class="sc">@</span>data <span class="sc">%&gt;%</span> </span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(siteID <span class="sc">==</span> <span class="st">&quot;HARV&quot;</span> <span class="sc">&amp;</span> plotType <span class="sc">==</span> <span class="st">&quot;distributed&quot;</span> <span class="sc">&amp;</span> subtype <span class="sc">==</span> <span class="st">&quot;basePlot&quot;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(plotID)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">view</span>(HARV_plots)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>HARV_plots <span class="ot">&lt;-</span> NEON_plots<span class="sc">@</span>data <span class="sc">%&gt;%</span> </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(siteID <span class="sc">==</span> <span class="st">&quot;HARV&quot;</span> <span class="sc">&amp;</span> plotType <span class="sc">==</span> <span class="st">&quot;distributed&quot;</span> <span class="sc">&amp;</span> subtype <span class="sc">==</span> <span class="st">&quot;basePlot&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(plotID)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">view</span>(HARV_plots)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>Now from the NEON site HARV we will select the plot number one (plotID = <strong>HARV_001</strong>) and extract the coordinates in UTM (<strong>Universal Transverse Mercator</strong>) system as spatial reference to download the hyperspectral data from the NEON-AOP.</p>
+<p>Now from the NEON site HARV we will select the plot number one (plotID = <strong>HARV_001</strong>) and extract the coordinates in UTM (<strong>Universal Transverse Mercator</strong>) system as spatial reference to download the hyperspectral data from the <strong>NEON-AOP</strong>.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>east <span class="ot">&lt;-</span> HARV_plots<span class="sc">$</span>easting</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(east) <span class="ot">&lt;-</span> HARV_plots<span class="sc">$</span>plotID</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>north <span class="ot">&lt;-</span> HARV_plots<span class="sc">$</span>northing</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(north) <span class="ot">&lt;-</span> HARV_plots<span class="sc">$</span>plotID</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>east</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>north</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>coords_HARV_001 <span class="ot">&lt;-</span> <span class="fu">c</span>(east[<span class="dv">1</span>], north[<span class="dv">1</span>])</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>coords_HARV_001 </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>east <span class="ot">&lt;-</span> HARV_plots<span class="sc">$</span>easting</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(east) <span class="ot">&lt;-</span> HARV_plots<span class="sc">$</span>plotID</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>north <span class="ot">&lt;-</span> HARV_plots<span class="sc">$</span>northing</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(north) <span class="ot">&lt;-</span> HARV_plots<span class="sc">$</span>plotID</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>east</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>north</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>coords_HARV_001 <span class="ot">&lt;-</span> <span class="fu">c</span>(east[<span class="dv">1</span>], north[<span class="dv">1</span>])</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>coords_HARV_001 </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <section id="download-hyperspectral-imagery-from-neon-aop" class="level2" data-number="2.1">
@@ -2859,26 +2867,26 @@ Function getwd()
 <div class="cell" data-warnings="false">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">byTileAOP</span>(<span class="at">dpID =</span> <span class="st">&quot;DP3.30006.001&quot;</span>, <span class="co"># NEON-AOP product</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>          <span class="at">site =</span> <span class="st">&quot;HARV&quot;</span>, <span class="co"># Site code</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">year =</span> <span class="st">&quot;2019&quot;</span>, <span class="co"># Year</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">check.size =</span> <span class="cn">TRUE</span>, </span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">easting =</span> coords_HARV_001[<span class="dv">1</span>], <span class="at">northing =</span> coords_HARV_001[<span class="dv">2</span>], <span class="co"># Coordinates UTM</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">savepath =</span> <span class="st">&quot;Data/NEON&quot;</span>, <span class="co"># Path</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">token =</span> <span class="cn">NA</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">byTileAOP</span>(<span class="at">dpID =</span> <span class="st">&quot;DP3.30006.001&quot;</span>, <span class="co"># NEON-AOP product</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>          <span class="at">site =</span> <span class="st">&quot;HARV&quot;</span>, <span class="co"># Site code</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">year =</span> <span class="st">&quot;2019&quot;</span>, <span class="co"># Year</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">check.size =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">easting =</span> coords_HARV_001[<span class="dv">1</span>], <span class="at">northing =</span> coords_HARV_001[<span class="dv">2</span>], <span class="co"># Coordinates UTM</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">savepath =</span> <span class="st">&quot;Data/NEON&quot;</span>, <span class="co"># Path</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">token =</span> <span class="cn">NA</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>When donwloading the Hyperspectral imagery <strong>R</strong>} will ask you if you want to <strong>donwload the data</strong> please in your console type <strong>y</strong>.</p>
+<p>When you are downloading the Hyperspectral imagery {<strong>R</strong>} will ask you if you want to <strong>download the data</strong> please in your console type <strong>y</strong>.</p>
 </section>
 </section>
 <section id="hyperspectral-remote-sensing-data-exploration" class="level1" data-number="3">
 <h1 data-number="3"><span class="header-section-number">3</span> Hyperspectral remote sensing data exploration</h1>
-<p>We are now ready for start using hyperspectral data. Note that the downloaded data is in a <strong>HDF5</strong> format, this format natively compresses data stored within it (i.e., makes it smaller) and supports data slicing, in other words, you can extract only the portions of the data that you need to work with rather than reading the entire dataset into memory.</p>
-<p>The downloaded hyperspectral data is stored within a folder <strong>DP3.30006.001</strong> that in turn is stored within the folder scheme <strong>Data/Neon</strong>. Please pay attention to the full folder scheme, this scheme is composed of several folders with a file <strong>NEON_D01_HARV_DP3_725000_4700000_reflectance.h5</strong> in HDF5 format. In order to load and work with this data you might need to specify the full path to that file.</p>
+<p>We are now ready for start using hyperspectral data. Note that the downloaded data is in a <strong>HDF5</strong> format, this format natively compresses data stored within it (i.e., makes it smaller) and supports data slicing, in other words, you can extract only the portions of the data that you need to work with rather than reading the entire dataset into ypur computer memory.</p>
+<p>The downloaded hyperspectral data is stored within a folder <strong>DP3.30006.001</strong> that in turn is stored within the folder scheme <strong>Data/Neon</strong>. Please pay attention to the full folder scheme. This scheme is composed of several folders with a file <strong>NEON_D01_HARV_DP3_725000_4700000_reflectance.h5</strong> in HDF5 format. In order to load and work with this data you might need to specify the full path to that file.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="st">&quot;Data/NEON/DP3.30006.001/neon-aop-products/2019/FullSite/D01/2019_HARV_6/L3/Spectrometer/Reflectance/NEON_D01_HARV_DP3_725000_4700000_reflectance.h5&quot;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="st">&quot;Data/NEON/DP3.30006.001/neon-aop-products/2019/FullSite/D01/2019_HARV_6/L3/Spectrometer/Reflectance/NEON_D01_HARV_DP3_725000_4700000_reflectance.h5&quot;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Note that you did not loaded all hyperspectral data into R but the path to the file, so using the path we can just call the metadata of the downloaded data.</p>
@@ -2889,7 +2897,7 @@ Function getwd()
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(<span class="fu">h5ls</span>(f, <span class="at">all =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(<span class="fu">h5ls</span>(f, <span class="at">all =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
@@ -2899,97 +2907,99 @@ Function getwd()
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get information about the wavelengths of HARV plot 001</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>wlInfo <span class="ot">&lt;-</span> <span class="fu">h5readAttributes</span>(f, <span class="st">&quot;/HARV/Reflectance/Metadata/Spectral_Data/Wavelength&quot;</span>)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>wlInfo</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get information about the wavelengths of HARV plot 001</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>wlInfo <span class="ot">&lt;-</span> <span class="fu">h5readAttributes</span>(f, <span class="st">&quot;/HARV/Reflectance/Metadata/Spectral_Data/Wavelength&quot;</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>wlInfo</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
 <section id="read-wavelengths-from-the-hdf5-file" class="level3" data-number="3.0.3">
 <h3 data-number="3.0.3" class="anchored" data-anchor-id="read-wavelengths-from-the-hdf5-file"><span class="header-section-number">3.0.3</span> Read wavelengths from the HDF5 file</h3>
+<p>To read the wavelenghts of our hyperspectral image we just use the function {h5read}</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>WL <span class="ot">&lt;-</span> <span class="fu">h5read</span>(f, <span class="st">&quot;/HARV/Reflectance/Metadata/Spectral_Data/Wavelength&quot;</span>)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(WL)</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(WL)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>WL <span class="ot">&lt;-</span> <span class="fu">h5read</span>(f, <span class="st">&quot;/HARV/Reflectance/Metadata/Spectral_Data/Wavelength&quot;</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(WL)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(WL)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
 <section id="extract-reflectance-metadata" class="level3" data-number="3.0.4">
 <h3 data-number="3.0.4" class="anchored" data-anchor-id="extract-reflectance-metadata"><span class="header-section-number">3.0.4</span> Extract reflectance metadata</h3>
+<p>To extract the full metadata of the hyperspectral image we use the function {h5readAttributes}. Please, read the content of the the metadata carefully.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>reflInfo <span class="ot">&lt;-</span> <span class="fu">h5readAttributes</span>(f, <span class="st">&quot;/HARV/Reflectance/Reflectance_Data&quot;</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>reflInfo</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>reflInfo <span class="ot">&lt;-</span> <span class="fu">h5readAttributes</span>(f, <span class="st">&quot;/HARV/Reflectance/Reflectance_Data&quot;</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>reflInfo</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>For example, the center wavelength value associated with the band 34 is <strong>549.0242</strong></p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>WL[<span class="dv">34</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>WL[<span class="dv">34</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>The HDF5 read function reads data in the order: <strong>Bands</strong>, <strong>Cols</strong>, <strong>Rows</strong>. Let’s get these information from the reflectance metadata.</p>
+<p>Importnatly, the {h5read} function reads data in the order: <strong>Bands</strong>, <strong>Cols</strong>, <strong>Rows</strong>. Let’s get these information from the reflectance metadata.</p>
 </section>
 <section id="read-dimensions-of-the-hyperspectral-data" class="level3" data-number="3.0.5">
 <h3 data-number="3.0.5" class="anchored" data-anchor-id="read-dimensions-of-the-hyperspectral-data"><span class="header-section-number">3.0.5</span> Read dimensions of the hyperspectral data</h3>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>nRows <span class="ot">&lt;-</span> reflInfo<span class="sc">$</span>Dimensions[<span class="dv">1</span>]</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>nCols <span class="ot">&lt;-</span> reflInfo<span class="sc">$</span>Dimensions[<span class="dv">2</span>]</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>nBands <span class="ot">&lt;-</span> reflInfo<span class="sc">$</span>Dimensions[<span class="dv">3</span>]</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>nRows</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>nCols</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>nBands</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>nRows <span class="ot">&lt;-</span> reflInfo<span class="sc">$</span>Dimensions[<span class="dv">1</span>]</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>nCols <span class="ot">&lt;-</span> reflInfo<span class="sc">$</span>Dimensions[<span class="dv">2</span>]</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>nBands <span class="ot">&lt;-</span> reflInfo<span class="sc">$</span>Dimensions[<span class="dv">3</span>]</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>nRows</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>nCols</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>nBands</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>Now using the the information obtained from the reflectance metadata let’s extract the <strong>band 34</strong>.</p>
+<p>Now using the the information obtained from the reflectance metadata let’s extract the <strong>band 34</strong>. You can try other band if you prefere.</p>
 </section>
 <section id="extract-or-slice-data-for-band-34-from-the-hdf5-file" class="level3" data-number="3.0.6">
 <h3 data-number="3.0.6" class="anchored" data-anchor-id="extract-or-slice-data-for-band-34-from-the-hdf5-file"><span class="header-section-number">3.0.6</span> Extract or “slice” data for band 34 from the HDF5 file</h3>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>b34 <span class="ot">&lt;-</span> <span class="fu">h5read</span>(f, <span class="st">&quot;/HARV/Reflectance/Reflectance_Data&quot;</span>, </span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">index =</span> <span class="fu">list</span>(<span class="dv">34</span>, <span class="dv">1</span><span class="sc">:</span>nCols, <span class="dv">1</span><span class="sc">:</span>nRows)) <span class="co"># get band 34</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># what type of object is b34?</span></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(b34)</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] &quot;array&quot;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>b34 <span class="ot">&lt;-</span> <span class="fu">h5read</span>(f, <span class="st">&quot;/HARV/Reflectance/Reflectance_Data&quot;</span>, </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">index =</span> <span class="fu">list</span>(<span class="dv">34</span>, <span class="dv">1</span><span class="sc">:</span>nCols, <span class="dv">1</span><span class="sc">:</span>nRows)) <span class="co"># get band 34</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># what type of object is b34?</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(b34)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] &quot;array&quot;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>The returned object is an <strong>array</strong>, the arrays are matrices with more than 2 dimensions, i.e., are matrices stacked or piled in a single object.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># convert from array to matrix by selecting only the first band</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>b34 <span class="ot">&lt;-</span> b34[<span class="dv">1</span>,, ]</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># check it</span></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(b34)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># convert from array to matrix by selecting only the first band</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>b34 <span class="ot">&lt;-</span> b34[<span class="dv">1</span>,, ]</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># check it</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(b34)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>Plot the image of band 34</p>
+<p>Now we can plot the image of band 34.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">image</span>(b34)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">image</span>(b34)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>The previous image is hard to visually interpret, let’s log the data and see what happens.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">image</span>(<span class="fu">log</span>(b34))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">image</span>(<span class="fu">log</span>(b34))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
@@ -3000,25 +3010,16 @@ Function getwd()
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># there is NO data value in our raster - let&#39;s define it</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>myNoDataValue <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(reflInfo<span class="sc">$</span>Data_Ignore_Value)</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>myNoDataValue</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="co"># set all values equal to -9999 to NA</span></span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>b34[b34 <span class="sc">==</span> myNoDataValue] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the image now</span></span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="fu">image</span>(b34)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-</div>
-<p>We need to transpose x and y values in order for our final image to plot properly</p>
-<div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>b34 <span class="ot">&lt;-</span> <span class="fu">t</span>(b34)</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="fu">image</span>(<span class="fu">log</span>(b34), <span class="at">main =</span> <span class="st">&quot;Transposed Image&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># there is NO data value in our raster - let&#39;s define it</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>myNoDataValue <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(reflInfo<span class="sc">$</span>Data_Ignore_Value)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>myNoDataValue</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co"># set all values equal to -9999 to NA</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>b34[b34 <span class="sc">==</span> myNoDataValue] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the image now</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="fu">image</span>(b34)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
@@ -3083,7 +3084,7 @@ Function getwd()
 </details>
 </div>
 <p>Assign the spatial extent to the raster</p>
-<div class="cell" data-warnings="false">
+<div class="cell">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">extent</span>(b34ras) <span class="ot">&lt;-</span> rasExt</span>
@@ -3119,7 +3120,7 @@ Function getwd()
 </div>
 <section id="creating-a-rgb-raster" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="creating-a-rgb-raster"><span class="header-section-number">4.1</span> Creating a RGB raster</h2>
-<p>In the previous step we created a raster file of a single band, but each hyperspectral data from the NEON-AOP contains 426 bands. In this step we will construct a raster stack file, i.e., a raster with N bands, in other words, a <strong>raster of rasters</strong>. You can do it manually as we did for the band 34, but let’s take advantage of <strong>R</strong> and write a function that do the work for us.</p>
+<p>In the previous step we created a raster file of a single band, but each hyperspectral data from the NEON-AOP contains 426 bands. In this step we will construct a raster stack file, i.e., a raster with N bands, in other words, a <strong>raster of rasters</strong>. You can do it manually as we did for the band 34, but let’s take advantage of <strong>R</strong> and write a function that do the work for us. Please, take your time to read and understand the function.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -3134,25 +3135,26 @@ Function getwd()
 <span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># first, read in the raster</span></span>
 <span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>    out <span class="ot">&lt;-</span> <span class="fu">h5read</span>(file, <span class="st">&quot;/HARV/Reflectance/Reflectance_Data&quot;</span>, </span>
 <span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>                  <span class="at">index =</span> <span class="fu">list</span>(band, <span class="cn">NULL</span>, <span class="cn">NULL</span>)) <span class="co"># path to the HDF5 file</span></span>
-<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Convert from array to matrix</span></span>
-<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>      out <span class="ot">&lt;-</span> (out[<span class="dv">1</span>,, ]) <span class="co"># output</span></span>
-<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>      <span class="co"># transpose data to fix flipped row and column order </span></span>
-<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># depending upon how your data are formatted you might not have to perform this</span></span>
-<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># step.</span></span>
-<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>      out <span class="ot">&lt;-</span> <span class="fu">t</span>(out)</span>
-<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># assign data ignore values to NA</span></span>
-<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># note, you might chose to assign values of 15000 to NA</span></span>
-<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a>    out[out <span class="sc">==</span> myNoDataValue] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
-<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># turn the out object into a raster</span></span>
-<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a>    outr <span class="ot">&lt;-</span> <span class="fu">raster</span>(out, <span class="at">crs =</span> CRS)</span>
-<span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># assign the extents to the raster</span></span>
-<span id="cb31-26"><a href="#cb31-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">extent</span>(outr) <span class="ot">&lt;-</span> extent</span>
-<span id="cb31-27"><a href="#cb31-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-28"><a href="#cb31-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># return the raster object</span></span>
-<span id="cb31-29"><a href="#cb31-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(outr)</span>
-<span id="cb31-30"><a href="#cb31-30" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Convert from array to matrix</span></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>    out <span class="ot">&lt;-</span> (out[<span class="dv">1</span>,, ]) <span class="co"># output</span></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># transpose data to fix flipped row and column order </span></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># depending upon how your data are formatted you might not have to perform this</span></span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># step.</span></span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>    out <span class="ot">&lt;-</span> <span class="fu">t</span>(out)</span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># assign data ignore values to NA</span></span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># note, you might chose to assign values of 15000 to NA</span></span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>    out[out <span class="sc">==</span> myNoDataValue] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># turn the out object into a raster</span></span>
+<span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a>    outr <span class="ot">&lt;-</span> <span class="fu">raster</span>(out, <span class="at">crs =</span> CRS)</span>
+<span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-26"><a href="#cb31-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># assign the extents to the raster</span></span>
+<span id="cb31-27"><a href="#cb31-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">extent</span>(outr) <span class="ot">&lt;-</span> extent</span>
+<span id="cb31-28"><a href="#cb31-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-29"><a href="#cb31-29" aria-hidden="true" tabindex="-1"></a>    <span class="co"># return the raster object</span></span>
+<span id="cb31-30"><a href="#cb31-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(outr)</span>
+<span id="cb31-31"><a href="#cb31-31" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Now apply the function to create a RGB raster file, to do this, we will use the bands 58, 34 and 19, respectively.</p>
@@ -3356,245 +3358,260 @@ Function getwd()
 <section id="select-pixels-and-compare-spectral-signatures" class="level2" data-number="5.1">
 <h2 data-number="5.1" class="anchored" data-anchor-id="select-pixels-and-compare-spectral-signatures"><span class="header-section-number">5.1</span> Select pixels and compare spectral signatures</h2>
 <p>In the previous step we selected and arbitrary pixel at (100, 35), however when we are working with real data we might need to have the spatial position of objects on the ground (e.g., GPS points).</p>
-<p>Let’s select 5 spatial points by visually inspecting the <strong>RGB</strong> we just created. Below is an image with five points, you can select other five or more points if you desire.</p>
+<p>We will use the exact geographical position of tree species in the HARV site. To do that, we will need to install two more packages that are not in <strong>CRAN</strong> but on <strong>GitHub</strong>. The packages are <strong>geoNEON</strong> and <strong>neonhs</strong></p>
+<p>First install and call the package <strong>geoNEON</strong></p>
 <div class="cell">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install the package {geoNEON}</span></span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;NEONScience/NEON-geolocation/geoNEON&#39;</span>, <span class="at">dependencies =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(geoNEON)</span>
-<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Download Woody plant vegetation structure from NEON #####</span></span>
-<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a><span class="fu">zipsByProduct</span>(</span>
-<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">dpID =</span> <span class="st">&quot;DP1.10098.001&quot;</span>,</span>
-<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">site =</span> <span class="st">&quot;HARV&quot;</span>,</span>
-<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">savepath =</span> <span class="st">&quot;Data/NEON&quot;</span>,</span>
-<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.size =</span> <span class="cn">FALSE</span></span>
-<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb45-13"><a href="#cb45-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb45-14"><a href="#cb45-14" aria-hidden="true" tabindex="-1"></a><span class="do">## Combine the files</span></span>
-<span id="cb45-15"><a href="#cb45-15" aria-hidden="true" tabindex="-1"></a><span class="fu">stackByTable</span>(<span class="st">&quot;Data/NEON/filesToStack10098&quot;</span>, <span class="at">folder =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(geoNEON)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Now download the data from woody plant vegetation from NEON.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Download Woody plant vegetation structure from NEON #####</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">zipsByProduct</span>(</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">dpID =</span> <span class="st">&quot;DP1.10098.001&quot;</span>,</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">site =</span> <span class="st">&quot;HARV&quot;</span>,</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">savepath =</span> <span class="st">&quot;Data/NEON&quot;</span>,</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.size =</span> <span class="cn">FALSE</span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a><span class="do">## Combine the files</span></span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a><span class="fu">stackByTable</span>(<span class="st">&quot;Data/NEON/filesToStack10098&quot;</span>, <span class="at">folder =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <section id="prepare-vegetation-data" class="level3" data-number="5.1.1">
 <h3 data-number="5.1.1" class="anchored" data-anchor-id="prepare-vegetation-data"><span class="header-section-number">5.1.1</span> Prepare vegetation data</h3>
+<p>The function {def.calc.geo.os} will refine the geolocation data associated with NEON data products.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the more precise location for each NEON plot in the HARV site</span></span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>vegmap <span class="ot">&lt;-</span> <span class="st">&quot;Data/NEON/filesToStack10098/stackedFiles/vst_mappingandtagging.csv&quot;</span> <span class="sc">%&gt;%</span></span>
-<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_csv</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">substr</span>(date, <span class="dv">1</span>, <span class="dv">4</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="st">&#39;2019&#39;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">def.calc.geo.os</span>(<span class="st">&quot;vst_mappingandtagging&quot;</span>)</span>
-<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Load individual tree coordinates</span></span>
-<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>vegind <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;Data/NEON/filesToStack10098/stackedFiles/vst_apparentindividual.csv&quot;</span>)</span>
-<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine the coordinates with three identification</span></span>
-<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a>veg <span class="ot">&lt;-</span> <span class="fu">right_join</span>(vegind, vegmap,</span>
-<span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;individualID&quot;</span>, <span class="st">&quot;namedLocation&quot;</span>, <span class="st">&quot;domainID&quot;</span>, <span class="st">&quot;siteID&quot;</span>, <span class="st">&quot;plotID&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(adjEasting), <span class="sc">!</span><span class="fu">is.na</span>(adjNorthing), plantStatus <span class="sc">==</span> <span class="st">&quot;Live&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the more precise location for each NEON plot in the HARV site</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>vegmap <span class="ot">&lt;-</span> <span class="st">&quot;Data/NEON/filesToStack10098/stackedFiles/vst_mappingandtagging.csv&quot;</span> <span class="sc">%&gt;%</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_csv</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">substr</span>(date, <span class="dv">1</span>, <span class="dv">4</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="st">&#39;2019&#39;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">def.calc.geo.os</span>(<span class="st">&quot;vst_mappingandtagging&quot;</span>) <span class="co"># Calculate more precise geolocations for specific NEON data products</span></span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Load individual tree coordinates</span></span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>vegind <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;Data/NEON/filesToStack10098/stackedFiles/vst_apparentindividual.csv&quot;</span>)</span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine the coordinates with three identification</span></span>
+<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a>veg <span class="ot">&lt;-</span> <span class="fu">right_join</span>(vegind, vegmap,</span>
+<span id="cb47-13"><a href="#cb47-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;individualID&quot;</span>, <span class="st">&quot;namedLocation&quot;</span>, <span class="st">&quot;domainID&quot;</span>, <span class="st">&quot;siteID&quot;</span>, <span class="st">&quot;plotID&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb47-14"><a href="#cb47-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(adjEasting), <span class="sc">!</span><span class="fu">is.na</span>(adjNorthing), plantStatus <span class="sc">==</span> <span class="st">&quot;Live&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Now select the individual trees available for the plot <strong>HARV_001</strong> and transform it into a spatial object.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>harv_01_trees <span class="ot">&lt;-</span> veg <span class="sc">%&gt;%</span> </span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(adjNorthing, adjEasting, scientificName, plotID, </span>
-<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>         adjDecimalLatitude, adjDecimalLongitude) <span class="sc">%&gt;%</span> </span>
-<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(plotID <span class="sc">==</span> <span class="st">&quot;HARV_001&quot;</span>)</span>
-<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>harv_01_trees_spt <span class="ot">&lt;-</span> <span class="fu">SpatialPointsDataFrame</span>(<span class="at">coords =</span> harv_01_trees[, <span class="dv">2</span><span class="sc">:</span><span class="dv">1</span>], </span>
-<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">data =</span> harv_01_trees, </span>
-<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">proj4string =</span> <span class="fu">crs</span>(ndvi_calc))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>harv_01_trees <span class="ot">&lt;-</span> veg <span class="sc">%&gt;%</span> </span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(adjNorthing, adjEasting, scientificName, plotID, </span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>         adjDecimalLatitude, adjDecimalLongitude) <span class="sc">%&gt;%</span> </span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(plotID <span class="sc">==</span> <span class="st">&quot;HARV_001&quot;</span>)</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>harv_01_trees_spt <span class="ot">&lt;-</span> <span class="fu">SpatialPointsDataFrame</span>(<span class="at">coords =</span> harv_01_trees[, <span class="dv">2</span><span class="sc">:</span><span class="dv">1</span>], </span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">data =</span> harv_01_trees, </span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">proj4string =</span> <span class="fu">crs</span>(ndvi_calc))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>The plot HARV_001 is composed by four species and 38 individuals. You can verify that information.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(harv_01_trees<span class="sc">$</span>scientificName)</span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(harv_01_trees<span class="sc">$</span>scientificName)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(harv_01_trees<span class="sc">$</span>scientificName)</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(harv_01_trees<span class="sc">$</span>scientificName)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Plot the results</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(ndvi_harv[[<span class="dv">1</span>]])</span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(harv_01_trees_spt, <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(ndvi_harv[[<span class="dv">1</span>]])</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(harv_01_trees_spt, <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>This is not over, now we will extract the spectral information for each of our trees in the plot HARV_001. For this we will use the R package {neonhs}</p>
 </section>
 <section id="extract-spectral-data" class="level3" data-number="5.1.2">
 <h3 data-number="5.1.2" class="anchored" data-anchor-id="extract-spectral-data"><span class="header-section-number">5.1.2</span> Extract spectral data</h3>
+<p>First install and call the package <strong>neonhs</strong></p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;earthlab/neonhs&#39;</span>)</span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(neonhs)</span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Path to access the hyperspectral data</span></span>
-<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>hs_path_2019 <span class="ot">&lt;-</span> <span class="fu">list.files</span>(</span>
-<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">path =</span> <span class="st">&quot;Data/NEON/DP3.30006.001/neon-aop-products/2019/&quot;</span>, </span>
-<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">pattern =</span> <span class="st">&quot;reflectance.h5&quot;</span>,</span>
-<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span></span>
-<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-12"><a href="#cb50-12" aria-hidden="true" tabindex="-1"></a>resHARV_001 <span class="ot">&lt;-</span> neonhs<span class="sc">::</span><span class="fu">hs_extract_pts</span>(<span class="at">filename =</span> hs_path_2019, <span class="co"># path to the h5 file</span></span>
-<span id="cb50-13"><a href="#cb50-13" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">pts =</span> harv_01_trees_spt, <span class="co"># spatial points</span></span>
-<span id="cb50-14"><a href="#cb50-14" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">bands =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">426</span>) <span class="co"># which bands</span></span>
-<span id="cb50-15"><a href="#cb50-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-16"><a href="#cb50-16" aria-hidden="true" tabindex="-1"></a>resHARV_001</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;earthlab/neonhs&#39;</span>)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(neonhs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Extract the spectra data associated with each tree species.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Path to access the hyperspectral data</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>hs_path_2019 <span class="ot">&lt;-</span> <span class="fu">list.files</span>(</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">path =</span> <span class="st">&quot;Data/NEON/DP3.30006.001/neon-aop-products/2019/&quot;</span>, </span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">pattern =</span> <span class="st">&quot;reflectance.h5&quot;</span>,</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span></span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a><span class="co"># extract the spectra data</span></span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a>resHARV_001 <span class="ot">&lt;-</span> neonhs<span class="sc">::</span><span class="fu">hs_extract_pts</span>(<span class="at">filename =</span> hs_path_2019, <span class="co"># path to the h5 file</span></span>
+<span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">pts =</span> harv_01_trees_spt, <span class="co"># spatial points</span></span>
+<span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">bands =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">426</span>) <span class="co"># which bands</span></span>
+<span id="cb52-12"><a href="#cb52-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-13"><a href="#cb52-13" aria-hidden="true" tabindex="-1"></a>resHARV_001</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>The object with the spectral data is a <strong>SpatialPointsDataFrame</strong> we need to transform it into a data.frame to continue working with the spectra.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>resHARV_001_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(resHARV_001) <span class="sc">%&gt;%</span></span>
-<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">!</span><span class="fu">c</span>(<span class="st">&quot;band418_2472nm&quot;</span>, <span class="st">&quot;band419_2477nm&quot;</span>, <span class="st">&quot;band420_2482nm&quot;</span>, <span class="st">&quot;band421_2487nm&quot;</span>, </span>
-<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;band422_2492nm&quot;</span>, <span class="st">&quot;band423_2497nm&quot;</span>, <span class="st">&quot;band424_2502nm&quot;</span>, <span class="st">&quot;band425_2507nm&quot;</span>, </span>
-<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;band426_2512nm&quot;</span>, <span class="st">&quot;adjEasting.1&quot;</span>, <span class="st">&quot;adjNorthing.1&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(plotID, scientificName, adjNorthing, adjEasting, adjDecimalLongitude, adjDecimalLatitude, <span class="fu">everything</span>())</span>
-<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>resHARV_001_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>resHARV_001_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(resHARV_001) <span class="sc">%&gt;%</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">!</span><span class="fu">c</span>(<span class="st">&quot;band418_2472nm&quot;</span>, <span class="st">&quot;band419_2477nm&quot;</span>, <span class="st">&quot;band420_2482nm&quot;</span>, <span class="st">&quot;band421_2487nm&quot;</span>, </span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;band422_2492nm&quot;</span>, <span class="st">&quot;band423_2497nm&quot;</span>, <span class="st">&quot;band424_2502nm&quot;</span>, <span class="st">&quot;band425_2507nm&quot;</span>, </span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;band426_2512nm&quot;</span>, <span class="st">&quot;adjEasting.1&quot;</span>, <span class="st">&quot;adjNorthing.1&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(plotID, scientificName, adjNorthing, adjEasting, adjDecimalLongitude, adjDecimalLatitude, <span class="fu">everything</span>())</span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a>resHARV_001_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
+<p>Let’s perform a bit of cleaning…</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>resHARV_001_df_long <span class="ot">&lt;-</span> resHARV_001_df <span class="sc">%&gt;%</span> </span>
-<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">!</span><span class="fu">c</span>(plotID, adjNorthing, adjEasting, adjDecimalLongitude, adjDecimalLatitude)) <span class="sc">%&gt;%</span> </span>
-<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>  reshape2<span class="sc">::</span><span class="fu">melt</span>(<span class="at">id.vars =</span> <span class="st">&quot;scientificName&quot;</span>, </span>
-<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">variable.name =</span> <span class="st">&quot;Wavelength&quot;</span>, </span>
-<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">value.name =</span> <span class="st">&quot;Reflectance&quot;</span>)</span>
-<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>resHARV_001_df_long <span class="ot">&lt;-</span> resHARV_001_df_long <span class="sc">%&gt;%</span> </span>
-<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Wavelength2 =</span> Wavelength) <span class="sc">%&gt;%</span> </span>
-<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(Wavelength2, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">&quot;bands&quot;</span>, <span class="st">&quot;wl&quot;</span>), <span class="at">sep =</span> <span class="st">&quot;_&quot;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">WL =</span> <span class="fu">as.numeric</span>(<span class="fu">gsub</span>(<span class="st">&quot;[nm]&quot;</span>, <span class="st">&quot;&quot;</span>, wl))) <span class="sc">%&gt;%</span> </span>
-<span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">scientificName =</span> <span class="fu">as.factor</span>(scientificName))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>resHARV_001_df_long <span class="ot">&lt;-</span> resHARV_001_df <span class="sc">%&gt;%</span> </span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">!</span><span class="fu">c</span>(plotID, adjNorthing, adjEasting, adjDecimalLongitude, adjDecimalLatitude)) <span class="sc">%&gt;%</span> </span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>  reshape2<span class="sc">::</span><span class="fu">melt</span>(<span class="at">id.vars =</span> <span class="st">&quot;scientificName&quot;</span>, </span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">variable.name =</span> <span class="st">&quot;Wavelength&quot;</span>, </span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">value.name =</span> <span class="st">&quot;Reflectance&quot;</span>)</span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>resHARV_001_df_long <span class="ot">&lt;-</span> resHARV_001_df_long <span class="sc">%&gt;%</span> </span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Wavelength2 =</span> Wavelength) <span class="sc">%&gt;%</span> </span>
+<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(Wavelength2, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">&quot;bands&quot;</span>, <span class="st">&quot;wl&quot;</span>), <span class="at">sep =</span> <span class="st">&quot;_&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb54-10"><a href="#cb54-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">WL =</span> <span class="fu">as.numeric</span>(<span class="fu">gsub</span>(<span class="st">&quot;[nm]&quot;</span>, <span class="st">&quot;&quot;</span>, wl))) <span class="sc">%&gt;%</span> </span>
+<span id="cb54-11"><a href="#cb54-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">scientificName =</span> <span class="fu">as.factor</span>(scientificName))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Now let’s plot the results…</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>theme_nice <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
-<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> <span class="co">#base_family = &quot;Noto Sans&quot;) +</span></span>
-<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">plot.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="st">&quot;white&quot;</span>, <span class="at">color =</span> <span class="cn">NA</span>),</span>
-<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>          <span class="co">#plot.title = element_text(face = &quot;bold&quot;),</span></span>
-<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>          <span class="co">#strip.text = element_text(face = &quot;bold&quot;),</span></span>
-<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">strip.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="st">&quot;grey80&quot;</span>, <span class="at">color =</span> <span class="cn">NA</span>),</span>
-<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">&quot;bold&quot;</span>, <span class="at">size =</span> <span class="dv">15</span>), </span>
-<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a>          <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>))</span>
-<span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb53-12"><a href="#cb53-12" aria-hidden="true" tabindex="-1"></a>resHARV_001_df_long <span class="sc">%&gt;%</span> </span>
-<span id="cb53-13"><a href="#cb53-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb53-14"><a href="#cb53-14" aria-hidden="true" tabindex="-1"></a>  <span class="co">#filter(scientificName == &quot;Acer rubrum L.&quot;) %&gt;% </span></span>
-<span id="cb53-15"><a href="#cb53-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb53-16"><a href="#cb53-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> WL, <span class="at">y =</span> Reflectance, <span class="at">color =</span> scientificName)) <span class="sc">+</span></span>
-<span id="cb53-17"><a href="#cb53-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>(<span class="at">option =</span> <span class="st">&quot;A&quot;</span>, </span>
-<span id="cb53-18"><a href="#cb53-18" aria-hidden="true" tabindex="-1"></a>                        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Acer rubrum&quot;</span>, <span class="st">&quot;Betula lenta&quot;</span>, <span class="st">&quot;Pinus strobus&quot;</span>, <span class="st">&quot;Quercus rubra&quot;</span>)) <span class="sc">+</span> </span>
-<span id="cb53-19"><a href="#cb53-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;Wavelength (nm)&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb53-20"><a href="#cb53-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Reflectance&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb53-21"><a href="#cb53-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_nice</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Aux function for visualization</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>theme_nice <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> <span class="co">#base_family = &quot;Noto Sans&quot;) +</span></span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">plot.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="st">&quot;white&quot;</span>, <span class="at">color =</span> <span class="cn">NA</span>),</span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>          <span class="co">#plot.title = element_text(face = &quot;bold&quot;),</span></span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>          <span class="co">#strip.text = element_text(face = &quot;bold&quot;),</span></span>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">strip.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="st">&quot;grey80&quot;</span>, <span class="at">color =</span> <span class="cn">NA</span>),</span>
+<span id="cb55-9"><a href="#cb55-9" aria-hidden="true" tabindex="-1"></a>          <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">&quot;bold&quot;</span>, <span class="at">size =</span> <span class="dv">15</span>), </span>
+<span id="cb55-10"><a href="#cb55-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>))</span>
+<span id="cb55-11"><a href="#cb55-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb55-12"><a href="#cb55-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-13"><a href="#cb55-13" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the spectra by species </span></span>
+<span id="cb55-14"><a href="#cb55-14" aria-hidden="true" tabindex="-1"></a>resHARV_001_df_long <span class="sc">%&gt;%</span> </span>
+<span id="cb55-15"><a href="#cb55-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb55-16"><a href="#cb55-16" aria-hidden="true" tabindex="-1"></a>  <span class="co">#filter(scientificName == &quot;Acer rubrum L.&quot;) %&gt;% </span></span>
+<span id="cb55-17"><a href="#cb55-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb55-18"><a href="#cb55-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> WL, <span class="at">y =</span> Reflectance, <span class="at">color =</span> scientificName)) <span class="sc">+</span></span>
+<span id="cb55-19"><a href="#cb55-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>(<span class="at">option =</span> <span class="st">&quot;A&quot;</span>, </span>
+<span id="cb55-20"><a href="#cb55-20" aria-hidden="true" tabindex="-1"></a>                        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Acer rubrum&quot;</span>, <span class="st">&quot;Betula lenta&quot;</span>, <span class="st">&quot;Pinus strobus&quot;</span>, <span class="st">&quot;Quercus rubra&quot;</span>)) <span class="sc">+</span> </span>
+<span id="cb55-21"><a href="#cb55-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;Wavelength (nm)&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb55-22"><a href="#cb55-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Reflectance&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb55-23"><a href="#cb55-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_nice</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>Cool! we just made a plot with the spectral signatures for four species at <strong>HARV</strong> site, but there are some anomalies in the plot which difficult its interpretation. Those anomalies around 1400 nm and 1850 nm correspond to two major atmospheric absorbtion bands, i.e., regions in the spectra where gasses in the atmosphere (primarily carbon dioxide and water vapor) absorb radiation, and therefore, obscure the reflected radiation that the imaging spectrometer measures.</p>
-<p>To eliminate those anomalies we first might need to select and eliminate those bands manually. Happily, the reflectance metadata contains the lower and upper bound of each of those <strong>atmopheric absopbtion bands</strong>. Let’s read those bands and plot rectangles where the reflectance measurements are obscured by atmospheric absorbtion.</p>
+<p>Cool! we just made a plot with the spectral signatures for four species at <strong>HARV</strong> site, but there are some anomalies in the plot which difficult its interpretation. Those anomalies around 1400 nm and 1850 nm correspond to <strong>two major atmospheric absorption bands</strong>, i.e., regions in the spectra where gasses in the atmosphere (primarily carbon dioxide and water vapor) absorb radiation, and therefore, obscure the reflected radiation that the imaging spectrometer measures.</p>
+<p>To eliminate those anomalies we first might need to select and eliminate those bands manually. Happily, the reflectance metadata contains the lower and upper bound of each of those <strong>atmospheric absorption bands</strong>. Let’s read those bands and plot rectangles where the reflectance measurements are obscured by atmospheric absorbtion.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># grab Reflectance metadata (which contains absorption band limits)</span></span>
-<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>reflMetadata <span class="ot">&lt;-</span> <span class="fu">h5readAttributes</span>(f, <span class="st">&quot;/HARV/Reflectance&quot;</span> )</span>
-<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>ab1 <span class="ot">&lt;-</span> reflMetadata<span class="sc">$</span>Band_Window_1_Nanometers</span>
-<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>ab2 <span class="ot">&lt;-</span> reflMetadata<span class="sc">$</span>Band_Window_2_Nanometers</span>
-<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>ab1</span>
-<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a>ab2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co"># grab Reflectance metadata (which contains absorption band limits)</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>reflMetadata <span class="ot">&lt;-</span> <span class="fu">h5readAttributes</span>(f, <span class="st">&quot;/HARV/Reflectance&quot;</span> )</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>ab1 <span class="ot">&lt;-</span> reflMetadata<span class="sc">$</span>Band_Window_1_Nanometers</span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>ab2 <span class="ot">&lt;-</span> reflMetadata<span class="sc">$</span>Band_Window_2_Nanometers</span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a>ab1</span>
+<span id="cb56-8"><a href="#cb56-8" aria-hidden="true" tabindex="-1"></a>ab2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Plot spectral signatures again with rectangles showing the absorption bands</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>resHARV_001_df_long <span class="sc">%&gt;%</span> </span>
-<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">#filter(scientificName == &quot;Acer rubrum L.&quot;) %&gt;% </span></span>
-<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> WL, <span class="at">y =</span> Reflectance, <span class="at">color =</span> scientificName)) <span class="sc">+</span></span>
-<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>(<span class="at">option =</span> <span class="st">&quot;A&quot;</span>, </span>
-<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>                        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Acer rubrum&quot;</span>, <span class="st">&quot;Betula lenta&quot;</span>, <span class="st">&quot;Pinus strobus&quot;</span>, <span class="st">&quot;Quercus rubra&quot;</span>)) <span class="sc">+</span> </span>
-<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_rect</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">ymin =</span> <span class="fu">min</span>(resHARV_001_df_long<span class="sc">$</span>Reflectance), </span>
-<span id="cb55-9"><a href="#cb55-9" aria-hidden="true" tabindex="-1"></a>                          <span class="at">ymax =</span> <span class="fu">max</span>(resHARV_001_df_long<span class="sc">$</span>Reflectance), </span>
-<span id="cb55-10"><a href="#cb55-10" aria-hidden="true" tabindex="-1"></a>                          <span class="at">xmin =</span> ab1[<span class="dv">1</span>], <span class="at">xmax =</span> ab1[<span class="dv">2</span>]), </span>
-<span id="cb55-11"><a href="#cb55-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">color =</span> <span class="st">&quot;darkgray&quot;</span>, <span class="at">fill =</span> <span class="st">&quot;gray&quot;</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb55-12"><a href="#cb55-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_rect</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">ymin =</span> <span class="fu">min</span>(resHARV_001_df_long<span class="sc">$</span>Reflectance), </span>
-<span id="cb55-13"><a href="#cb55-13" aria-hidden="true" tabindex="-1"></a>                          <span class="at">ymax =</span> <span class="fu">max</span>(resHARV_001_df_long<span class="sc">$</span>Reflectance), </span>
-<span id="cb55-14"><a href="#cb55-14" aria-hidden="true" tabindex="-1"></a>                          <span class="at">xmin =</span> ab2[<span class="dv">1</span>], <span class="at">xmax =</span> ab2[<span class="dv">2</span>]), </span>
-<span id="cb55-15"><a href="#cb55-15" aria-hidden="true" tabindex="-1"></a>            <span class="at">color =</span> <span class="st">&quot;darkgray&quot;</span>, <span class="at">fill =</span> <span class="st">&quot;gray&quot;</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span> </span>
-<span id="cb55-16"><a href="#cb55-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;Wavelength (nm)&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb55-17"><a href="#cb55-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Reflectance&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb55-18"><a href="#cb55-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_nice</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>resHARV_001_df_long <span class="sc">%&gt;%</span> </span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> WL, <span class="at">y =</span> Reflectance, <span class="at">color =</span> scientificName)) <span class="sc">+</span></span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>(<span class="at">option =</span> <span class="st">&quot;A&quot;</span>, </span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Acer rubrum&quot;</span>, <span class="st">&quot;Betula lenta&quot;</span>, <span class="st">&quot;Pinus strobus&quot;</span>, <span class="st">&quot;Quercus rubra&quot;</span>)) <span class="sc">+</span> </span>
+<span id="cb57-7"><a href="#cb57-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_rect</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">ymin =</span> <span class="fu">min</span>(Reflectance), </span>
+<span id="cb57-8"><a href="#cb57-8" aria-hidden="true" tabindex="-1"></a>                          <span class="at">ymax =</span> <span class="fu">max</span>(Reflectance), </span>
+<span id="cb57-9"><a href="#cb57-9" aria-hidden="true" tabindex="-1"></a>                          <span class="at">xmin =</span> ab1[<span class="dv">1</span>], <span class="at">xmax =</span> ab1[<span class="dv">2</span>]), </span>
+<span id="cb57-10"><a href="#cb57-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">color =</span> <span class="st">&quot;darkgray&quot;</span>, <span class="at">fill =</span> <span class="st">&quot;gray&quot;</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb57-11"><a href="#cb57-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_rect</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">ymin =</span> <span class="fu">min</span>(Reflectance), </span>
+<span id="cb57-12"><a href="#cb57-12" aria-hidden="true" tabindex="-1"></a>                          <span class="at">ymax =</span> <span class="fu">max</span>(Reflectance), </span>
+<span id="cb57-13"><a href="#cb57-13" aria-hidden="true" tabindex="-1"></a>                          <span class="at">xmin =</span> ab2[<span class="dv">1</span>], <span class="at">xmax =</span> ab2[<span class="dv">2</span>]), </span>
+<span id="cb57-14"><a href="#cb57-14" aria-hidden="true" tabindex="-1"></a>            <span class="at">color =</span> <span class="st">&quot;darkgray&quot;</span>, <span class="at">fill =</span> <span class="st">&quot;gray&quot;</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span> </span>
+<span id="cb57-15"><a href="#cb57-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;Wavelength (nm)&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb57-16"><a href="#cb57-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Reflectance&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb57-17"><a href="#cb57-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_nice</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>By inspecting the plot we can confirm that the sections of the spectra with anomalies are within the atmospheric absortion bands. Using the absorption band limits we can remove the sections with anomalies and plot masked spectral signatures for the four species.</p>
+<p>By inspecting the plot we can confirm that the sections of the spectra with anomalies are within the atmospheric absorption bands. Using the absorption band limits we can remove the sections with anomalies and plot masked spectral signatures for the four species.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Duplicate the spectral signatures into a new data.frame</span></span>
-<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>resHARV_001_df_long_mask <span class="ot">&lt;-</span> resHARV_001_df_long</span>
-<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Mask out all values within each of the two atmospheric absorbtion bands</span></span>
-<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>resHARV_001_df_long_mask[resHARV_001_df_long_mask<span class="sc">$</span>WL <span class="sc">&gt;</span> </span>
-<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>                    ab1[<span class="dv">1</span>] <span class="sc">&amp;</span> resHARV_001_df_long_mask<span class="sc">$</span>WL <span class="sc">&lt;</span> ab1[<span class="dv">2</span>], ]<span class="sc">$</span>Reflectance <span class="ot">&lt;-</span> <span class="cn">NA</span> </span>
-<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb56-8"><a href="#cb56-8" aria-hidden="true" tabindex="-1"></a>resHARV_001_df_long_mask[resHARV_001_df_long_mask<span class="sc">$</span>WL <span class="sc">&gt;</span> </span>
-<span id="cb56-9"><a href="#cb56-9" aria-hidden="true" tabindex="-1"></a>                    ab2[<span class="dv">1</span>] <span class="sc">&amp;</span> resHARV_001_df_long_mask<span class="sc">$</span>WL <span class="sc">&lt;</span> ab2[<span class="dv">2</span>], ]<span class="sc">$</span>Reflectance <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
-<span id="cb56-10"><a href="#cb56-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb56-11"><a href="#cb56-11" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(resHARV_001_df_long_mask)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Duplicate the spectral signatures into a new data.frame</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>resHARV_001_df_long_mask <span class="ot">&lt;-</span> resHARV_001_df_long</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Mask out all values within each of the two atmospheric absorbtion bands</span></span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a>resHARV_001_df_long_mask[resHARV_001_df_long_mask<span class="sc">$</span>WL <span class="sc">&gt;</span> </span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a>                    ab1[<span class="dv">1</span>] <span class="sc">&amp;</span> resHARV_001_df_long_mask<span class="sc">$</span>WL <span class="sc">&lt;</span> ab1[<span class="dv">2</span>], ]<span class="sc">$</span>Reflectance <span class="ot">&lt;-</span> <span class="cn">NA</span> </span>
+<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-8"><a href="#cb58-8" aria-hidden="true" tabindex="-1"></a>resHARV_001_df_long_mask[resHARV_001_df_long_mask<span class="sc">$</span>WL <span class="sc">&gt;</span> </span>
+<span id="cb58-9"><a href="#cb58-9" aria-hidden="true" tabindex="-1"></a>                    ab2[<span class="dv">1</span>] <span class="sc">&amp;</span> resHARV_001_df_long_mask<span class="sc">$</span>WL <span class="sc">&lt;</span> ab2[<span class="dv">2</span>], ]<span class="sc">$</span>Reflectance <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb58-10"><a href="#cb58-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-11"><a href="#cb58-11" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(resHARV_001_df_long_mask)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Plot the masked spectral signatures</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>resHARV_001_df_long_mask <span class="sc">%&gt;%</span> </span>
-<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> WL, <span class="at">y =</span> Reflectance, <span class="at">color =</span> scientificName)) <span class="sc">+</span></span>
-<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>(<span class="at">option =</span> <span class="st">&quot;A&quot;</span>, </span>
-<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Acer rubrum&quot;</span>, <span class="st">&quot;Betula lenta&quot;</span>, <span class="st">&quot;Pinus strobus&quot;</span>, <span class="st">&quot;Quercus rubra&quot;</span>)) <span class="sc">+</span> </span>
-<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;Wavelength (nm)&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb57-7"><a href="#cb57-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Reflectance&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb57-8"><a href="#cb57-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_nice</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>resHARV_001_df_long_mask <span class="sc">%&gt;%</span> </span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> WL, <span class="at">y =</span> Reflectance, <span class="at">color =</span> scientificName)) <span class="sc">+</span></span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>(<span class="at">option =</span> <span class="st">&quot;A&quot;</span>, </span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Acer rubrum&quot;</span>, <span class="st">&quot;Betula lenta&quot;</span>, <span class="st">&quot;Pinus strobus&quot;</span>, <span class="st">&quot;Quercus rubra&quot;</span>)) <span class="sc">+</span> </span>
+<span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;Wavelength (nm)&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Reflectance&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb59-8"><a href="#cb59-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_nice</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>It’s always good practice to close the H5 connection before moving on.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co"># close the H5 file</span></span>
-<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="fu">H5close</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="co"># close the H5 file</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="fu">H5close</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Clean your R environment.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
@@ -3606,9 +3623,9 @@ Function getwd()
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>harv_ndvi <span class="ot">&lt;-</span> <span class="fu">raster</span>(<span class="st">&quot;Data/NEON/DP3.30006.001/HARV_plot_001_NDVI.tif&quot;</span>)</span>
-<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(harv_ndvi)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>harv_ndvi <span class="ot">&lt;-</span> <span class="fu">raster</span>(<span class="st">&quot;Data/NEON/DP3.30006.001/HARV_plot_001_NDVI.tif&quot;</span>)</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(harv_ndvi)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Now using the NDVI raster we will estimate the <strong>Shannon</strong> and <strong>Hill</strong> diversity metrics for each pixel. To do that we will use the package {<strong>rasterdiv</strong>} <span class="citation" data-cites="thouverai_measuring_2021">(<a href="#ref-thouverai_measuring_2021" role="doc-biblioref">Thouverai et al., 2021</a>)</span>. Given the spatial extent and resolution of the NDVI raster file, this process will take some time (~2 minutes in Jesús’s computer) to finish.</p>
@@ -3616,55 +3633,56 @@ Function getwd()
 <h2 data-number="6.1" class="anchored" data-anchor-id="shannons-diversity-index-h"><span class="header-section-number">6.1</span> Shannon’s diversity index (<span class="math inline">\(H&#39;\)</span>)</h2>
 <p>The Shannon’s diversity index is one of the most common metrics used to estimate diversity from remote sensing data. This index is calculated as:</p>
 <p><span class="math display">\[H = -\sum_{n=1}^{N} p_i ln_b(p_i) = 1\]</span></p>
-<p>Where <span class="math inline">\(p_i\)</span> is the proportional abundance of pixel <span class="math inline">\(i\)</span> and <span class="math inline">\(b\)</span> is the base of the logarithm. It is most popular to use natural logarithms, but some argue for base <span class="math inline">\(b = 2\)</span>. <strong>Shannon’s H</strong> is a dimensionless metric, in other words, it consider differences in the relative abundance among pixel values, but not their relative spectral distance, i.e. the distance among spectral values (Thouverai et al. 2021).</p>
+<p>Where <span class="math inline">\(p_i\)</span> is the proportional abundance of pixel <span class="math inline">\(i\)</span> and <span class="math inline">\(b\)</span> is the base of the logarithm. It is most popular to use natural logarithms, but some argue for base <span class="math inline">\(b = 2\)</span>. <strong>Shannon’s H</strong> is a dimensionless metric, in other words, it consider differences in the relative abundance among pixel values, but not their relative spectral distance, i.e. the distance among spectral values <span class="citation" data-cites="thouverai_measuring_2021">(<a href="#ref-thouverai_measuring_2021" role="doc-biblioref">Thouverai et al., 2021</a>)</span>.</p>
 <p>In this example we are using a parallel computation which allow to obtain results quickly, however if you have some issues running this part, please remove the argument <strong>np = 10</strong> from the code below.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(doParallel)</span>
-<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Computes Shannon&#39;s diversity index (H&#39;) on different classes of numeric matrices using a moving window algorithm.</span></span>
-<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>HARV_shannon <span class="ot">&lt;-</span> rasterdiv<span class="sc">::</span><span class="fu">Shannon</span>(<span class="at">x =</span> harv_ndvi, <span class="co"># NDVI raster</span></span>
-<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">window =</span> <span class="dv">5</span>, <span class="co"># window size</span></span>
-<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">np =</span> <span class="dv">10</span> <span class="co"># Number of cores, if this don&#39;t work for you, just remove this line of code</span></span>
-<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a>                                   )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(doParallel)</span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Computes Shannon&#39;s diversity index (H&#39;) on different classes of numeric matrices using a moving window algorithm.</span></span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a>HARV_shannon <span class="ot">&lt;-</span> rasterdiv<span class="sc">::</span><span class="fu">Shannon</span>(<span class="at">x =</span> harv_ndvi, <span class="co"># NDVI raster</span></span>
+<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">window =</span> <span class="dv">5</span>, <span class="co"># window size</span></span>
+<span id="cb63-6"><a href="#cb63-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">np =</span> <span class="dv">10</span> <span class="co"># Number of cores, if this don&#39;t work for you, just remove this line of code</span></span>
+<span id="cb63-7"><a href="#cb63-7" aria-hidden="true" tabindex="-1"></a>                                   )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Plot the results for Shannon’s diversity.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(HARV_shannon)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(HARV_shannon)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
 <section id="hills-generalized-entropy-diversity-index" class="level2" data-number="6.2">
 <h2 data-number="6.2" class="anchored" data-anchor-id="hills-generalized-entropy-diversity-index"><span class="header-section-number">6.2</span> Hill’s generalized entropy diversity index</h2>
-<p>The Hill’s generalized entropy diversity index is based on the effective number of species of <span class="math inline">\(H\alpha\)</span>, i.e., the number of species that would lead to the diversity <span class="math inline">\(H\)</span> if the species are equally abundant <span class="citation" data-cites="scheiner_decomposing_2017 cavender-bares_applying_2020">(<a href="#ref-cavender-bares_applying_2020" role="doc-biblioref">Cavender-Bares et al., 2020</a>; <a href="#ref-scheiner_decomposing_2017" role="doc-biblioref">Scheiner et al., 2017</a>)</span>. An important component in the Hill’s diversity is the <span class="math inline">\(\alpha\)</span> component, thus, different orders of <span class="math inline">\(\alpha\)</span> result in different diversity measures; for example, <span class="math inline">\(\alpha = 0\)</span> is simply species richness, <span class="math inline">\(\alpha = 1\)</span> gives the exponential of Shannon’s entropy index, and <span class="math inline">\(\alpha = 2\)</span> gives the inverse of Simpson’s concentration index <span class="citation" data-cites="cavender-bares_applying_2020">(<a href="#ref-cavender-bares_applying_2020" role="doc-biblioref">Cavender-Bares et al., 2020</a>)</span>.</p>
+<p>The Hill’s generalized entropy diversity index is based on the effective number of species (or pixels) of <span class="math inline">\(H\alpha\)</span>, i.e., the number of species that would lead to the diversity <span class="math inline">\(H\)</span> if the species are equally abundant <span class="citation" data-cites="scheiner_decomposing_2017 cavender-bares_applying_2020">(<a href="#ref-cavender-bares_applying_2020" role="doc-biblioref">Cavender-Bares et al., 2020</a>; <a href="#ref-scheiner_decomposing_2017" role="doc-biblioref">Scheiner et al., 2017</a>)</span>. An important component in the Hill’s diversity is the <span class="math inline">\(\alpha\)</span> component, thus, different orders of <span class="math inline">\(\alpha\)</span> result in different diversity measures; for example, <span class="math inline">\(\alpha = 0\)</span> is simply species richness, <span class="math inline">\(\alpha = 1\)</span> gives the exponential of Shannon’s entropy index, and <span class="math inline">\(\alpha = 2\)</span> gives the inverse of Simpson’s concentration index <span class="citation" data-cites="cavender-bares_applying_2020">(<a href="#ref-cavender-bares_applying_2020" role="doc-biblioref">Cavender-Bares et al., 2020</a>)</span>.</p>
 <p><span class="math display">\[H_\alpha = (\sum_{n=1}^{N} p_i^{\alpha})^\frac{1}{1-\alpha}\]</span></p>
 <p>Let’s compute the Hill’s diversity with an <span class="math inline">\(\alpha = 1\)</span> and compare the results with the <strong>Shannon’s</strong> metric.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Computes Hill&#39;s index of diversity (Hill numbers) on different classes of numeric matrices using a moving window algorithm.</span></span>
-<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>HARV_hill <span class="ot">&lt;-</span> rasterdiv<span class="sc">::</span><span class="fu">Hill</span>(harv_ndvi, </span>
-<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">alpha =</span> <span class="dv">1</span>, </span>
-<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a>                             <span class="at">window =</span> <span class="dv">5</span>, </span>
-<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a>                             <span class="at">np =</span> <span class="dv">10</span>, </span>
-<span id="cb63-6"><a href="#cb63-6" aria-hidden="true" tabindex="-1"></a>                             <span class="at">rasterOut =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Computes Hill&#39;s index of diversity (Hill numbers) on different classes of numeric matrices using a moving window algorithm.</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>HARV_hill <span class="ot">&lt;-</span> rasterdiv<span class="sc">::</span><span class="fu">Hill</span>(harv_ndvi, </span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">alpha =</span> <span class="dv">1</span>, </span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a>                             <span class="at">window =</span> <span class="dv">5</span>, </span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>                             <span class="at">np =</span> <span class="dv">10</span>, <span class="co"># Number of cores, if this don&#39;t work for you, just remove this line of code</span></span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a>                             <span class="at">rasterOut =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Plot the results</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(HARV_hill[[<span class="dv">1</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(HARV_hill[[<span class="dv">1</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Explore the correlation between the two rasters</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(<span class="fu">values</span>(HARV_shannon), <span class="fu">values</span>(HARV_hill[[<span class="dv">1</span>]]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(<span class="fu">values</span>(HARV_shannon), <span class="fu">values</span>(HARV_hill[[<span class="dv">1</span>]]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>As indicated before, when <span class="math inline">\(\alpha = 1\)</span> in the Hill’s calculation it will resemble the exponential of Shannon’s entropy index.</p>
