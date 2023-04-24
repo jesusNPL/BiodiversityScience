@@ -21,4 +21,4 @@ gotcha <- function(x, ngroups) {
 }
 
 
-gotcha(x = 1000, ngroups = 6)
+#gotcha(x = 1000, ngroups = 6)
