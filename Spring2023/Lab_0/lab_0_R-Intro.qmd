@@ -221,9 +221,9 @@ is.factor(data) # Check if the object is correct.
 A matrix is bidimensional arrangement of **vectors**, where the vectors need to be of the same type, that is, two or more numeric vectors, or two or more character vectors.
 
 ```{r}
-matx <- matrix(1:45, nrow = 15)
-rownames(matx) <-  LETTERS[1:15] # names of the rows
-colnames(matx) <- c("Sample01", "Sample02", "Sample03") # names of the columns or headers
+matx <- matrix(1:100, nrow = 20)
+rownames(matx) <-  LETTERS[1:20] # names of the rows
+colnames(matx) <- c("Sample01", "Sample02", "Sample03", "Sample04", "Sample05") # names of the columns or headers
 ```
 
 ```{r}
