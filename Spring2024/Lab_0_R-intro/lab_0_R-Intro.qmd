@@ -821,6 +821,12 @@ To finish this short tutorial, we will welcome all of the members of the Biodive
 
 library(tidyverse)
 
+```
+
+Get student names from the roster 2024
+
+```{r} 
+
 BioSciNames <- readxl::read_excel("data/BioSci_roster_2024.xlsx") 
 
 Student_names <- BioSciNames %>% 
@@ -830,6 +836,7 @@ Student_names <- BioSciNames %>%
 Student_names <- as.character(Student_names$Name)
 
 ```
+Run salutations!
 
 ```{r} 
 #| eval: true
@@ -838,7 +845,8 @@ Student_names <- as.character(Student_names$Name)
 
 for (i in 1:length(Student_names)){ 
   
-  print(paste0("Hi ", Student_names[i], ", welcome to the first practice of Biodiversity Science 2024!"))
+  print(paste0("Hi ", Student_names[i], 
+               ", welcome to the first practice of Biodiversity Science 2024!"))
   
   Sys.sleep(2) # wait two seconds before the next iteration or name 
   
