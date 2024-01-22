@@ -305,7 +305,7 @@ Summary statistics of the data in the matrix
 summary(matx) 
 ```
 
-In general, when we are exploring our data for example using **head()** the function will return only the 6 first rows of our matrix, however, we can add another argument into the function. For example, **head(matx, 10)**, just add the number 10 after the comma and is possible to see the first 10 lines. This simple operation is useful specially when our matrix is large **>100 rows**.
+In general, when we are exploring our data for example using **head()** the function will return only the 6 first rows of our matrix, however, we can add another argument into the function to display more rows. For example, **head(matx, 10)**, just add the number 10 after the comma and is possible to see the first 10 lines. This simple operation is useful specially when our matrix is large **> 100 rows**.
 
 :::{.callout-tip}
 ## Function tail
