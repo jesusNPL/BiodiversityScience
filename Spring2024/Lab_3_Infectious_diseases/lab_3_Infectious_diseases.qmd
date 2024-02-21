@@ -108,26 +108,16 @@ To to get the most updated dataset we can use the function **refresh_coronavirus
 
 IMPORTANT: JHU Has Stopped Collecting Data As Of **03 / 10 / 2023**
 
-```{r}
-#| eval: false
-
-corona <- refresh_coronavirus_jhu()
-
-corona %>% 
-  head(10)
-
-```
-
 If you received an error while uploading or updating the coronavirus dataset, use the next code. If not, please skip this lines.
 
 ```{r}
 #| eval: false
 
-githubURL <- "https://github.com/jesusNPL/BiodiversityScience/raw/master/Spring2023/Lab_3/Data/corona.RData"
+githubURL <- "https://github.com/jesusNPL/BiodiversityScience/raw/master/Spring2024/Lab_3_Infectious_diseases/data/coronavirus.RData"
 
 load(url(githubURL))
 
-glimpse(corona)
+glimpse(coronavirus)
 
 ```
 
@@ -138,12 +128,12 @@ Let's start exploring the total numbers of confirmed cases by country.
 
 # Get top confirmed cases by country
 coronavirus %>%
-  filter(data_type == "cases_new") %>%
-  group_by(location) %>%
-  summarise(total = sum(value)) %>%
+  filter(type == "confirmed") %>%
+  group_by(country) %>%
+  summarise(total = sum(cases)) %>%
   arrange(-total) %>% 
   head(20) %>% 
-  ggplot(aes(y = as.factor(location), x = total)) + 
+  ggplot(aes(y = as.factor(country), x = total)) + 
   geom_bar(stat = "identity") 
 
 ```
@@ -161,21 +151,23 @@ theme_nice <- function() {
           #plot.title = element_text(face = "bold"),
           #strip.text = element_text(face = "bold"),
           strip.background = element_rect(fill = "grey80", color = NA),
-          legend.title = element_text(face = "bold", size = 15), 
-          legend.text = element_text(size = 12))
+          legend.title = element_text(face = "bold", size = 25), 
+          legend.text = element_text(size = 20))
 }
 
 # Get top confirmed cases by country
-corona %>%
-  filter(data_type == "cases_new") %>%
-  group_by(location) %>%
-  summarise(total = sum(value)) %>%
+coronavirus %>%
+  filter(type == "confirmed") %>%
+  group_by(country) %>%
+  summarise(total = sum(cases)) %>%
   arrange(-total) %>% 
   head(20) %>% 
-  ggplot(aes(y = as.factor(location), x = total)) + 
+  ggplot(aes(y = as.factor(country), x = total)) + 
   geom_bar(stat = "identity", alpha = 0.7) + 
-  scale_x_continuous(labels = scales::label_number(suffix = " M", scale = 1e-6)) + 
-  labs(x = "Number of cases", y = "Countries with more reported cases") + 
+  scale_x_continuous(labels = scales::label_number(suffix = " M", 
+                                                   scale = 1e-6)) + 
+  labs(x = "Number of cases", 
+       y = "Countries with more reported cases") + 
   theme_nice()
 
 ```
@@ -195,8 +187,8 @@ By quickly exploring the coronavirus dataset we can see that the United States i
 ```{r}
 #| eval: false
 
-corona_us <- corona %>% 
-  filter(location == "US") %>% 
+coronavirus_us <- coronavirus %>% 
+  filter(country == "US") %>% 
   arrange(desc(date)) # sort the data according dates
 
 
@@ -207,20 +199,20 @@ If we look at the US coronavirus data it contains information of the number of r
 ```{r}
 #| eval: false
 
-infected_us <- corona %>% 
-  filter(location == "US") %>% 
+infected_us <- coronavirus %>% 
+  filter(country == "US") %>% 
   arrange(desc(date)) %>% 
-  filter(data_type == "cases_new")
+  filter(data_type == "confirmed")
 
 deaths_us <- corona %>% 
-  filter(location == "US") %>% 
+  filter(country == "US") %>% 
   arrange(desc(date)) %>% 
-  filter(data_type == "deaths_new")
+  filter(data_type == "death")
 
 recovered_us <- corona %>% 
-  filter(location == "US") %>% 
+  filter(country == "US") %>% 
   arrange(desc(date)) %>% 
-  filter(data_type == "recovered_new")
+  filter(data_type == "recovery")
 
 head(infected_us)
 ```
