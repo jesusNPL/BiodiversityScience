@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.3.353">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -3322,9 +3322,8 @@ The package {tidylog}
 <p>We are using <strong>tidyverse</strong> for almost everything in the lab sessions. If you want to know what we are really doing, you can install and load the R package named {tidylog}. This package will print in your console the different operations within the pipes.</p>
 </div>
 </div>
-<p>To to get the most updated dataset we can use the function <strong>refresh_coronavirus_jhu()</strong> and store the UPDATED data in our <strong>Environment</strong> as a new object named <em>corona</em>.</p>
 <p><strong>IMPORTANT:</strong> JHU Has Stopped Collecting Data As Of <strong>03 / 10 / 2023</strong></p>
-<p>If you received an error while uploading or updating the coronavirus dataset, use the next code. If not, please skip this lines.</p>
+<p>If you received an error while uploading the coronavirus dataset, use the next code. If not, please skip this lines.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -3344,7 +3343,7 @@ The package {tidylog}
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(type <span class="sc">==</span> <span class="st">&quot;confirmed&quot;</span>) <span class="sc">%&gt;%</span> <span class="co"># filter confirmed cases</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country) <span class="sc">%&gt;%</span> <span class="co"># group cases by country</span></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total =</span> <span class="fu">sum</span>(cases)) <span class="sc">%&gt;%</span> <span class="co"># sum all cases</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="sc">-</span>total) <span class="sc">%&gt;%</span> <span class="co"># select the countries with more casess</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="sc">-</span>total) <span class="sc">%&gt;%</span> <span class="co"># select the countries with more cases</span></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">20</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">as.factor</span>(country), <span class="at">x =</span> total)) <span class="sc">+</span> </span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">&quot;identity&quot;</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -3458,7 +3457,8 @@ The package {tidylog}
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="fu">url</span>(githubURL))</span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(covid_us)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Explore the content</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(covid_us)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Let’s explore the data and clean it little bit.</p>
@@ -3468,11 +3468,13 @@ The package {tidylog}
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>covid_us <span class="sc">%&gt;%</span> </span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(state) <span class="sc">%&gt;%</span> </span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(tot_cases) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> state, <span class="at">x =</span> tot_cases)) <span class="sc">+</span> </span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">&quot;identity&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Number of cases&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Reported cases by State&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_number</span>(<span class="at">suffix =</span> <span class="st">&quot; M&quot;</span>, <span class="at">scale =</span> <span class="fl">1e-6</span>)) <span class="sc">+</span> </span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_biosci</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(state) <span class="sc">%&gt;%</span> <span class="co"># group cases by state</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total =</span> <span class="fu">sum</span>(new_case)) <span class="sc">%&gt;%</span> <span class="co"># sum all cases</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> state, <span class="at">x =</span> total)) <span class="sc">+</span> </span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">&quot;identity&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Number of cases&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Reported cases by State&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_number</span>(<span class="at">suffix =</span> <span class="st">&quot; M&quot;</span>, <span class="at">scale =</span> <span class="fl">1e-6</span>)) <span class="sc">+</span> </span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_biosci</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Let’s reformat the dates and order the data in an ascending order.</p>
@@ -3574,7 +3576,7 @@ The package {tidylog}
 <li>the infected (<strong>I</strong>) 😱😷🤒</li>
 <li>the recovered (<strong>R</strong>) 😬🤗 or 😵</li>
 </ol>
-<p>Then, these compartments in turn are used to model the dynamics of an outbreak. However, first of all we need to understand a little bit the <em>Math</em> behind the scenes. Dr. Elizabeth Borer provided a nice introduction to the math in the last lecture, but if you want to dig a little bit more you can watch this amazing video by Trevor Bazett <a href="https://www.youtube.com/watch?v=Qrp40ck3WpI">The MATH of Epidemics | Intro to the SIR Model</a> on YouTube. But, if you want to learn more details on this topic, the Book <a href="https://www.springer.com/gp/book/9783319974866"><strong>Epidemics: models and data using R</strong></a> by <span class="citation" data-cites="bjornstad_epidemics_2018">Bjørnstad (<a href="#ref-bjornstad_epidemics_2018" role="doc-biblioref">2018</a>)</span> can help you.</p>
+<p>Then, these compartments in turn are used to model the dynamics of an outbreak. However, first of all we need to understand a little bit the <em>Math</em> behind the scenes. Dr. Seraina Cappelli provided a nice introduction to the math in the last lecture, but if you want to dig a little bit more you can watch this amazing video by Trevor Bazett <a href="https://www.youtube.com/watch?v=Qrp40ck3WpI">The MATH of Epidemics | Intro to the SIR Model</a> on YouTube. But, if you want to learn more details on this topic, the Book <a href="https://www.springer.com/gp/book/9783319974866"><strong>Epidemics: models and data using R</strong></a> by <span class="citation" data-cites="bjornstad_epidemics_2018">Bjørnstad (<a href="#ref-bjornstad_epidemics_2018" role="doc-biblioref">2018</a>)</span> can help you.</p>
 <p>Anyhow, let’s recap a little bit how the math works. To do that, we need three <em>differential equations</em>, one for the change in each group or compartment, where <span class="math inline">\(\beta\)</span> (represents the infection rate) is the parameter that controls the transition between <span class="math inline">\(S\)</span> and <span class="math inline">\(I\)</span> and <span class="math inline">\(\gamma\)</span> (gamma) which controls the transition between <span class="math inline">\(I\)</span> and <span class="math inline">\(R\)</span>, and represents the removal or recovery rate.</p>
 <p>The first equation indicates that the number of susceptible subjects (<span class="math inline">\(S\)</span>) decreases with the number of newly infected subjects. In other words, every new infected subject is the result of the infection rate (<span class="math inline">\(\beta\)</span>) times the number of susceptible individuals (<span class="math inline">\(S\)</span>) who had a contact with an infected subject (<span class="math inline">\(I\)</span>).</p>
 <p><span class="math display">\[\frac{dS}{dt} = - \frac{\beta IS}{N}\]</span></p>
@@ -3622,43 +3624,47 @@ The package {tidylog}
 </details>
 </div>
 <p>Okay, we now have almost all information needed to fit our first <span class="math inline">\(SIR\)</span> model. The last information we need is to set of initial values for <span class="math inline">\(N\)</span> (population size), <span class="math inline">\(S\)</span>, <span class="math inline">\(I\)</span> and <span class="math inline">\(R\)</span>.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Total population for the State of Minnesota by July 2023</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">5737915</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <p>By observing the trend in the number of cases for MN, we can see that the first date with records of infected subject was in <strong>March 06, 2020</strong> (you can double check to confirm that date), so, let’s set that day as a starting point for our <span class="math inline">\(SIR\)</span> model.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>covid_mn <span class="sc">%&gt;%</span> </span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Date <span class="sc">==</span> <span class="st">&quot;2020-03-06&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>covid_mn <span class="sc">%&gt;%</span> </span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Date <span class="sc">==</span> <span class="st">&quot;2020-03-06&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>Moreover, as more than two years have passed since the pandemic started, the variability in the number of cases is huge, so let’s select the first 60 days of cases to fit our model and then use the fitted model to predict the dynamics of COVID-19 for the following year.</p>
+<p>Moreover, as more than three years have passed since the pandemic started, the variability in the number of cases is huge, so let’s select the first ~45 days of cases to fit our model and then use the fitted model to predict the dynamics of COVID-19 for the following year.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">5737915</span> <span class="co"># Total population for the State of Minnesota by July 2023</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>start_date <span class="ot">&lt;-</span> <span class="st">&quot;2020-03-06&quot;</span></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>end_date <span class="ot">&lt;-</span> <span class="st">&quot;2020-05-10&quot;</span></span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="co"># isolating the infected subjects in the state of Minnesota since the start date</span></span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>Infections <span class="ot">&lt;-</span> covid_mn <span class="sc">%&gt;%</span> </span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Date <span class="sc">&gt;=</span> <span class="fu">ymd</span>(start_date) <span class="sc">&amp;</span> Date <span class="sc">&lt;=</span> <span class="fu">ymd</span>(end_date))</span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="co">#Infected2 &lt;- subset(covid_mn, Date &gt;= ymd(start_date) &amp; Date &lt;= ymd(end_date))$new_case</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>start_date <span class="ot">&lt;-</span> <span class="st">&quot;2020-03-06&quot;</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>end_date <span class="ot">&lt;-</span> <span class="st">&quot;2020-04-20&quot;</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># isolating the infected subjects in the state of Minnesota since the start date</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>Infections <span class="ot">&lt;-</span> covid_mn <span class="sc">%&gt;%</span> </span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Date <span class="sc">&gt;=</span> <span class="fu">ymd</span>(start_date) <span class="sc">&amp;</span> Date <span class="sc">&lt;=</span> <span class="fu">ymd</span>(end_date))</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="co">#Infected2 &lt;- subset(covid_mn, Date &gt;= ymd(start_date) &amp; Date &lt;= ymd(end_date))$new_case</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Let’s plot this data and see how it looks.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>Infections <span class="sc">%&gt;%</span> </span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">as.POSIXct</span>(Date), <span class="at">y =</span> <span class="fu">log</span>(new_case))) <span class="sc">+</span> </span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">&quot;gray&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">#geom_line(mapping = aes(x = as.POSIXct(Date)), linewidth = 2,</span></span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>   <span class="co">#         colour = alpha(PrettyCols::prettycols(&quot;Purples&quot;)[4], 0.3)) +</span></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">colour =</span> PrettyCols<span class="sc">::</span><span class="fu">prettycols</span>(<span class="st">&quot;Purples&quot;</span>)[<span class="dv">1</span>], <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">&quot;log - COVID-19 cases&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_biosci</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>Infections <span class="sc">%&gt;%</span> </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">as.POSIXct</span>(Date), <span class="at">y =</span> <span class="fu">log</span>(new_case))) <span class="sc">+</span> </span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">&quot;gray&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">colour =</span> PrettyCols<span class="sc">::</span><span class="fu">prettycols</span>(<span class="st">&quot;Purples&quot;</span>)[<span class="dv">1</span>], </span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">&quot;log - COVID-19 cases&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_biosci</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>We can see that the confirmed cases in Minnesota were increasing rapidly since the first case of COVID-19 was reported.</p>
@@ -3666,18 +3672,18 @@ The package {tidylog}
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ODE does not like tidy format, so we are going to isolate the number of cases in R base.</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>Infected <span class="ot">&lt;-</span> Infections<span class="sc">$</span>new_case</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>Days <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(Infected) <span class="co"># Number of days since the first case</span></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Initial values for our SIR model</span></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>init <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">S =</span> N <span class="sc">-</span> Infected[<span class="dv">1</span>], <span class="co"># Susceptible group</span></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">I =</span> Infected[<span class="dv">1</span>], <span class="co"># Infected group</span></span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">R =</span> <span class="dv">0</span> <span class="co"># Recovered group.</span></span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ODE does not like tidy format, so we are going to isolate the number of cases in R base.</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>Infected <span class="ot">&lt;-</span> Infections<span class="sc">$</span>new_case</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>Days <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(Infected) <span class="co"># Number of days since the first case</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Initial values for our SIR model</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>init <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">S =</span> N <span class="sc">-</span> Infected[<span class="dv">1</span>], <span class="co"># Susceptible group</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">I =</span> Infected[<span class="dv">1</span>], <span class="co"># Infected group</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">R =</span> <span class="dv">0</span> <span class="co"># Recovered group.</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Now we can combine all information and run our model. Using the information provided above, we can find the values of <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\gamma\)</span> that give the smallest <span class="math inline">\(RSS\)</span> that represent the best fit to the data. Let’s start exploring with values of <strong>0.5</strong> for each step and constrain those values to an interval from 0 to 1.</p>
@@ -3685,22 +3691,22 @@ The package {tidylog}
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>Opt <span class="ot">&lt;-</span> <span class="fu">optim</span>(<span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.5</span>),</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  RSS,</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">&quot;L-BFGS-B&quot;</span>,</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>),</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>)</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>Opt <span class="ot">&lt;-</span> <span class="fu">optim</span>(<span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.5</span>),</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  RSS,</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">&quot;L-BFGS-B&quot;</span>,</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>),</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Check if the model converged.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># optimize with some sensible conditions</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>Opt<span class="sc">$</span>message</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="co"># [1] &quot;CONVERGENCE: REL_REDUCTION_OF_F &lt;= FACTR*EPSMCH&quot;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># optimize with some sensible conditions</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>Opt<span class="sc">$</span>message</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co"># [1] &quot;CONVERGENCE: REL_REDUCTION_OF_F &lt;= FACTR*EPSMCH&quot;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Yay! our model show convergence.</p>
@@ -3708,35 +3714,35 @@ The package {tidylog}
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>Opt_par <span class="ot">&lt;-</span> <span class="fu">setNames</span>(Opt<span class="sc">$</span>par, <span class="fu">c</span>(<span class="st">&quot;Beta&quot;</span>, <span class="st">&quot;Gamma&quot;</span>))</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>Opt_par</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>Opt_par <span class="ot">&lt;-</span> <span class="fu">setNames</span>(Opt<span class="sc">$</span>par, <span class="fu">c</span>(<span class="st">&quot;Beta&quot;</span>, <span class="st">&quot;Gamma&quot;</span>))</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>Opt_par</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Now using the fitted <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\gamma\)</span> values, we can see if our model recovers the observed trend in the state of Minnesota for the first two months since the first positive <span class="math inline">\(I\)</span> case was reported.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># get the fitted values from our SIR model</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>fit_incidence <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">ode</span>(</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> init, <span class="at">times =</span> Days,</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">func =</span> SIR, <span class="at">parms =</span> Opt_par</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>))</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(fit_incidence)</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(fit_incidence)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># get the fitted values from our SIR model</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>fit_incidence <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">ode</span>(</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> init, <span class="at">times =</span> Days,</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">func =</span> SIR, <span class="at">parms =</span> Opt_par</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>))</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(fit_incidence)</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(fit_incidence)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Let’s plot the estimated <span class="math inline">\(I\)</span> over the first two months. We will use a kind of plot named <strong>semi-log plot</strong>, this plot allow us the read the difference between the expected (fitted) and observed number of confirmed cases over time.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">matplot</span>(fit_incidence<span class="sc">$</span>time, fit_incidence<span class="sc">$</span>I, </span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, <span class="at">log =</span> <span class="st">&quot;y&quot;</span>, </span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">&quot;Days&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Number of infected subjects&quot;</span>, </span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">lty =</span> <span class="dv">1</span>) </span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(Days, Infected)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">matplot</span>(fit_incidence<span class="sc">$</span>time, fit_incidence<span class="sc">$</span>I, </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, <span class="at">log =</span> <span class="st">&quot;y&quot;</span>, </span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">&quot;Days&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Number of infected subjects&quot;</span>, </span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">lty =</span> <span class="dv">1</span>) </span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(Days, Infected)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Hmmm, looks like the fitted model does recover the number of infected cases in the Minnesota. However, although seems that the model tend to underestimate the number of reported cases, we can see an steady increment on the number of cases since the first reported case.</p>
@@ -3763,18 +3769,18 @@ On the derivation of the back-of-the-envelope <span class="math inline">\(R_0\)<
 <p><span class="math display">\[A = \frac{L}{R_0-1}\]</span> Rearrange and you get</p>
 <p><span class="math display">\[R_0 = \frac{L}{A}\]</span> One more time</p>
 <p><span class="math display">\[R_0 = 1 + \frac{L}{A}\]</span></p>
-<p>There are a ton of assumptions in each of these steps (pathogen is increasing, complete mixing, no host variation, etc), but this is all basically derived from the original SIR models via relationships describing force of infection.</p>
+<p>There are a ton of assumptions in each of these steps (pathogen is increasing, complete mixing, no host variation, etc), but this is all basically derived from the original <strong>SIR</strong> models via relationships describing force of infection.</p>
 </div>
 </div>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>R0 <span class="ot">&lt;-</span> <span class="fu">setNames</span>(Opt_par[<span class="st">&quot;Beta&quot;</span>] <span class="sc">/</span> Opt_par[<span class="st">&quot;Gamma&quot;</span>], <span class="st">&quot;R0&quot;</span>)</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(R0, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>R0 <span class="ot">&lt;-</span> <span class="fu">setNames</span>(Opt_par[<span class="st">&quot;Beta&quot;</span>] <span class="sc">/</span> Opt_par[<span class="st">&quot;Gamma&quot;</span>], <span class="st">&quot;R0&quot;</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(R0, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>The estimated <span class="math inline">\(R_0\)</span> is 1.232 which suggests that for every sick subject 1.2 subjects can get infected by COVID-19. This value is lower when compared to other diseases and even lower than the estimated <span class="math inline">\(R_0\)</span> for COVID-19 in the literature that ranges between 2.5 and 3. One potential explanation for this low <span class="math inline">\(R_0\)</span> can be due the fact the first 60 days, the number of observed cases were very low when compared with the large population size (<span class="math inline">\(N\)</span>) in the state of Minnesota.</p>
+<p>The estimated <span class="math inline">\(R_0\)</span> is 1.264 which suggests that for every sick subject 1.3 subjects can get infected by COVID-19. This value is lower when compared to other diseases and even lower than the estimated <span class="math inline">\(R_0\)</span> for COVID-19 in the literature that ranges between 2.5 and 3. One potential explanation for this low <span class="math inline">\(R_0\)</span> can be due the fact the first 45 days, the number of observed cases were very low when compared with the large population size (<span class="math inline">\(N\)</span>) in the state of Minnesota.</p>
 <p>Another reason could be that the number of reported cases of COVID-19 in US are not true, in other words, the reported cases are lower than the true cases <span class="citation" data-cites="wu_substantial_2020">(<a href="#ref-wu_substantial_2020" role="doc-biblioref">Wu et al., 2020</a>)</span>. This is critical when we are constructing any kind of model, as potentially we would be facing the <strong>GIGO</strong> metaphor–<em>garbage-in, garbage-out</em>–that indicates that if the data used in a model are not reliable, then the results are not useful. In other words, you can be using the best mathematical model ever constructed, but if your data is not reliable or coherent, then your results are not useful (are garbage).</p>
 </section>
 <section id="evaluating-the-outbreak-under-no-intervention" class="level2" data-number="3.4">
@@ -3783,46 +3789,53 @@ On the derivation of the back-of-the-envelope <span class="math inline">\(R_0\)<
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>times <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">350</span> <span class="co"># time in days</span></span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>fit_350 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">ode</span>( </span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> init, <span class="at">times =</span> times, </span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">func =</span> SIR, <span class="at">parms =</span> Opt_par))</span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(fit_350)</span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(fit_350)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>times <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">350</span> <span class="co"># time in days</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>fit_350 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">ode</span>( </span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> init, <span class="at">times =</span> times, </span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">func =</span> SIR, <span class="at">parms =</span> Opt_par))</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(fit_350)</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(fit_350)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>To better explore the data, let’s make some figures that allow us to see what would happened the first 350 days of the pandemic in the state of Minnesota in a hypothetical case of no intervention.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>cols <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span> <span class="co"># colors: black = susceptible, red = infected and green = recovered</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>cols <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span> <span class="co"># colors: black = susceptible, red = infected and green = recovered</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
+<p>Now, let’s plot the output.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">matplot</span>(fit_350<span class="sc">$</span>time, fit_350[, <span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>], <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, </span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">&quot;Days&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Number of subjects&quot;</span>, </span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">col =</span> cols)</span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;left&quot;</span>, <span class="fu">c</span>(<span class="st">&quot;Susceptible&quot;</span>, <span class="st">&quot;Infected&quot;</span>, <span class="st">&quot;Recovered&quot;</span>), </span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> cols, <span class="at">inset =</span> <span class="fl">0.05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">matplot</span>(fit_350<span class="sc">$</span>time, fit_350[, <span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>], <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, </span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">&quot;Days since infection&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Number of subjects&quot;</span>, </span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">col =</span> cols)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;left&quot;</span>, <span class="fu">c</span>(<span class="st">&quot;Susceptible&quot;</span>, <span class="st">&quot;Infected&quot;</span>, <span class="st">&quot;Recovered&quot;</span>), </span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> cols, <span class="at">inset =</span> <span class="fl">0.05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Same figure but in log scale and adding the observed cases</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">matplot</span>(fit_350<span class="sc">$</span>time, fit_350[ , <span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>], <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, </span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">&quot;Days&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Number of subjects&quot;</span>, </span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">col =</span> cols, <span class="at">log =</span> <span class="st">&quot;y&quot;</span>)</span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Warning in xy.coords(x, y, xlabel, ylabel, log = log): 1 y value &lt;= 0</span></span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="do">## omitted from logarithmic plot</span></span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(Days, Infected)</span>
-<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;bottomright&quot;</span>, <span class="fu">c</span>(<span class="st">&quot;Susceptible&quot;</span>, <span class="st">&quot;Infected&quot;</span>, <span class="st">&quot;Recovered&quot;</span>), </span>
-<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> cols, <span class="at">inset =</span> <span class="fl">0.05</span>)</span>
-<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="st">&quot;SIR model 2019-nCoV United States&quot;</span>, <span class="at">outer =</span> <span class="cn">TRUE</span>, <span class="at">line =</span> <span class="sc">-</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">matplot</span>(fit_350<span class="sc">$</span>time, fit_350[ , <span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>], </span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, </span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">&quot;Days&quot;</span>, </span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">&quot;Number of subjects&quot;</span>, </span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">lwd =</span> <span class="dv">2</span>, </span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">lty =</span> <span class="dv">1</span>, </span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> cols, </span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">log =</span> <span class="st">&quot;y&quot;</span>)</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a><span class="do">## Warning in xy.coords(x, y, xlabel, ylabel, log = log): 1 y value &lt;= 0</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a><span class="do">## omitted from logarithmic plot</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(Days, Infected)</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;bottomright&quot;</span>, <span class="fu">c</span>(<span class="st">&quot;Susceptible&quot;</span>, <span class="st">&quot;Infected&quot;</span>, <span class="st">&quot;Recovered&quot;</span>), </span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> cols, <span class="at">inset =</span> <span class="fl">0.05</span>)</span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="st">&quot;SIR model 2019-nCoV - Minnesota&quot;</span>, <span class="at">outer =</span> <span class="cn">TRUE</span>, <span class="at">line =</span> <span class="sc">-</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p><em>How do you feel about that?</em></p>
@@ -3840,8 +3853,8 @@ On the derivation of the back-of-the-envelope <span class="math inline">\(R_0\)<
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Peak of the pandemic for the first 60 days</span></span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>fit_incidence[fit_incidence<span class="sc">$</span>I <span class="sc">==</span> <span class="fu">max</span>(fit_incidence<span class="sc">$</span>I), <span class="fu">c</span>(<span class="st">&quot;time&quot;</span>, <span class="st">&quot;I&quot;</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Peak of the pandemic for the first 45 days</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>fit_incidence[fit_incidence<span class="sc">$</span>I <span class="sc">==</span> <span class="fu">max</span>(fit_incidence<span class="sc">$</span>I), <span class="fu">c</span>(<span class="st">&quot;time&quot;</span>, <span class="st">&quot;I&quot;</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
@@ -3850,7 +3863,7 @@ On the derivation of the back-of-the-envelope <span class="math inline">\(R_0\)<
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">max</span>(fit_incidence<span class="sc">$</span>I) <span class="sc">*</span> <span class="fl">0.02</span> <span class="co"># Assuming 2% of fatality rate</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">max</span>(fit_incidence<span class="sc">$</span>I) <span class="sc">*</span> <span class="fl">0.02</span> <span class="co"># Assuming 2% of fatality rate</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
