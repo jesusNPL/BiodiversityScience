@@ -36,8 +36,8 @@ To do this laboratory you will need to have a set of R packages. Install the fol
 ```{r}
 #| eval: false
 
-packages <- c("coronavirus", "deSolve", "lubridate", "scales", "PrettyCols") 
 # Package vector names
+packages <- c("coronavirus", "deSolve", "lubridate", "scales", "PrettyCols") 
 
 ```
 
@@ -106,7 +106,7 @@ We are using **tidyverse** for almost everything in the lab sessions. If you wan
 
 To to get the most updated dataset we can use the function **refresh_coronavirus_jhu()** and store the UPDATED data in our **Environment** as a new object named *corona*.
 
-IMPORTANT: JHU Has Stopped Collecting Data As Of **03 / 10 / 2023**
+**IMPORTANT:** JHU Has Stopped Collecting Data As Of **03 / 10 / 2023**
 
 If you received an error while uploading or updating the coronavirus dataset, use the next code. If not, please skip this lines.
 
@@ -128,10 +128,10 @@ Let's start exploring the total numbers of confirmed cases by country.
 
 # Get top confirmed cases by country
 coronavirus %>%
-  filter(type == "confirmed") %>%
-  group_by(country) %>%
-  summarise(total = sum(cases)) %>%
-  arrange(-total) %>% 
+  filter(type == "confirmed") %>% # filter confirmed cases
+  group_by(country) %>% # group cases by country
+  summarise(total = sum(cases)) %>% # sum all cases
+  arrange(-total) %>% # select the countries with more casess
   head(20) %>% 
   ggplot(aes(y = as.factor(country), x = total)) + 
   geom_bar(stat = "identity") 
@@ -144,12 +144,10 @@ Informative but not good looking... let's play a bit more!
 #| eval: false
 
 # Aux function for visualization
-theme_nice <- function() {
-  theme_bw() + #base_family = "Noto Sans") +
+theme_biosci <- function() {
+  theme_bw() + 
     theme(panel.grid.minor = element_blank(),
           plot.background = element_rect(fill = "white", color = NA),
-          #plot.title = element_text(face = "bold"),
-          #strip.text = element_text(face = "bold"),
           strip.background = element_rect(fill = "grey80", color = NA),
           legend.title = element_text(face = "bold", size = 25), 
           legend.text = element_text(size = 20))
@@ -159,7 +157,7 @@ theme_nice <- function() {
 coronavirus %>%
   filter(type == "confirmed") %>%
   group_by(country) %>%
-  summarise(total = sum(cases)) %>%
+  summarise(total = sum(cases)) %>% 
   arrange(-total) %>% 
   head(20) %>% 
   ggplot(aes(y = as.factor(country), x = total)) + 
@@ -168,7 +166,7 @@ coronavirus %>%
                                                    scale = 1e-6)) + 
   labs(x = "Number of cases", 
        y = "Countries with more reported cases") + 
-  theme_nice()
+  theme_biosci()
 
 ```
 
@@ -191,7 +189,6 @@ coronavirus_us <- coronavirus %>%
   filter(country == "US") %>% 
   arrange(desc(date)) # sort the data according dates
 
-
 ```
 
 If we look at the US coronavirus data it contains information of the number of recovers (**R**), the number of new cases (**I**) and the the deaths. Let's isolate those data and inspect if there are some trends.
@@ -199,20 +196,22 @@ If we look at the US coronavirus data it contains information of the number of r
 ```{r}
 #| eval: false
 
+head(coronavirus)
+
 infected_us <- coronavirus %>% 
   filter(country == "US") %>% 
   arrange(desc(date)) %>% 
-  filter(data_type == "confirmed")
+  filter(type == "confirmed")
 
-deaths_us <- corona %>% 
+deaths_us <- coronavirus %>% 
   filter(country == "US") %>% 
   arrange(desc(date)) %>% 
-  filter(data_type == "death")
+  filter(type == "death")
 
-recovered_us <- corona %>% 
+recovered_us <- coronavirus %>% 
   filter(country == "US") %>% 
   arrange(desc(date)) %>% 
-  filter(data_type == "recovery")
+  filter(type == "recovery")
 
 head(infected_us)
 ```
@@ -222,17 +221,22 @@ let's plot the new cases.
 ```{r}
 #| eval: false
 
-corona_us %>% 
-  filter(data_type == "cases_new") %>% 
-  ggplot(aes(x = as.POSIXct(date), y = value)) + 
+coronavirus_us %>% 
+  filter(type == "confirmed") %>% 
+  ggplot(aes(x = as.POSIXct(date), y = cases)) + 
   geom_point(color = "gray") + 
   labs(x = NULL, y = "COVID-19 new cases") + 
-  geom_line(mapping = aes(x = as.POSIXct(date)), linewidth = 2,
-            colour = alpha(PrettyCols::prettycols("Purples")[4], 0.3)) +
-  geom_smooth(colour = PrettyCols::prettycols("Purples")[1], linewidth = 2) +
-  scale_y_continuous(labels = scales::label_number(suffix = " M", scale = 1e-6)) + 
-  scale_x_datetime(date_breaks = "2 month", labels = scales::label_date_short()) + 
-  theme_nice()
+  geom_line(mapping = aes(x = as.POSIXct(date)), 
+            linewidth = 2,
+            colour = alpha(PrettyCols::prettycols("Purples")[4], 
+                           0.3)) +
+  geom_smooth(colour = PrettyCols::prettycols("Purples")[1], 
+              linewidth = 2) +
+  scale_y_continuous(labels = scales::label_number(suffix = " M", 
+                                                   scale = 1e-6)) + 
+  scale_x_datetime(date_breaks = "2 month", 
+                   labels = scales::label_date_short()) + 
+  theme_biosci()
 
 ```
 
@@ -242,13 +246,13 @@ We can see a trend in the number of confirmed Infected subjects since the first 
 
 *Please explain the trend temporally; in other words, do the spikes in the number of cases match the US holidays?*
 
-*What about the number of deaths and the number of recovered people?*
+*What about the number of deaths and the number of recovered people?* 
 
 # SIR model
 
 ## Data preparation
 
-The first step to build our first ***SIR*** model is to get data of a disease, well, we already have data of coronavirus for each country in the world, however, as this dataset is at country level we probably will be missing some relevant information that occurs only at local scale, i.e., by States. In this sense, we will use data from the [**Centers for Disease Control and Prevention**](https://www.cdc.gov) that reports aggregate counts of COVID-19 at State level within the United States, how good is that? Okay, let's go for it!
+The first step to build our first ***SIR*** model is to get data of a disease, well, we already have data of COVID-19 for each country in the world, however, as this dataset is at country level we probably will be missing some relevant information that occurs only at local scale, i.e., by States. In this sense, we will use data from the [**Centers for Disease Control and Prevention**](https://www.cdc.gov) that reports aggregate counts of COVID-19 at State level within the United States, how good is that? Okay, let's go for it!
 
 ```{r}
 #| eval: false
@@ -268,7 +272,8 @@ If the previous lines return an error, please use these ones.
 ```{r}
 #| eval: false
 
-githubURL <- "https://github.com/jesusNPL/BiodiversityScience/raw/master/Spring2023/Lab_3/Data/covidUS.RData"
+githubURL <- 
+  "https://github.com/jesusNPL/BiodiversityScience/raw/master/Spring2024/Lab_3_Infectious_diseases/data/covidUS.RData"
 
 load(url(githubURL))
 
@@ -281,14 +286,14 @@ Let's explore the data and clean it little bit.
 ```{r}
 #| eval: false
 
-covid_us %>% 
+covid_us_new %>% 
   arrange(state) %>% 
   drop_na(tot_cases) %>% 
   ggplot(aes(y = state, x = tot_cases)) + 
   geom_bar(stat = "identity") + 
   labs(x = "Number of cases", y = "Reported cases by State") + 
   scale_x_continuous(labels = scales::label_number(suffix = " M", scale = 1e-6)) + 
-  theme_nice()
+  theme_biosci()
 
 ```
 
@@ -297,16 +302,16 @@ Let's reformat the dates and order the data in an ascending order.
 ```{r}
 #| eval: false
 
-covid_us <- covid_us %>% 
-  mutate(Date = submission_date) %>% 
+covid_us_new <- covid_us_new %>% 
+  mutate(Date = date_updated) %>% 
   mutate(Date = mdy(Date)) %>% 
   select(Date, everything()) %>% 
-  separate(submission_date, sep = "/", into = c("month", "day", "year")) 
+  separate(date_updated, sep = "/", into = c("month", "day", "year")) 
 
 # Sort the data in an increasing order
-covid_us <- covid_us[order(covid_us$Date), ]
+covid_us_new <- covid_us_new[order(covid_us_new$Date), ]
 
-head(covid_us)
+head(covid_us_new)
 
 ```
 
@@ -317,7 +322,7 @@ The data is still very broad, let's select data for the State of Minnesota.
 ```{r}
 #| eval: false
 
-covid_mn <- covid_us %>% 
+covid_mn <- covid_us_new %>% 
   filter(state == "MN")
 
 head(covid_mn)
@@ -330,15 +335,20 @@ Now we can explore the data in a similar way we did for the entire United States
 #| eval: false
 
 covid_mn %>% 
-  ggplot(aes(x = as.POSIXct(Date), y = new_case)) + 
+  ggplot(aes(x = as.POSIXct(Date), y = new_cases)) + 
   geom_point(color = "gray") + 
   labs(x = NULL, y = "COVID-19 new cases") + 
-  geom_line(mapping = aes(x = as.POSIXct(Date)), linewidth = 2,
-            colour = alpha(PrettyCols::prettycols("Purples")[4], 0.3)) +
-  geom_smooth(colour = PrettyCols::prettycols("Purples")[1], linewidth = 2) +
-  scale_y_continuous(labels = scales::label_number(suffix = " M", scale = 1e-6)) + 
-  scale_x_datetime(date_breaks = "2 month", labels = label_date_short()) + 
-  theme_nice()
+  geom_line(mapping = aes(x = as.POSIXct(Date)), 
+            linewidth = 2,
+            colour = alpha(PrettyCols::prettycols("Purples")[4], 
+                           0.3)) +
+  geom_smooth(colour = PrettyCols::prettycols("Purples")[1], 
+              linewidth = 2) +
+  scale_y_continuous(labels = scales::label_number(suffix = " M", 
+                                                   scale = 1e-6)) + 
+  scale_x_datetime(date_breaks = "2 month", 
+                   labels = label_date_short()) + 
+  theme_biosci()
 
 ```
 
