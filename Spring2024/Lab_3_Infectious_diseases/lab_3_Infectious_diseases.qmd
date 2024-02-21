@@ -258,7 +258,7 @@ The first step to build our first ***SIR*** model is to get data of a disease, w
 #| eval: false
 
 githubURL <- 
-  "https://github.com/jesusNPL/BiodiversityScience/raw/master/Spring2023/Lab_3/Data/covidUS.RData"
+  "https://github.com/jesusNPL/BiodiversityScience/raw/master/Spring2024/Lab_3_Infectious_diseases/data/covidUS.RData"
 
 load(url(githubURL))
 
