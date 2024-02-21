@@ -742,4 +742,6 @@ max(fit_incidence$I) * 0.02 # Assuming 2% of fatality rate
 
 # The challenge
 
-The challenge for this assignment is to repeat the process by selecting other state in the United States and discuss if the $R_0$ obtained differ to the obtained for the state of Minnesota.
+The challenge for this assignment is to repeat the process by selecting other state in the United States and discuss if the $R_0$ obtained differ to the obtained for the state of Minnesota. 
+
+Happy coding!
