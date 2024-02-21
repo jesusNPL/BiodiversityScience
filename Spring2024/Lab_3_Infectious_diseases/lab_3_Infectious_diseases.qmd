@@ -591,12 +591,22 @@ Let's plot the estimated $I$ over the first two months. We will use a kind of pl
 ```{r}
 #| eval: false
 
-matplot(fit_incidence$time, fit_incidence$I, 
-        type = "l", log = "y", 
-        xlab = "Days", ylab = "Number of infected subjects", 
-        lwd = 2, lty = 1) 
+#matplot(fit_incidence$time, fit_incidence$I, 
+ #       type = "l", log = "y", 
+  #      xlab = "Days", ylab = "Number of infected subjects", 
+   #     lwd = 2, lty = 1) 
 
-points(Days, Infected)
+#points(Days, Infected)
+
+
+fit_incidence %>% 
+  ggplot(aes(x = time, y = log(I))) + 
+  geom_smooth(colour = PrettyCols::prettycols("Purples")[1], 
+              linewidth = 1) + 
+  geom_point(data = Infections, aes(x = Days, y = log(new_case))) + 
+  labs(x = "Days", y = "Number of infected subjects") + 
+  theme_biosci()
+
 
 ```
 
@@ -685,6 +695,17 @@ matplot(fit_350$time, fit_350[, 2:4], type = "l",
 
 legend("left", c("Susceptible", "Infected", "Recovered"), 
        lty = 1, lwd = 2, col = cols, inset = 0.05)
+
+## GGPLOT format
+tt <- fit_350 %>% 
+  pivot_longer(!time, values_to = "estimation", names_to = "compartment")
+
+tt %>% 
+  ggplot(aes(x = time, y = estimation, 
+             group = compartment, 
+             color = compartment)) + 
+  geom_line(linewidth = 2) + 
+  theme_biosci()
 
 ```
 
