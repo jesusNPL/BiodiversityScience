@@ -257,23 +257,8 @@ The first step to build our first ***SIR*** model is to get data of a disease, w
 ```{r}
 #| eval: false
 
-# https://covid.cdc.gov/covid-data-tracker/#trends_weeklycases_select_27
-# Get data from the CDC
-url_data <- "https://data.cdc.gov/api/views/9mfq-cb36/rows.csv?accessType=DOWNLOAD"
-
-covid_us <- read.csv(url_data)
-
-glimpse(covid_us)
-
-```
-
-If the previous lines return an error, please use these ones.
-
-```{r}
-#| eval: false
-
 githubURL <- 
-  "https://github.com/jesusNPL/BiodiversityScience/raw/master/Spring2024/Lab_3_Infectious_diseases/data/covidUS.RData"
+  "https://github.com/jesusNPL/BiodiversityScience/raw/master/Spring2023/Lab_3/Data/covidUS.RData"
 
 load(url(githubURL))
 
@@ -286,7 +271,7 @@ Let's explore the data and clean it little bit.
 ```{r}
 #| eval: false
 
-covid_us_new %>% 
+covid_us %>% 
   arrange(state) %>% 
   drop_na(tot_cases) %>% 
   ggplot(aes(y = state, x = tot_cases)) + 
@@ -302,16 +287,16 @@ Let's reformat the dates and order the data in an ascending order.
 ```{r}
 #| eval: false
 
-covid_us_new <- covid_us_new %>% 
-  mutate(Date = date_updated) %>% 
+covid_us <- covid_us %>% 
+  mutate(Date = submission_date) %>% 
   mutate(Date = mdy(Date)) %>% 
   select(Date, everything()) %>% 
-  separate(date_updated, sep = "/", into = c("month", "day", "year")) 
+  separate(submission_date, sep = "/", into = c("month", "day", "year")) 
 
 # Sort the data in an increasing order
-covid_us_new <- covid_us_new[order(covid_us_new$Date), ]
+covid_us <- covid_us[order(covid_us$Date), ]
 
-head(covid_us_new)
+head(covid_us)
 
 ```
 
@@ -322,7 +307,7 @@ The data is still very broad, let's select data for the State of Minnesota.
 ```{r}
 #| eval: false
 
-covid_mn <- covid_us_new %>% 
+covid_mn <- covid_us %>% 
   filter(state == "MN")
 
 head(covid_mn)
@@ -335,13 +320,13 @@ Now we can explore the data in a similar way we did for the entire United States
 #| eval: false
 
 covid_mn %>% 
-  ggplot(aes(x = as.POSIXct(Date), y = new_cases)) + 
+  ggplot(aes(x = as.POSIXct(Date), 
+             y = new_case)) + 
   geom_point(color = "gray") + 
   labs(x = NULL, y = "COVID-19 new cases") + 
   geom_line(mapping = aes(x = as.POSIXct(Date)), 
             linewidth = 2,
-            colour = alpha(PrettyCols::prettycols("Purples")[4], 
-                           0.3)) +
+            colour = alpha(PrettyCols::prettycols("Purples")[4], 0.3)) +
   geom_smooth(colour = PrettyCols::prettycols("Purples")[1], 
               linewidth = 2) +
   scale_y_continuous(labels = scales::label_number(suffix = " M", 
@@ -360,15 +345,19 @@ Let's see what happens if we plot the cumulative number of cases.
 #| eval: false
 
 covid_mn %>% 
-  ggplot(aes(x = as.POSIXct(Date), y = tot_cases)) + 
+  ggplot(aes(x = as.POSIXct(Date), 
+             y = tot_cases)) + 
   geom_point(color = "gray") + 
   labs(x = NULL, y = "Total COVID-19 cases") + 
-  geom_line(mapping = aes(x = as.POSIXct(Date)), linewidth = 2,
+  geom_line(mapping = aes(x = as.POSIXct(Date)), 
+            linewidth = 2,
             colour = alpha(PrettyCols::prettycols("Purples")[4], 0.3)) +
-  geom_smooth(colour = PrettyCols::prettycols("Purples")[1], linewidth = 1) +
-  scale_y_continuous(labels = scales::label_number(suffix = " M", scale = 1e-6)) + 
+  geom_smooth(colour = PrettyCols::prettycols("Purples")[1], 
+              linewidth = 1) +
+  scale_y_continuous(labels = scales::label_number(suffix = " M", 
+                                                   scale = 1e-6)) + 
   scale_x_datetime(date_breaks = "2 month", labels = label_date_short()) + 
-  theme_nice()
+  theme_biosci()
 
 ```
 
@@ -380,15 +369,19 @@ We can also see the number of deaths caused by COVID-19 in the state of Minnesot
 #| eval: false
 
 covid_mn %>% 
-  ggplot(aes(x = as.POSIXct(Date), y = abs(new_death))) + 
+  ggplot(aes(x = as.POSIXct(Date), 
+             y = abs(new_death))) + 
   geom_point(color = "gray") + 
   labs(x = NULL, y = "Number of Deaths") + 
-  geom_line(mapping = aes(x = as.POSIXct(Date)), linewidth = 2,
+  geom_line(mapping = aes(x = as.POSIXct(Date)), 
+            linewidth = 2,
             colour = alpha(PrettyCols::prettycols("Purples")[4], 0.3)) +
-  geom_smooth(colour = PrettyCols::prettycols("Purples")[1], linewidth = 1) +
-  scale_y_continuous(labels = scales::label_number(suffix = " K", scale = 1e-6)) + 
+  geom_smooth(colour = PrettyCols::prettycols("Purples")[1], 
+              linewidth = 1) +
+  scale_y_continuous(labels = scales::label_number(suffix = "K", 
+                                                   scale = 1e-6)) + 
   scale_x_datetime(date_breaks = "2 month", labels = label_date_short()) + 
-  theme_nice()
+  theme_biosci()
 
 ```
 
@@ -464,7 +457,7 @@ RSS <- function(parameters) {
 
 Okay, we now have almost all information needed to fit our first $SIR$ model. The last information we need is to set of initial values for $N$ (population size), $S$, $I$ and $R$.
 
-By observing the trend in the number of cases for MN, we can see that the first record of infected subject was in **March 06 2020** (you can double check to confirm that date), so, let's set that day as a starting point for our $SIR$ model. 
+By observing the trend in the number of cases for MN, we can see that the first date with records of infected subject was in **March 06, 2020** (you can double check to confirm that date), so, let's set that day as a starting point for our $SIR$ model. 
 
 ```{r}
 #| eval: false
@@ -479,7 +472,7 @@ Moreover, as more than two years have passed since the pandemic started, the var
 ```{r}
 #| eval: false
 
-N <- 5686649 # Total population for the State of Minnesota for the 2020
+N <- 5737915 # Total population for the State of Minnesota by July 2023
 
 start_date <- "2020-03-06"
 end_date <- "2020-05-10"
@@ -505,7 +498,7 @@ Infections %>%
    #         colour = alpha(PrettyCols::prettycols("Purples")[4], 0.3)) +
   geom_smooth(colour = PrettyCols::prettycols("Purples")[1], linewidth = 1) + 
   labs(x = NULL, y = "log - COVID-19 cases") + 
-  theme_nice()
+  theme_biosci()
 
 ```
 
@@ -595,7 +588,8 @@ Let's plot the estimated $I$ over the first two months. We will use a kind of pl
 matplot(fit_incidence$time, fit_incidence$I, 
         type = "l", log = "y", 
         xlab = "Days", ylab = "Number of infected subjects", 
-        lwd = 2, lty = 1)
+        lwd = 2, lty = 1) 
+
 points(Days, Infected)
 
 ```
