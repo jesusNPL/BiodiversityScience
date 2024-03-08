@@ -1,0 +1,906 @@
+---
+title: "Introduction to Phylogenies and the Comparative Method"
+description: Showing some neat features of R!
+date: today # other options: now, last-modified
+authors:
+  - name: Jesús N. Pinto-Ledezma 
+    url: https://jesusnpl.github.io
+    affiliation: Ecology, Evolution & Behavior, University of Minnesota
+                Biodiversity Science - EBB 3534-5534
+    affiliation-url: https://github.com/jesusNPL/BiodiversityScience
+title-block-banner: true
+#title-block-banner: "#562457"
+format: 
+  html: 
+    embed-resources: true # save contained file.
+    theme: spacelab # check other themes https://quarto.org/docs/output-formats/html-themes.html 
+    code-fold: true
+    toc: true
+    number-sections: true
+bibliography: lab_1_PCM.bib
+link-citations: true
+csl: ../apa-single-spaced.csl
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+::: callout-note
+In this lab, you will learn basic tools in R for visualizing phylogenies, testing models of character evolution, performing phylogenetic correction of a regression model, and test for the phylogenetic signal of continuous characters. This lab is based in part on one designed by [LukeHarmon](https://scholar.google.com/citations?hl=en&user=nsA3IsgAAAAJ&view_op=list_works) for a workshop that he and others ran at Ilha Bela, Brazil; the original can be seen [here](http://lukejharmon.github.io/ilhabela/instruction/2015/07/03/PGLS/) There are many other useful labs in comparative analysis from that [workshop](http://lukejharmon.github.io/ilhabela/) that you can peruse at your leisure.
+:::
+
+You will need two datasets, that will be provided for you:
+
+1.  A data.frame with species traits -- **furnariides_traits.csv**
+
+2.  A phylogenetic tree -- **furnariides_tree.nex**
+
+The clade we will work on today is the **Furnariides (Aves: Passeriformes)**, also known as the largest continental endemic radiation [@pinto-ledezma_drivers_2019]. We will use the phylogenetic tree reconstructed by Jesús. The trait data correspond to several morphological measurements of birds from **AVONET** [@tobias_avonet_2022].
+
+# Set up your data and your working directory
+
+For this lab, you will need to have a set of R packages to do this lab. Install the following packages:
+
+```{r}
+#| eval: false
+# Package vector names 
+packages <- c("tidyverse", "ape", "geiger", "nlme", "phytools", "rr2") 
+
+```
+
+::: callout-tip
+## Function install.packages()
+
+You can use the function **install.packages()** to install the packages.
+:::
+
+If you don't want to install the packages one by one, you can use the next command.
+
+```{r}
+#| eval: false
+# Install packages not yet installed 
+# get packages already installed
+installed_packages <- packages %in% rownames(installed.packages())
+
+# If the packages are installed skip if not install them
+if (any(installed_packages == FALSE)) {
+  install.packages(packages[!installed_packages], dependencies = TRUE)
+}
+
+```
+
+This command, will, first, check if you already the packages installed, then if a package is not installed in your computer, will install it.
+
+Load installed packages:
+
+```{r}
+library(tidyverse)
+library(ape)
+library(geiger)
+library(nlme)
+library(phytools)
+library(rr2)
+```
+
+Set up a working directory. Tell R that this is the directory you will be using, and read in your data:
+
+::: callout-tip
+## Function getwd()
+
+You can use the function **getwd()** to get the current working directory.
+:::
+
+```{r}
+#| eval: false
+setwd("path/for/your/directory")
+
+```
+
+::: callout-tip
+## Function dir.create()
+
+You can use the function **dir.create()** to get create a series of folders within your working directory. For example, if you run **dir.create("Output")** it will create an empty folder--named Output--within your working directory. This folder then can be used to store the results from the lab.
+:::
+
+Load the data. Instead of reading files from the computer we will pull the required data directly from the internet.
+
+```{r}
+
+## Trait data
+furnaData <- read_csv("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2024/Lab_1_Intro_PCM/Data/furnariides_traits.csv") %>% 
+  column_to_rownames("Sciname") %>%   # we are using the column "Sciname" as rownames
+  drop_na(Range.Size)
+
+## Phylogenetic data
+furnaTree <- read.nexus("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2024/Lab_1_Intro_PCM/Data/furnariides_tree.nex")
+
+```
+
+::: callout-tip
+## The pipe (%\>%) operator
+
+This operator is, maybe, the most used operator from the {dplyr} package and is used to perform a sequence of operations on a data frame. In other words, the pipe operator simply feeds the results of one operation into the next operation below it.
+:::
+
+Another option is downloading the data and storing it on your computer. You can use the following lines to do that. These lines will do: 1) check your working directory, 2) download the lab data in a zip file, and 3) unzip the downloaded data.
+
+```{r}
+#| eval: false 
+
+main.dir <- getwd() # Will get the working directory
+
+# create a Data folder
+dir.create("Data")
+
+# url to download the data in your computer
+urls <- "https://www.dropbox.com/scl/fi/3vr6yi0y32c36u5rgqlyp/Lab_1.zip?rlkey=s136jvkwsi6979hb5tlosxqh5&dl=1" # Name of the file to download
+
+# download the file in a specific folder
+download.file(url = urls, file.path(main.dir, "Data/Lab_1.zip"), mode = "wb") 
+
+# Unzip the downloaded files
+unzip("Data/Lab_1.zip")
+
+```
+
+::: {.callout-caution collapse="true"}
+## Double-check your working directory
+
+Previous lines of code will only work if you have set your **working directory (WD)** and only if you have the folder **Data** within the WD. You can check the Intro-R lab for more details.
+:::
+
+OK. You should be ready to go.
+
+Let's inspect the data first, to do that we will use the function **"glimpse()"** of the R package **{dplyr}**
+
+```{r}
+
+glimpse(furnaData)
+
+```
+
+Let's check if our trait data contain the same species as the phylogeny
+
+```{r}
+
+tmp <- name.check(phy = furnaTree, data = furnaData)
+
+# print the results
+tmp
+
+```
+
+It indicates that the species *Philydor novaesi* is not present in the trait data, so let's drop this species from the phylogeny. To do that we will use the function **drop.tip()** of the package **{ape}**
+
+```{r}
+
+furnaTree <- drop.tip(phy = furnaTree, tip = tmp$tree_not_data)
+
+```
+
+We can double check if our data match after dropping the missing species
+
+```{r}
+
+name.check(phy = furnaTree, data = furnaData)
+
+```
+
+Now it seems that we are ready to go!
+
+# Working with trees
+
+Let's start by looking at the phylogeny of these birds and learning a bit about how to work with trees in R.
+
+*What does your tree look like?*
+
+```{r}
+#| eval: true
+
+plot(furnaTree)
+
+```
+
+**Answer:** 
+Whoa. That's ugly. Let's clean it up.
+
+```{r}
+#| eval: true
+
+plot.phylo(furnaTree, 
+           no.margin = TRUE, 
+           cex = 0.5)
+
+```
+
+Better. You can mess around with tree plotting functions in **plot.phylo()** as much as you'd like. Try this for example:
+
+```{r}
+
+plot.phylo(furnaTree, 
+           type = "fan", 
+           no.margin = TRUE, 
+           cex = 0.3)
+
+```
+
+Much much better.
+
+It may be useful to understand how trees are encoded in R. Typing in just the name of the tree file like this:
+
+```{r}
+#| eval: true
+
+furnaTree
+
+```
+
+will give you basic information about the phylogeny: the number of tips and nodes; what the tips are called; whether the tree is rooted; and if it has branch lengths.
+
+```{r}
+#| eval: true
+
+str(furnaTree)
+
+```
+
+will tell you more about tree structure. Trees consist of tips connected by edges (AKA branches)
+
+```{r}
+#| eval: false
+
+furnaTree$tip.label
+
+```
+
+gives you a list of all your terminal taxa, which are by default numbered 1-n, where n is the number of taxa.
+
+```{r}
+#| eval: false
+
+furnaTree$Nnode
+
+```
+
+gives you the number of nodes. This is a fully bifurcating rooted tree, so it has 1 fewer node than the number of taxa.
+
+```{r}
+#| eval: false
+
+furnaTree$edge
+
+```
+
+This tells you the beginning and ending node for all edges.
+
+Put that all together with the following lines
+
+```{r}
+#| eval: true
+
+plot.phylo(furnaTree, 
+           type = "fan", 
+           no.margin = TRUE, 
+           cex = 0.7, 
+           label.offset = 0.1, 
+           show.tip.label = FALSE)
+
+nodelabels(cex = 0.5)
+
+tiplabels(cex = 0.5)
+
+```
+
+There are many ways to manipulate trees in R using **{ape}**, **{Phytools}**, and other packages. This just gives you a bare-bones introduction.
+
+# Working with a data matrix and testing hypotheses in a phylogenetically informed way
+
+Let's ask some questions using the trait data that were measured for these birds. First, explore the data in the "furnaData" matrix. Here are some options for visualizing data matrices:
+
+```{r}
+#| eval: false
+
+furnaData %>% 
+  head() # this will show you the first few rows of your data matrix and its header
+
+furnaData %>% 
+  dimnames() # this will show you the row and column headers for your matrix
+
+furnaData %>% 
+  View() # this will let you visualize the entire matrix
+
+```
+
+After looking at the data, please answer the next questions.
+
+*What variables were measured for each of these species of Furnariides?*
+
+**Answer:** 
+There are 37 variables in the **furnaData** data.frame. Of these, 24 variables correspond to measured attributes.
+
+```{r}
+#| eval: true
+
+furnaVariables <- names(furnaData)[c(9:19, 25:ncol(furnaData))]
+
+furnaVariables
+
+```
+
+*How many species of Furnariides were used?*
+
+**Answer:** 
+651 species were used.
+
+*Was the same number as in the phylogeny?*
+
+**Answer:** 
+No, the phylogeny had 652 species. The species *Philydor novaesi* was missing in the trait data, so it was dropped from the phylogeny to match the trait data.
+
+This datasets are big, let's isolate a specific clade **(Family = Furnariidae)** and work the rest of the lab with that clade.
+
+```{r}
+
+furnariidaeData <- furnaData %>% 
+  filter(Family3 == "Furnariidae")
+
+furnariidaeTree <- drop.tip(phy = furnaTree, 
+                            tip = setdiff(furnaTree$tip.label, rownames(furnariidaeData)))
+
+```
+
+**Hand-wing index** is one of your variables found in the trait dataset. Let's isolate it so we can work with it easily:
+
+```{r}
+
+hwi <- furnariidaeData[, "Hand-Wing.Index"] 
+names(hwi) <- rownames(furnariidaeData) 
+# data vectors have to be labelled with tip names for the associated tree. 
+# This is how to do that. 
+
+```
+
+::: callout-tip
+## Exploring the data
+
+It is good practice to check the distribution of your data before doing downstream analysis.
+:::
+
+```{r}
+
+hist(hwi)
+
+```
+
+What about if we log scale the HWI?
+
+```{r}
+
+hist(log(hwi))
+
+```
+
+*Does it look different/similar?*
+
+**Answer:** 
+Log-transforming the HWI data makes it resemble a normal distribution (right-hand panel). Raw HWI is slightly right-skewed (left-hand panel).
+
+```{r}
+
+par(mfrow = c(1, 2))
+
+hist(hwi)
+
+hist(log(hwi))
+
+```
+
+In the lecture, we talked about one model of character evolution, called a **Brownian Motion** model. This model assumes that a trait evolves from a starting state (**z0**) according to a random walk with the variance specified by the rate parameter $\sigma^{2}$ (**sigma-squared**). In short, Brownian motion describes a process in which tip states are modeled under the assumption of a multivariate normal distribution. On a phylogeny, the multivariate mean of tip states is equal to the root state estimate, and variance accumulates linearly through time.
+
+*What does Brownian Motion evolution of hand-wing index in Furnariidae look like?*
+
+```{r}
+#| eval: true
+
+brownianModel <- fitContinuous(phy = furnariidaeTree, 
+                               dat = log(hwi))
+
+brownianModel # this will show you the fit statistics and parameter values
+
+```
+
+**Answer:** 
+The estimated ancestral state (z0) under Brownian Motionevolutionary model suggests that HWI was ~2.94 [or exp(2.938551) = 18.89 units]. This value is similar to the current mean clade trait log-value ($\mu$ = 2.71). This model also suggests that HWI is evolving at a rate $\sigma^{2}$ = 0.007356.
+
+```{r}
+
+mean(log(hwi))
+
+mean(hwi)
+
+```
+
+Here, you can see the estimates for ancestral state (z0), and the rate parameter ($\sigma^{2}$), as well as some measures of model fit. The fit of the model is determined using maximum likelihood, and expressed as a log likelihood **(lnL)**. The higher the **lnL**, the more probable the data given the model. However, when comparing different models, we can't use the **lnL**, because it does not account for the difference in the number of parameters among models. Models with more parameters will always fit better, but do they fit significantly better? For example an OU model has 4 parameters (alpha \[$\alpha$\], theta \[$\theta$\], z0, and sigma-squared \[$\sigma^{2}$\]), so it should fit better than a BM model, which includes only z0 and $\sigma^{2}$. To account for this, statisticians have developed another measure of fit called the AIC (Akaike Information Criterion): **AIC = (2xN)-2xlnL**, where **N** is the number of parameters. This penalizes the likelihood score for adding parameters. When selecting among a set of models, the one with the lowest AIC is preferred. We will use this information later on in this lab.
+
+In addition to assessing model fit, we can use the Brownian Motion model to reconstruct ancestral states of a character on a tree. To visualize what BM evolution of this trait looks like on a tree. The *contMap()* command in {phytools} estimates the ancestral states and plots them on a tree.
+
+```{r}
+#| eval: true
+
+## Calculate number of trait shifts
+obj <- contMap(furnariidaeTree, 
+        log(hwi), 
+        fsize = 0.1, 
+        lwd = 2, 
+        type = "fan", 
+        plot = FALSE)
+
+# change colors
+obj <- setMap(obj, 
+              c("white", "#FFFFB2", "#FECC5C", "#FD8D3C", "#E31A1C")) 
+
+# Plot the results
+plot(obj, 
+     fsize = c(0.2, 0.8), 
+     leg.txt = "Hand-Wing Index")
+
+```
+
+*Describe the evolution of Hand-wing index on this tree. How many times have extremely high and extremely low Hand-wing index evolved on this tree?*
+
+**Answer:** 
+This phylogenetic tree contains 249 species, and the mapped values range between 1.96 and 3.57. By visual inspection, overall, the HWI tended to evolve more low values than high values; indeed, HWI seems to evolve high values in about 5-7 branches. The species with higher HWI index are *Berlepschia rikeri*, *Geositta antarctica*, *Geositta isabellina*, *Geositta saxicolina*, and *Geositta maritima*.
+
+```{r}
+
+plot(obj, 
+      fsize = c(0.6, 0.8), 
+      type = "fan", 
+      leg.txt = "Hand-Wing Index")
+
+```
+
+*What does this say about our ability to test hypotheses about the evolution of Hand-wing index?*
+
+**Answer:** 
+Although the Brownian Motion model is simple, it helps us understand how fast or slow a specific attribute is evolving and to identify branches with different evolutionary regimes.
+
+Let's go ahead and test some hypotheses. **Range Size** is another trait in your data matrix. Let's assess whether there is a correlation between HWI and range size? We will extract the column "Range Size" from the data matrix and assign it species names, just as we did for "HWI" above.
+
+```{r}
+#| eval: true
+
+rangeSize <- furnariidaeData[, "Range.Size"]
+
+names(rangeSize) <- rownames(furnariidaeData)
+
+```
+
+Let's see if range size follow a normal distribution
+
+```{r}
+#| eval: true
+
+hist(log(rangeSize))
+
+```
+
+Let's look at a plot of range size as a function of Hand-wing index.
+
+```{r}
+#| eval: true
+
+furnaData %>% 
+  drop_na(Range.Size) %>% 
+  ggplot(aes(x = log(`Hand-Wing.Index`), y = log(Range.Size))) + 
+  geom_point(alpha = 0.5, color = "darkgray", size = 3) +  
+  labs(x = "log(Hand-Wing Index)", y = "log(Range Size)")
+
+```
+
+Hm. looks promising. 
+
+*How would you describe the relationship between these two variables?*
+
+**Answer:** 
+At first glance, it seems that there is a positive association between HWI and range size (RS); in other words, with
+increasing HWI, the RS of species tends also to increase.
+
+*Why did we log scale range size?*
+
+**Asnwer:** As in the case of HWI, RS was log-scaled to force the data to follow a normal distribution.
+
+Let's be more quantitative in describing that relationship with a linear model.
+
+```{r}
+#| eval: true
+
+lm_hwi_rangesize <- lm(log(rangeSize) ~ log(hwi)) 
+
+summary(lm_hwi_rangesize)
+
+```
+
+```{r}
+
+furnaData %>% 
+  drop_na(Range.Size) %>% 
+  ggplot(aes(x = log(`Hand-Wing.Index`), y = log(Range.Size))) + 
+  geom_point(alpha = 0.5, color = "darkgray") + 
+  labs(x = "log(Hand-Wing Index)", y = "log(Range Size)") + 
+  geom_smooth(method = "lm")
+
+```
+
+The coefficients table from the *summary()* command shows the slope and intercept for the linear model describing **range size** as a function of **Hand-wing index**. Each line shows the estimated coefficient (Estimate), the standard error (Std. Error) of that estimate, as well as a t-statistic and associated p-value, testing whether those parameters are equal to 0. The Multiple R-squared is an estimate of how much variance in the response variable can be explained by the predictor variable.
+
+*Write the linear model for this relationship. Are the parameters significantly different from 0?*
+
+**Answer:** 
+RS(y) \~ $\alpha$ = 8.52 + $\beta$ = 1.33(log(HWI)) + $\epsilon$
+
+The coefficients ($\alpha$ = Intercept and $\beta$ = Slope) of this model are different from zero, that is, the model suggest that there is a positive association between the two variables (Range Size \~ HWI).
+
+*What is the R\^2 value for this data?*
+
+**Answer:** 
+Despite the coefficients of the model being different from zero, the adjusted R\^2 = 0.02 meaning that HWI only explains 2% of the variation of range size.
+
+*How do you feel about that?*
+
+**Answer:** 
+It was possible to detect a positive association between these two variables, however, the low R\^2 may suggest that additional information is needed to fully understand the observed association.
+
+## Phylogenetic regression (PGLS)
+
+Nice. But, we have not considered the fact that these birds are related to each other, in fact, all this birds are monophyletic--i.e., the clade includes an ancestral taxon and all of its descendants. As such, they may share their hand-wing index and range size simply due to the fact that their ancestors had large HWI and range size or the reverse. In other words, we need to account for non-independence of residuals due to phylogeny. One way to do that is to use phylogenetic-generalized-least-squares regression (PGLS).
+
+```{r}
+#| eval: true
+
+pglsModel <- gls(log(rangeSize) ~ log(hwi), 
+                 correlation = corBrownian(phy = furnariidaeTree, 
+                                           form=~names(rangeSize)), 
+                 method = "ML")
+
+pglsModel
+
+```
+
+Let's break this command down. This command infers a linear model for Range Size as a function of HWI (gls(rangeSize \~ hwi), but it specifies existing correlation structure in the data (correlation =) as the covariance of these traits assuming a Brownian motion model (corBrowinan()) based on the Furnariides tree (phy = furnariidaeTree)
+and a correctly ordered list of taxon names (form=\~names(rangeSize)). The model is fit using maximum likelihood (method = "ML"). To see the results:
+
+```{r}
+#| eval: true
+
+summary(pglsModel)
+
+coef(pglsModel)
+
+# R2lik is based on the likelihood of fitted models and therefore reflects the amount of information that the models contain.
+
+#And R2lik is most appropriate to assess the importance of different components within the same model applied to the same data, because it is most closely associated with statistical significance tests.
+
+R2_lik(mod = pglsModel)
+
+```
+
+```{r}
+#| eval: true
+
+furnaData %>% 
+  drop_na(Range.Size) %>% 
+  ggplot(aes(x = log(`Hand-Wing.Index`), y = log(Range.Size))) + 
+  geom_point(alpha = 0.5, color = "darkgray") + 
+  labs(x = "Hand-Wing Index", y = "log(Range Size)") + 
+  #geom_smooth(method = "lm") + 
+  geom_abline(intercept = coef(pglsModel)[1], slope = coef(pglsModel)[2], 
+              color = "red", linewidth = 1.5)
+
+# will plot the pgls regression line on your biplot.
+```
+
+*Write the linear model for this relationship. Are the parameters significantly different from 0?*
+
+**Answer:** 
+RS(y) \~ $\alpha$ = 4.13 + $\beta$ = 3.18(log(HWI)) + cor($\lambda$, $\mu$) + $\epsilon$
+
+*What is the R\^2 value for this data? (use the likelihood-based R\^2 value)*
+
+**Answer:** 
+The R\^2 for the PGLS model is **-0.34**. Although it seems counterintuitive to interpret negative R\^2s given that R\^2 ranges between 0 and 1, negative values are allowed when the null model outperforms the tested model. That is, the log-likelihood of the tested model (PGLS) is smaller than the log-likelihood of the null model (intercept-only model).
+
+```{r}
+
+## Loglik of the PGLS model
+logLik(pglsModel)
+
+## Estimate null model or intercept-only model
+y <- as.numeric(fitted(pglsModel) + resid(pglsModel))
+
+nullModel <- lm(y ~ 1)
+
+## loglik null model
+logLik(nullModel)
+
+## Is higher
+logLik(pglsModel) > logLik(nullModel)
+
+```
+
+*How do you feel about that?*
+
+**Answer:**
+In this case, adding a correlation structure does not improve our understanding of the association between HWI and RS. 
+
+*Compare results from the PGLS analysis with those that you got from the regular linear model you ran earlier.*
+
+**Answer:** 
+The OLS coefficients are different from zero. The coefficients of the PGLS model only the Slope ($\beta$: p-value < 0.05) is different from zero. Despite the $\beta$ value of the PGLS model being steeper, it does not outperform the simple OLS model.
+
+# Model Fitting
+
+Brownian Motion is only one model of evolution for a continuous variable. Another model is the **Ornstein-Uhlenbeck (OU)** model, which allows the trait mean to evolve towards a new state (theta), with a selective force (alpha). These two new parameters, plus the starting state (z0) and the rate of evolution (sigsq) parameters from the BM
+model, make for a 4-parameter model. The **Early Burst (EB)** model allows the rate of evolution to change across the tree, where the early rate of evolution is high and declines over time (presumably as niches are filled during an adaptive radiation. The rate of evolution changes exponentially over time and is specified under the model r\[t\] = r\[0\] x exp(a x t), where r\[0\] is the initial rate, a is the rate change parameter, and t is time. The maximum bound is set to -0.000001, representing a decelerating rate of evolution. The minimum bound is set to $log(10^{-5})$/depth of the tree.
+
+Let's evaluate the relative fit of these three models to the Hand-wing index trait.
+
+## Brownian Motion (BM)
+
+```{r}
+#| eval: true
+
+brownianModel <- fitContinuous(phy = furnariidaeTree, # phylogeny
+                               dat = log(hwi), # trait 
+                               model = "BM") # evolutionary model
+
+```
+
+## Ornstein-Uhlenbeck (OU)
+
+```{r}
+#| eval: true
+
+OUModel <- fitContinuous(phy = furnariidaeTree, 
+                         dat = log(hwi), 
+                         model = "OU")
+
+```
+
+## Early Burst (EB)
+
+```{r}
+#| eval: true
+
+EBModel <- fitContinuous(phy = furnariidaeTree, 
+                         dat = log(hwi), 
+                         model = "EB")
+
+```
+
+And recover the parameter values and fit estimates.
+
+```{r}
+#| eval: false
+
+brownianModel
+
+OUModel
+
+EBModel
+
+```
+
+Compare all models and select the best fitting model. To to that, we will use AIC model comporison approach based on weights.
+
+```{r}
+#| eval: true
+
+# Vector of models
+mods <- c(brownianModel$opt$aicc, OUModel$opt$aicc, EBModel$opt$aicc)
+# rename the models
+names(mods) <- c("BM", "OU", "EB")
+
+# Run AIC weights 
+aicw(mods)
+
+```
+
+*Make a table with the AIC and lnL values for each model. Which model provides the best fit for Hand-wing index?*
+
+**Answer:**
+According to the model comparison using AIC, the model that best fits the data is the OU model. The OU model also shows a slightly higher lnL value compared to the BM and EB models of evolution.
+
+```{r}
+library(knitr)
+
+aic_HWI <- aicw(mods) 
+names(aic_HWI)[1] <- "AIC"
+
+aic_HWI$lnL <- c(brownianModel$opt$lnL, OUModel$opt$lnL, EBModel$opt$lnL)
+
+kable(aic_HWI)
+
+```
+
+
+*Now, add the results for a model fitting analysis of the range size trait to this table.*
+
+```{r}
+
+BM_RS <- fitContinuous(phy = furnariidaeTree, # phylogeny
+                               dat = log(rangeSize), # trait 
+                               model = "BM") # evolutionary model
+
+OU_RS <- fitContinuous(phy = furnariidaeTree, 
+                         dat = log(rangeSize), 
+                         model = "OU")
+
+EB_RS <- fitContinuous(phy = furnariidaeTree, 
+                         dat = log(rangeSize), 
+                         model = "EB") 
+
+# Vector of models
+mods_RS <- c(BM_RS$opt$aicc, OU_RS$opt$aicc, EB_RS$opt$aicc)
+# rename the models
+names(mods_RS) <- c("BM", "OU", "EB")
+
+# Run AIC weights 
+aic_RS <- aicw(mods_RS) 
+names(aic_RS)[1] <- "AIC"
+
+aic_RS$lnL <- c(BM_RS$opt$lnL, OU_RS$opt$lnL, EB_RS$opt$lnL)
+
+kable(aic_RS)
+
+```
+
+So, we were wrong. An OU model fits HWI better (and you should be able to explain how we know that). Unfortunately, a PGLS analysis with an OU model specified is currently computationally difficult. The best we can do is report the results from our model fitting analysis, and realize that the parameters from BM might not be the best fit.
+
+However, we can still test our hypothesis that species with large HWI also present large range size, and account for phylogeny when we do. First, we should compare the uncorrected linear model of range size as a function of HWI vs the PGLS that uses the covariance structure of the residuals under a Brownian Motion model.
+
+```{r}
+#| eval: true
+
+furnaData %>% 
+  drop_na(Range.Size) %>% 
+  ggplot(aes(x = log(`Hand-Wing.Index`), y = log(Range.Size))) + 
+  geom_point(alpha = 0.5, color = "darkgray") + 
+  labs(x = "log(Hand-Wing Index)", y = "log(Range Size)") + 
+  geom_smooth(method = "lm", se = FALSE, linewidth = 1.5) + # OLS slope
+  geom_abline(intercept = coef(pglsModel)[1], # PGLS slope
+              slope = coef(pglsModel)[2], 
+              color = "red", linewidth = 1.5)
+
+```
+
+You might want to know if these regressions really differ in their ability to predict range size from HWI. Asked in another way, are the slopes from these two regressions significantly different from each other? You need to know that a 95% confidence interval for the slope parameter is $\beta$ (the slope) plus/minus 1.96 standard errors (this
+is derived from a normal distribution). To calculate your 95% confidence intervals:
+
+```{r}
+#| eval: true
+
+rshwi.sum <- summary(lm_hwi_rangesize)
+
+#for the uncorrected linear model
+rshwi.sum$coef[2, 1] + c(-1.96, 1.96)*rshwi.sum$coef[2, 2]
+
+#for Brownian Motion, the 95% CI
+coef(pglsModel)[2] + c(-1.96, 1.96)*sqrt(pglsModel$varBeta[2, 2])
+
+```
+
+*Did phylogenetic correction make a difference in this case?*
+
+**Answer:**
+The $\beta$ under the PGLS model is steeper than the $\beta$ of the OLS model. However, the confidence intervals (CIs) of both models overlap with each other. Thus, both models are equally probable. 
+
+*What do you conclude about the evolution of range size as a function of hand-wing index?*
+
+**Answer:**
+We can not conclude that adding the correlation structure improves our understanding of the relationship between HWI and range size.
+
+# Phylogenetic signal
+
+Phylogenetic signal is the tendency of related species to resemble each other more than species drawn at random from the same tree.
+
+## Blomberg's K
+
+Blomberg's K compares the variance of **PICs** to what we would expect under a Brownian motion (BM) model of evolution. **K = 1** means that close relatives resemble each other as much as we should expect under BM. **K \< 1** that there is less **phylogenetic signal** than expected under BM and **K \> 1** means that there is more. In addition, a significant p-value returned from a randomization test tells us that the phylogenetic signal is significant, in other words, close relatives are more similar than random pairs of taxa in the dataset.
+
+```{r}
+#| eval: true
+
+# Run Blomberg's K
+K_hwi <- phylosig(tree = furnariidaeTree, # Phylogeny
+                  x = hwi, # trait
+                  method = "K", # method
+                  test = TRUE)
+
+# Print results
+print(K_hwi)
+
+# Plot results
+plot(K_hwi)
+
+```
+
+## Pagel's Lambda
+
+Pagel's $\lambda$ is a tree transformation that stretches the tip branches relative to internal branches, making the tree more and more like a complete polytomy of a star phylogeny. If $\lambda = 0$ there is no phylogenetic signal, while $\lambda = 1$ correspond to BM and $0 < \lambda < 1$ in between.
+
+```{r}
+#| eval: true
+
+# Run Pagel's Lambda
+LB_hwi <- phylosig(tree = furnaTree, 
+                  x = hwi, 
+                  method = "lambda", 
+                  test = TRUE)
+
+# Print the results
+print(LB_hwi)
+
+# Plot thre results
+plot(LB_hwi)
+
+```
+
+*Describe the results of phylogenetic signal. Does Hand-wing index present phylogenetic signal?*
+
+**Answer:**
+HWI presents a high phylogenetic signal according to both metrics. Pagel's $\lambda$ = 0.95 suggests that HWI evolves almost under a BM model of evolution. Blomberg's K = 1.24 suggests that HWI presents more phylogenetic signal than expected under the BM model of evolution. Importantly, both metrics deviate from the white noise null model.
+
+*What about Range Size?*
+
+**Answer:**
+As for the case of HWI, metrics of phylogenetic signal for range size deviate from the white noise null model. However, the observed phylogenetic signal is lower, Blomberg's K = 0.5 and Pagel's $\lambda$ = 0.72. 
+
+```{r}
+
+# Run Blomberg's K
+K_rs <- phylosig(tree = furnariidaeTree, # Phylogeny
+                  x = rangeSize, # trait
+                  method = "K", # method
+                  test = TRUE)
+
+# Print results
+print(K_rs)
+
+# Plot results
+plot(K_rs)
+
+
+
+# Run Pagel's Lambda
+LB_rs <- phylosig(tree = furnaTree, 
+                  x = rangeSize, 
+                  method = "lambda", 
+                  test = TRUE)
+
+# Print the results
+print(LB_rs)
+
+# Plot thre results
+plot(LB_rs)
+```
+
+
+# The challenge
+
+Until now, we have analyzed several metrics based on phylogenies using the family Furnariidae. But, in order to better understand how our perception may (or may not) change when analyzing other clades and to gain more experience using R, the challenge for this lab is:
+
+1.  First option -- repeat the process but using a difference clade. For example, the Infraorder Furnariides is composed of six families ("Conopophagidae", "Dendrocolaptidae" "Formicariidae", "Furnariidae", "Rhinocryptidae", "Thamnophilidae"), you just need to select a family different from Furnariidae.
+
+2.  Second option -- You can stick with the Family Furnariidae, but you must need to change the traits. For example, you can use **Mass** and **Wing.Length**
+
+In either case, you need to answer all of the questions in the tutorial and return the lab report.
+
+::: callout-tip
+## function filter from the package {dplyr}
+
+You can use the following code to isolate the Family **Thamnophilidae**:
+
+thamnophilidaeData <- furnaData %>% 
+filter(Family3 == "Thamnophilidae")
+:::
