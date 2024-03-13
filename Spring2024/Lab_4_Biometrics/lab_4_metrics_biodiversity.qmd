@@ -210,7 +210,7 @@ glimpse(HARV)
 
 In any case, we need to standardize the species names in order to proceed with the calculation of metrics.
 
-We will use the **Plants of the World** source through the **Taxonomic Name Resolution Service (TNRS)** tool. 
+We will use the **Plants of the World** source through the **[Taxonomic Name Resolution Service (TNRS)](https://tnrs.biendata.org)** tool. 
 
 The only thing we need to do is to copy the scientific names and paste on the TNRS tool.
 
