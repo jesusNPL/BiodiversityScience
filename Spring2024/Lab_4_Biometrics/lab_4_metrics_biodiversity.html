@@ -2,11 +2,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.3.353">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2024-03-12">
+<meta name="dcterms.date" content="2024-03-13">
 <meta name="description" content="Showing some neat features of R!">
 
 <title>Measuring phylogenetic diversity within communities</title>
@@ -3072,7 +3072,7 @@ vertical-align: -.125em;
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">March 12, 2024</p>
+        <p class="date">March 13, 2024</p>
       </div>
     </div>
     
@@ -3234,9 +3234,10 @@ Function getwd()
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>NEON_data <span class="ot">&lt;-</span> <span class="fu">loadByProduct</span>(<span class="at">dpID =</span> <span class="st">&quot;DP1.10058.001&quot;</span>, </span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">site =</span> <span class="fu">c</span>(<span class="st">&quot;HARV&quot;</span>, <span class="st">&quot;CPER&quot;</span>, <span class="st">&quot;ABBY&quot;</span>), </span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">package =</span> <span class="st">&quot;expanded&quot;</span>, <span class="at">check.size =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># type &quot;y&quot; (with no quotes) in your console to start downloading the data from NEON</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">package =</span> <span class="st">&quot;expanded&quot;</span>, </span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>                        <span class="at">check.size =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># type &quot;y&quot; (with no quotes) in your console to start downloading the data from NEON</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Let’s inspect the downloaded data.</p>
@@ -3281,10 +3282,11 @@ Function getwd()
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>sel <span class="ot">&lt;-</span> sel <span class="sc">%&gt;%</span> </span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(scientificName) <span class="sc">%&gt;%</span> <span class="co"># Removing NAs in the column of species</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Date =</span> endDate) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(endDate, <span class="at">sep =</span> <span class="st">&quot;-&quot;</span>, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">&quot;Year&quot;</span>, <span class="st">&quot;Month&quot;</span>, <span class="st">&quot;Day&quot;</span>))</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(sel<span class="sc">$</span>Year)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(sel<span class="sc">$</span>siteID)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(endDate, <span class="at">sep =</span> <span class="st">&quot;-&quot;</span>, </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">into =</span> <span class="fu">c</span>(<span class="st">&quot;Year&quot;</span>, <span class="st">&quot;Month&quot;</span>, <span class="st">&quot;Day&quot;</span>))</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(sel<span class="sc">$</span>Year)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(sel<span class="sc">$</span>siteID)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Select the site <strong>HARV</strong> and the year <strong>2022</strong>.</p>
@@ -3367,7 +3369,8 @@ Function getwd()
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>HARV_data <span class="ot">&lt;-</span> <span class="fu">full_join</span>(HARV, taxonomy, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;scientificName&quot;</span> <span class="ot">=</span> <span class="st">&quot;Name_submitted&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>HARV_data <span class="ot">&lt;-</span> <span class="fu">full_join</span>(<span class="at">x =</span> HARV, <span class="at">y =</span> taxonomy, </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;scientificName&quot;</span> <span class="ot">=</span> <span class="st">&quot;Name_submitted&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>We can select some specific columns that we will use from now on.</p>
@@ -3443,11 +3446,12 @@ Function getwd()
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>matched <span class="ot">&lt;-</span> picante<span class="sc">::</span><span class="fu">match.phylo.comm</span>(<span class="at">phy =</span> phylo, <span class="at">comm =</span> HARV_CDM)</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>matched<span class="sc">$</span>phy</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>matched<span class="sc">$</span>comm</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>matched <span class="ot">&lt;-</span> picante<span class="sc">::</span><span class="fu">match.phylo.comm</span>(<span class="at">phy =</span> phylo, </span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">comm =</span> HARV_CDM)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>matched<span class="sc">$</span>phy</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>matched<span class="sc">$</span>comm</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Alright, we have all data necessary for calculating different phylogenetic diversity metrics, hooray!</p>
@@ -3455,9 +3459,10 @@ Function getwd()
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(phylo, sppPhylo, result, <span class="at">file =</span> <span class="st">&quot;data/NEON/Phylo_NEON_lab4.RData&quot;</span>)</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(sppPhylo, result)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(phylo, sppPhylo, result, </span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">file =</span> <span class="st">&quot;data/NEON/Phylo_NEON_lab4.RData&quot;</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(sppPhylo, result)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Ok, let’s inspect the data that were stored in the object matched.</p>
@@ -3471,7 +3476,9 @@ Function getwd()
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(matched<span class="sc">$</span>phy, <span class="at">show.tip.label =</span> <span class="cn">FALSE</span>, <span class="at">type =</span> <span class="st">&quot;fan&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(matched<span class="sc">$</span>phy, </span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">show.tip.label =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">type =</span> <span class="st">&quot;fan&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Awesome, we are now ready to explore the <strong>jungle</strong> of metrics for the evaluation of taxonomic, phenotypic and phylogenetic structure of communities <span class="citation" data-cites="pausas_jungle_2010">(<a href="#ref-pausas_jungle_2010" role="doc-biblioref">Pausas &amp; Verdú, 2010</a>)</span>. Let’s start with metrics for the taxonomic dimension.</p>
@@ -3560,9 +3567,11 @@ Function getwd()
 <span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(HARV_001 <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
 <span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Drop species in the phylogeny that are not present in the plot HARV_001</span></span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>HARV_001_phy <span class="ot">&lt;-</span> <span class="fu">drop.tip</span>(matched<span class="sc">$</span>phy, <span class="fu">setdiff</span>(matched<span class="sc">$</span>phy<span class="sc">$</span>tip.label, <span class="fu">rownames</span>(HARV_001)))</span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(HARV_001_phy<span class="sc">$</span>edge.length)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>HARV_001_phy <span class="ot">&lt;-</span> <span class="fu">drop.tip</span>(matched<span class="sc">$</span>phy, </span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">setdiff</span>(matched<span class="sc">$</span>phy<span class="sc">$</span>tip.label, </span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>                                 <span class="fu">rownames</span>(HARV_001)))</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(HARV_001_phy<span class="sc">$</span>edge.length)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>We can confirm the result by calculating PD using the package {<strong>picante</strong>}. However, instead of calculating plot by plot {picante} will calculate PD for all of the plots.</p>
@@ -3660,18 +3669,20 @@ Argument include.root = TRUE
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># MPD</span></span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>HARV_MPD <span class="ot">&lt;-</span> <span class="fu">mpd</span>(matched<span class="sc">$</span>comm, <span class="fu">cophenetic</span>(matched<span class="sc">$</span>phy)) </span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(HARV_MPD)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>HARV_MPD <span class="ot">&lt;-</span> <span class="fu">mpd</span>(matched<span class="sc">$</span>comm, </span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>                <span class="fu">cophenetic</span>(matched<span class="sc">$</span>phy)) </span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(HARV_MPD)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="cell">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># MNTD</span></span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>HARV_MNTD <span class="ot">&lt;-</span> <span class="fu">mntd</span>(matched<span class="sc">$</span>comm, <span class="fu">cophenetic</span>(matched<span class="sc">$</span>phy)) </span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(HARV_MNTD)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>HARV_MNTD <span class="ot">&lt;-</span> <span class="fu">mntd</span>(matched<span class="sc">$</span>comm, </span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">cophenetic</span>(matched<span class="sc">$</span>phy)) </span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(HARV_MNTD)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Until here we just played with the data and also confirmed that we can calculate different metrics by hand. Now let’s do a more formal evaluation of the biodiversity in Harvard Forest &amp; Quabbin Watershed NEON, MA.</p>
@@ -3709,9 +3720,10 @@ Argument include.root = TRUE
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="ot">&lt;-</span> HARV_CDM <span class="sc">%&gt;%</span> </span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">RaoD =</span> <span class="fu">raoD</span>(matched<span class="sc">$</span>comm, <span class="fu">force.ultrametric</span>(matched<span class="sc">$</span>phy))<span class="sc">$</span>Dkk)</span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(HARV_CDM)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">RaoD =</span> <span class="fu">raoD</span>(matched<span class="sc">$</span>comm, </span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">force.ultrametric</span>(matched<span class="sc">$</span>phy))<span class="sc">$</span>Dkk)</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(HARV_CDM)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
@@ -3810,9 +3822,10 @@ Argument include.root = TRUE
 <span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2021/R-Functions/qDp.R&quot;</span>)</span>
 <span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>HARV_CDM <span class="ot">&lt;-</span> HARV_CDM <span class="sc">%&gt;%</span> </span>
-<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">qDP =</span> <span class="fu">qDp</span>(matched<span class="sc">$</span>phy, matched<span class="sc">$</span>comm, <span class="at">q =</span> <span class="dv">2</span>))</span>
-<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>HARV_CDM</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">qDP =</span> <span class="fu">qDp</span>(matched<span class="sc">$</span>phy, </span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>                   matched<span class="sc">$</span>comm, <span class="at">q =</span> <span class="dv">2</span>))</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>HARV_CDM</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>We have calculated several metrics that describe the phylogenetic structure of communities at Harvard Forest &amp; Quabbin Watershed NEON (HARV) site.</p>

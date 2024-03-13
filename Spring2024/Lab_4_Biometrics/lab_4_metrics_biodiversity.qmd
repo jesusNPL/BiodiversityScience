@@ -119,7 +119,8 @@ options(stringsAsFactors = FALSE)
 
 NEON_data <- loadByProduct(dpID = "DP1.10058.001", 
                         site = c("HARV", "CPER", "ABBY"), 
-                        package = "expanded", check.size = TRUE)
+                        package = "expanded", 
+                        check.size = TRUE)
 
 # type "y" (with no quotes) in your console to start downloading the data from NEON
 ```
@@ -173,7 +174,8 @@ The isolated data is a data.frame of 86,813 rows and 14 columns. Some informatio
 sel <- sel %>% 
   drop_na(scientificName) %>% # Removing NAs in the column of species
   mutate(Date = endDate) %>% 
-  separate(endDate, sep = "-", into = c("Year", "Month", "Day"))
+  separate(endDate, sep = "-", 
+           into = c("Year", "Month", "Day"))
 
 unique(sel$Year)
 unique(sel$siteID)
@@ -270,7 +272,8 @@ Now let's combine the new taxonomic information with our NEON data.
 ```{r}
 #| eval: false
 
-HARV_data <- full_join(HARV, taxonomy, by = c("scientificName" = "Name_submitted"))
+HARV_data <- full_join(x = HARV, y = taxonomy, 
+                       by = c("scientificName" = "Name_submitted"))
 
 ```
 
@@ -357,7 +360,8 @@ Before continuing with the lab let's check again if our data (phylogeny and comm
 ```{r}
 #| eval: false
 
-matched <- picante::match.phylo.comm(phy = phylo, comm = HARV_CDM)
+matched <- picante::match.phylo.comm(phy = phylo, 
+                                     comm = HARV_CDM)
 
 matched$phy
 
@@ -372,7 +376,8 @@ Save the phylogenetic data and clean the R environment.
 ```{r}
 #| eval: false
 
-save(phylo, sppPhylo, result, file = "data/NEON/Phylo_NEON_lab4.RData")
+save(phylo, sppPhylo, result, 
+     file = "data/NEON/Phylo_NEON_lab4.RData")
 
 rm(sppPhylo, result)
 
@@ -392,7 +397,9 @@ Now the phylogeny
 ```{r}
 #| eval: false
 
-plot(matched$phy, show.tip.label = FALSE, type = "fan")
+plot(matched$phy, 
+     show.tip.label = FALSE, 
+     type = "fan")
 
 ```
 
@@ -490,7 +497,9 @@ HARV_001 <- matched$comm %>%
   filter(HARV_001 > 0)
 
 # Drop species in the phylogeny that are not present in the plot HARV_001
-HARV_001_phy <- drop.tip(matched$phy, setdiff(matched$phy$tip.label, rownames(HARV_001)))
+HARV_001_phy <- drop.tip(matched$phy, 
+                         setdiff(matched$phy$tip.label, 
+                                 rownames(HARV_001)))
 
 sum(HARV_001_phy$edge.length)
 
@@ -596,7 +605,8 @@ And now using the package **{picante}**
 #| eval: false
 
 # MPD
-HARV_MPD <- mpd(matched$comm, cophenetic(matched$phy)) 
+HARV_MPD <- mpd(matched$comm, 
+                cophenetic(matched$phy)) 
 
 head(HARV_MPD)
 
@@ -606,7 +616,8 @@ head(HARV_MPD)
 #| eval: false
 
 # MNTD
-HARV_MNTD <- mntd(matched$comm, cophenetic(matched$phy)) 
+HARV_MNTD <- mntd(matched$comm, 
+                  cophenetic(matched$phy)) 
 
 head(HARV_MNTD)
 
@@ -650,7 +661,8 @@ Rao's quadratic entropy (Rao 1982) is a measure of diversity in ecological commu
 #| eval: false
 
 HARV_CDM <- HARV_CDM %>% 
-  mutate(RaoD = raoD(matched$comm, force.ultrametric(matched$phy))$Dkk)
+  mutate(RaoD = raoD(matched$comm, 
+                     force.ultrametric(matched$phy))$Dkk)
 
 head(HARV_CDM)
 
@@ -755,7 +767,8 @@ HARV_CDM
 source("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2021/R-Functions/qDp.R")
 
 HARV_CDM <- HARV_CDM %>% 
-  mutate(qDP = qDp(matched$phy, matched$comm, q = 2))
+  mutate(qDP = qDp(matched$phy, 
+                   matched$comm, q = 2))
 
 HARV_CDM
 
