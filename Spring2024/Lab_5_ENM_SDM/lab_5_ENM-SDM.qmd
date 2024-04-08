@@ -26,8 +26,6 @@ csl: ../apa-single-spaced.csl
 
 In this lab, we will explore some Correlative models using data at species level (occurrence data points) and environmental data at large spatial scales. We will download occurrence data for oak species distributed in the Americas from [**GBIF**](https://www.gbif.org) and environmental (climatic) data from [**WorldClim**](https://www.worldclim.org).
 
-Part of the explanation of the different algorithms used in this lad was extracted from the vignette of the {**dismo**} R package.
-
 :::
 
 # Set up your data and your working directory
@@ -63,7 +61,9 @@ if (any(installed_packages == FALSE)) {
 
 ```
 
-Although we installed several packages in the previous lines a package is missing, the R packages {**torch**} and {**cito**}. This package is the main wrapper for modeling the environmental niches (**shadows**) or Grinnellian niches. We will install this package separately because it has several dependencies.
+Although we installed several packages in the previous lines two packages are missing, {**torch**} and {**cito**}. These two  packages are necessary for modeling the environmental niches (**shadows**) or Grinnellian niches under a **deep learning** framework--in other words, its a method that teaches computers to process data in a way that is inspired by the human brain. {**torch**} is the main package and {**cito**} is a wrapper that facilitate the implementation of **deep neural networks**. We will install these packages separately because.
+
+Let's start with {**torch**}
 
 ```{r}
 #| eval: false
@@ -77,7 +77,7 @@ if(!torch_is_installed()) install_torch()
 
 ```
 
-A last step is to install {cito}
+A last step is to install {**cito**}
 
 ```{r}
 #| eval: false
@@ -112,14 +112,14 @@ You can use the function **getwd()** to get the current working directory.
 
 Get some occurrence data for our species from GBIF, directly within R. This may take some time, given the number of occurrences for the selected species. 
 
-NOTE: we need to have an internet connection.
+**NOTE**: we need to have an internet connection.
 
-Set the vector with some species scientific names to download occurrence data from **GBIF**.
+Set the vector with some species scientific names (N = 5) to download occurrence data from **GBIF**.
 
 ```{r}
 #| eval: false
 
-spp <- c("Quercus virginiana", "Quercus minima", "Quercus alba", "Quercus fusiformis")
+spp <- c("Quercus virginiana", "Quercus minima", "Quercus alba", "Quercus fusiformis", "Quercus oleoides")
 
 ```
 
@@ -149,9 +149,9 @@ save(gbif_data, file = "data/OCC/oaks_raw_occ.RDATA")
 
 ```
 
-Inspect the downloaded data. Note that we have downloaded data for four species but for simplicity let's pick one species for this lab. I will select *Quercus minima* but you can select any other species.
+Inspect the downloaded data. Note that we have downloaded data for five species but for simplicity let's pick one species for this lab. I will select *Quercus minima* but you can select any other species.
 
-The returned object is a list of 4 elements (i.e., the number of our species vector), thus, to select the focal species just use **[[position of the species in the vector]]** to get access to the species. For example, I selected *Quercus minima*, so, to get access to this species I just need to type **gbif_data[[2]]**, let's see:
+The returned object is a list of five elements (i.e., the number of our species vector), thus, to select the focal species just use **[[position of the species in the vector]]** to get access to the species. For example, I selected *Quercus minima*, so, to get access to this species I just need to type **gbif_data[[2]]**, let's see:
 
 ```{r}
 #| eval: false
@@ -161,7 +161,11 @@ The returned object is a list of 4 elements (i.e., the number of our species vec
 
 # check how the data are organized:
 names(gbif_data)
+
+# metadata of the object #2
 names(gbif_data[[2]]$meta)
+
+# the data
 names(gbif_data[[2]]$data)
 
 ```
@@ -178,7 +182,7 @@ occ_quemin <- gbif_data[[2]]$data %>%
                 gbifID, family, taxonRank, coordinateUncertaintyInMeters,
                 year, basisOfRecord, institutionCode, datasetName)
 
-head(occ_quemin)
+occ_quemin
 
 ```
 
@@ -191,7 +195,19 @@ glimpse(occ_quemin)
 
 ```
 
-Now let's clean a little bit the data. First, removing all NA in the occurrence data.
+Now let's clean the data a little bit. First, removing all NA in the occurrence data.
+
+```{r}
+#| eval: false
+
+occ_quemin <- occ_quemin %>% 
+  filter(!is.na(decimalLongitude & !is.na(decimalLatitude)))
+
+occ_quemin
+
+```
+
+Cleaning geographic coordinates by flagging potentially erroneous locations.
 
 ```{r}
 #| eval: false
@@ -230,13 +246,13 @@ It seems that 23 observations were flagged, let's plot the points to see the whi
 plot(occ_quemin_flag, lon = "decimalLongitude", lat = "decimalLatitude")
 
 ```
+
 Exclude or filter the flagged records 
 
 ```{r}
 #| eval: false
 
 occ_quemin_clean <- occ_quemin_flag %>% 
-  filter(!is.na(decimalLongitude & !is.na(decimalLatitude))) %>% 
   filter(.summary == TRUE)
 
 occ_quemin_clean
@@ -299,7 +315,7 @@ ggplot() +
                color = "#f1f2f3", fill = '#f3f3f3') + 
   geom_polygon(data = map_US, 
                aes(x = long, y = lat, group = group), 
-               color = 'lightgray', fill = 'lightgray') + 
+               color = 'lightgray', fill = 'lightgray', alpha = 0.5) + 
   geom_point(data = occ_quemin, 
              aes(x = decimalLongitude, y = decimalLatitude), 
              color = "darkgray", alpha = 0.9) + 
@@ -322,7 +338,7 @@ Now the real map...
 ggplot() + 
   geom_polygon(data = map_data("world"), 
                aes(x = long, y = lat, group = group), 
-               color = "#f1f2f3", fill = '#f3f3f3') + 
+               color = "#f1f2f3", fill = '#f3f3f3', alpha = 0.5) + 
   geom_sf(data = USpoly) + 
   geom_sf(data = quemin_spt, color = "darkgray", alpha = 0.9) + 
   coord_sf(
@@ -339,7 +355,7 @@ ggplot() +
 
 ```
 
-Seems the data is correct but sometimes the data aggregation can cause some troubles in model predictions. To solve this issue we will apply a spatial thinning on the species occurrences, to do so, we will use the package {**spThin**}. Given that our species has a broad distribution let's sett a distance threshold of 2 km between occurrence points.
+Seems the data is correct but sometimes the data aggregation can cause some troubles in model predictions. To solve this issue we will apply a spatial thinning on the species occurrences, to do so, we will use the package {**spThin**}. Given that our species has a broad distribution let's set a distance threshold of 2 km between occurrence points.
 
 ```{r}
 #| eval: false
@@ -351,7 +367,7 @@ quemin_thinned <- thin(
       lat.col = "decimalLatitude",
       spec.col = "species",
       thin.par = 2, # points have at least a minimum distance of 2 km from each other
-      reps = 10, 
+      reps = 10, # number of repetitions
       locs.thinned.list.return = TRUE, 
       write.files = FALSE, 
       out.dir = "data/OCC/")
@@ -434,15 +450,15 @@ First we will obtain bioclimatic variables from **WorldClim** and to do that we 
 ```{r}
 #| eval: false
 
-bios <- geodata::worldclim_global(var = "bio", 
-                         res = 10, 
-                         path = "data/", 
+bios <- geodata::worldclim_global(var = "bio", # climatic variables
+                         res = 10, # spatial resolution
+                         path = "data/", # folder location
                          version = "2.1")
 
 
 ```
 
-You can see that by using the argument **path** within the function **getData()** the bioclimatic variables were also downloaded directly to your hard drive, so you don't need to download the data again. 
+You can see that by using the argument **path** within the function **worldclim_global()** the bioclimatic variables were also downloaded directly to your hard drive, so you don't need to download the data again. 
 
 :::{.callout-note}
 
@@ -453,7 +469,7 @@ If you have issues downloading WorldClim data, you can download the data [HERE](
 
 ### Load bioclimatic data stored in your computer
 
-If you downloaded the bioclimatic data from dropbox please use the next line of code.
+If you downloaded the bioclimatic data from dropbox please use the next lines of code.
 
 ```{r}
 #| eval: false
@@ -461,7 +477,7 @@ If you downloaded the bioclimatic data from dropbox please use the next line of 
 biosNames <- list.files("data/wc2.1_10m/", 
                         pattern = "tif$")
 
-# Please double check your folder path. You may need to change "wc10" to "bio_10m_bil"
+# Please double check your folder path. 
 
 bios <- rast(paste0("data/wc2.1_10m/", # folder directory 
                      biosNames)) # file names
@@ -488,7 +504,7 @@ Now let's plot some bioclimatic variables, let's say BIO1 and BIO12 that are mea
 plot(c(bios[[1]], bios[[12]]))
 
 ```
-Okay, these data is at global level but our species only occur in North America, in order to have a better visualization of the data, let's crop the bioclimatic data to the extent of North America (United States and Canada). 
+Okay, the environmental data is at global level but our species only occur in North America, in order to have a better visualization of the data, let's crop the bioclimatic data to the extent of the United States. 
 
 ```{r}
 #| eval: false
@@ -559,7 +575,8 @@ Now crop the bioclimatic data to the extent of the accessible area.
 ```{r}
 #| eval: false
 
-bios_spp <- crop(bios, out, mask = TRUE)
+bios_spp <- terra::crop(bios, out, mask = TRUE)
+#bios_spp <- terra::mask(bios_spp, vect(out))
 
 # plot the results
 plot(bios_spp[[1]])
@@ -572,7 +589,7 @@ Note that we will use this accessible area as extent for all the posterior analy
 
 # Pseudoabsences
 
-To model the environmental niches (**ghosts**) and to project the species distributions (**shadows**) we need to have data of species presences and absences, however we only have presence data. What should I do if I don't have absences? That's the question! There is no a straightforward answer for that question, but the most common procedure to get absence data is to generate random points (AKA **pseudoabsences**) on the geographical domain (i.e., the accessible area or M). There is a lot of discussion on how many pseudoabsences we need to use for ENM/SDM, here we will use a conservative number, i.e., twice the number presences.
+To model the environmental niches (**ghosts**) and to project the species distributions (**shadows**) we need to have data of species presences and absences, however we only have presence data. What should we do if we don't have absences? That's the question! There is no a straightforward answer for that question, but the most common procedure to get absence data is to generate random points (AKA **pseudoabsences**) on the geographical domain (i.e., the accessible area or M). There is a lot of discussion on how many pseudoabsences we need to use for ENM/SDM, here we will use a conservative number, i.e., twice the number presences.
 
 ```{r}
 #| eval: false
@@ -633,8 +650,8 @@ Let's visualize the results
 #| eval: false
 
 plot(bios_spp[[1]])
-plot(quemin_sp[quemin_sp$Occurrence == 1, ], col = "lightblue", add = TRUE, pch = 16)
-points(quemin_sp[quemin_sp$Occurrence == 0, ], col = "red", pch = 16)
+plot(quemin_sp[quemin_sp$Occurrence == 1, ], col = "red", add = TRUE, pch = 16) # presence
+points(quemin_sp[quemin_sp$Occurrence == 0, ], col = "blue", pch = 16) # absence
 
 ```
 
@@ -655,7 +672,7 @@ Now, we need to decide which variables are necessary to model the niche (Grinnel
 
 # Variable selection
 
-Let's use the statistical way. However we can ask Jeannine about which variables are more important for the distribution of oaks.
+Let's use the statistical way. 
 
 ```{r}
 #| eval: false
@@ -699,7 +716,9 @@ corrplot::corrplot.mixed(cor_mat,
 
 ```
 
-Looks like that several variables are highly correlated, but let's select the ones that are highly correlated with each other and exclude them for further analysis. However, inspecting predictor by predictor can take forever, **what should we do?** Well we have two options:
+Looks like that several variables are highly correlated, but let's select the ones that are highly correlated with each other and exclude them for further analysis. 
+
+Inspecting predictor by predictor can take forever, **what should we do?** Well we have two options:
 
 1. Talk with the specialist about which predictors should we use, or 
 
@@ -722,7 +741,7 @@ covar_sel <- select07_v2(X = quemin_bios[, -c(1:5)], # only predictors data
 
 ```
 
-But, if you want to install {**mecofun**} you can use the code below. Important, a message will appear in your console asking if you would like to update an existing package, please type **3** and press **Enter**. This will order **R** to install just {**mecofun**} and also will avoid any error in the installation.
+Note that if you want to install {**mecofun**} you can use the code below. Important, a message will appear in your console asking if you would like to update an existing package, please type **3** and press **Enter**. This will order **R** to install just {**mecofun**} and also will avoid any error in the installation.
 
 ```{r}
 #| eval: false
@@ -743,11 +762,6 @@ The function will return a list of three objects:
 ```{r}
 #| eval: false
 
-# Run select07()
-covar_sel <- select07_v2(X = quemin_bios[, -c(1:5)], # only predictors data 
-                         y = quemin_bios$Occurrence, # presence-absence data 
-                         threshold = 0.7) # here you can change the threshold for one 
-
 # Check out the structure of the resulting object:
 str(covar_sel)
 
@@ -764,7 +778,7 @@ covar_sel$pred_sel
 
 ```
 
-According to the **select07()** function eight climatic variables (predictors) best fit the data and also have low correlation. Assuming that this is correct, we will use these variables for further analyses. The selected variables are: "bio18", "bio4", "bio9", "bio10", "bio5", "bio15", "bio2", "bio19". Store these variable names as a vector.
+According to the **select07()** function eight climatic variables (predictors) best fit the data and also have low correlation. Assuming that this is correct, we will use these variables for further analyses. The selected variables are: "bio18", "bio4", "bio9", "bio5", "bio15", "bio2", "bio19". Store these variable names as a vector.
 
 ```{r}
 #| eval: false
@@ -801,7 +815,7 @@ Okay, we are ready to build the models for our species.
 
 # Building Environmental Niche Models
 
-To model the environmental niches for *Quercus minima* we will use the R package {**cito**}. The first thing we need to do is to filter some data for training and some data for testing. We will use ~30% of the data for testing.
+To model the environmental niches for *Quercus minima* we will use the R package {**cito**}. The first thing we need to do is to filter some data for training and some data for testing. We will use ~30% of the data for testing and ~70% for training.
 
 ```{r}
 #| eval: false
@@ -824,22 +838,47 @@ Now let's model the species-environment relationship or Grinnellian niches.
 
 library(cito)
 
-quemin_DNN <- dnn(Occurrence ~., 
-            data = training,
-            batchsize = 100L, 
+```
+
+Run Deep Neural Network
+
+```{r}
+#| eval: false
+
+quemin_DNN <- dnn(Occurrence ~., # formula
+            data = training, # data for training
+            batchsize = 150L, 
+            epochs = 100L,
             lr = 0.05, 
             #lambda = 0.001,
             #alpha = 1.0,
             validation = 0.33, 
-            loss = "binomial", 
-            bootstrap = 20L, 
+            loss = "binomial", # model 
+            #early_stopping = 15, 
+            bootstrap = 20L, # number of bootstraps set to 20
             verbose = FALSE)
+
+```
+
+Visualize Network
+
+```{r}
+#| eval: false
 
 plot(quemin_DNN)
 
 ```
 
-Until here we have downloaded and processed occurrence data and fitted deep learning algorithms. Now let's predict the Grinnellian niche for *Quercus minima* in the accessible area. But first let's explore how good our model is. In addition, you can use the fitted object (i.e., quemin_ENM) to make predictions to other regions (e.g., areas with similar environmental conditions or invadable areas) or to project to other periods of time (i.e., to the future or the past).
+Visualize the bootstrap output. If an error is returned, you can skip this part.
+
+```{r}
+#| eval: false
+
+analyze_training(quemin_DNN)
+
+```
+
+Until here we have downloaded and processed occurrence data and fitted a deep learning algorithm. Now let's predict the Grinnellian niche for *Quercus minima* in the accessible area. But first let's explore how good our model is. In addition, you can use the fitted object (i.e., quemin_DNN) to make predictions to other regions (e.g., areas with similar environmental conditions or invadable areas) or to project to other periods of time (i.e., to the future or the past).
 
 ```{r}
 #| eval: false
@@ -866,13 +905,7 @@ hist(AUCs,
 
 ```
 
-We can see that the AUC is very high ranging between 0.979 and 0.985.
-
-```{r}
-#| eval: false
-
-
-```
+We can see that the AUC is very high ranging between 0.980 and 0.984.
 
 Get variable (feature) importance or the variables that are more important in predicting the Grinnellian niche of our species.
 
@@ -1070,7 +1103,7 @@ quemin_TSS <- PERF_df[which(PERF_df$alpha == quemin_threshold), 'tss']
 
 ```
 
-The threshold that maximizes the sensitivity and specificity is **0.39**, we will use that value to produce "shadows" from the "ghosts".
+The threshold that maximizes the sensitivity and specificity is **0.41**, we will use that value to produce "shadows" from the "ghosts".
 
 ```{r}
 #| eval: false
@@ -1111,18 +1144,12 @@ writeRaster(quemin_SDM,
 
 Please respond each question based on the practice.
 
-1. Summarize the data: how many records are there, how many have coordinates, how many records without coordinates have a textual georeference (locality description)?
+1. Do you think the observations are a reasonable representation of the distribution (and ecological niche) of the species? Explain your answer.
 
-2. Do you think the observations are a reasonable representation of the distribution (and ecological niche) of the species?
+2. Can we use ENM/SDM to aid the conservation of *Quercus minima*? Explain your answer.
 
-3. Is there a best model? Explain your answer.
+3. Based on the lecture and the practice, what can we conclude?
 
-4. Can we use ENM/SDM to aid the conservation of *Quercus minima*? Explain your answer.
-
-5. Based on the lecture and the practice, what can we conclude?
-
-6. Model the niche and predict the distribution of a different species (you can use one of the species listed at the beginning of the class).
-
-7. Please explain the algorithm used for modeling the niche and predict the distribution of your species and why you decided to use it.
+4. Model the niche and predict the distribution of a different species (you can use one of the species listed at the beginning of the class).
 
 The end, for now 😉!
