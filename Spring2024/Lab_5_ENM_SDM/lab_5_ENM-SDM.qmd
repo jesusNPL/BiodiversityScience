@@ -37,7 +37,7 @@ To do this laboratory you will need to install the following packages:
 
 packages <- c("terra", "geodata", "sp", "spThin", "sf", "maps", "dismo", 
               "CoordinateCleaner", "rgbif", "countrycode", "rworldmap", 
-              "Metrics", "ROCR")
+              "Metrics", "ROCR", "ggraph", "plotly")
 # Package vector names
 
 ```
@@ -965,7 +965,7 @@ Perform model prediction
 #| eval: false
 
 ## Scale the predictors 
-bios_quemin_sel_scale <- scale(bios_quemin_sel)
+bios_quemin_sel_scale <- terra::scale(bios_quemin_sel)
 
 ## Predict the Grinnellian niche for Quercus minima
 quemin_ENM <- terra::predict(object = bios_quemin_sel_scale,
