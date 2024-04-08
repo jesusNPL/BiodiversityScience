@@ -33,7 +33,7 @@ In this lab, we will explore some Correlative models using data at species level
 To do this laboratory you will need to install the following packages:
 
 ```{r}
-#| eval: false
+#| eval: true
 
 packages <- c("terra", "geodata", "sp", "spThin", "sf", "maps", "dismo", 
               "CoordinateCleaner", "rgbif", "countrycode", "rworldmap", 
@@ -50,7 +50,7 @@ You can use the function **install.packages()** to install the packages.
 If you don't want to install the packages one by one, you can use the next command. 
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # Install packages not yet installed
 installed_packages <- packages %in% rownames(installed.packages())
@@ -66,7 +66,7 @@ Although we installed several packages in the previous lines two packages are mi
 Let's start with {**torch**}
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # check package 
 if(!require('torch', quietly = TRUE)) install.packages('torch')
@@ -80,7 +80,7 @@ if(!torch_is_installed()) install_torch()
 A last step is to install {**cito**}
 
 ```{r}
-#| eval: false
+#| eval: true
 
 if (!("cito" %in% installed.packages())) {
     install.packages("cito")
@@ -91,7 +91,7 @@ if (!("cito" %in% installed.packages())) {
 Call the packages
 
 ```{r}
-#| eval: false
+#| eval: true
 
 sapply(packages, require, character.only = TRUE)
 
@@ -117,7 +117,7 @@ Get some occurrence data for our species from GBIF, directly within R. This may 
 Set the vector with some species scientific names (N = 5) to download occurrence data from **GBIF**.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 spp <- c("Quercus virginiana", "Quercus minima", "Quercus alba", "Quercus fusiformis", "Quercus oleoides")
 
@@ -126,7 +126,7 @@ spp <- c("Quercus virginiana", "Quercus minima", "Quercus alba", "Quercus fusifo
 Download data using the vector of species names
 
 ```{r}
-#| eval: false
+#| eval: true
 
 gbif_data <- occ_search(scientificName = spp, 
                       hasCoordinate = TRUE, 
@@ -173,7 +173,7 @@ names(gbif_data[[2]]$data)
 Wow, there are a bunch of columns, let's select some columns that are relevant for our purposes.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # get the columns that matter for mapping and cleaning the occurrence data:
 occ_quemin <- gbif_data[[2]]$data %>% 
@@ -189,7 +189,7 @@ occ_quemin
 Let's look the data.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 glimpse(occ_quemin)
 
@@ -198,7 +198,7 @@ glimpse(occ_quemin)
 Now let's clean the data a little bit. First, removing all NA in the occurrence data.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 occ_quemin <- occ_quemin %>% 
   filter(!is.na(decimalLongitude & !is.na(decimalLatitude)))
@@ -210,7 +210,7 @@ occ_quemin
 Cleaning geographic coordinates by flagging potentially erroneous locations.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 #convert country code from ISO2c to ISO3c
 occ_quemin$countryCode <- countrycode::countrycode(occ_quemin$countryCode, 
@@ -232,7 +232,7 @@ occ_quemin_flag <- clean_coordinates(x = occ_quemin,
 See the results 
 
 ```{r}
-#| eval: false
+#| eval: true
 
 summary(occ_quemin_flag)
 
@@ -241,7 +241,7 @@ summary(occ_quemin_flag)
 It seems that 23 observations were flagged, let's plot the points to see the which ones.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 plot(occ_quemin_flag, lon = "decimalLongitude", lat = "decimalLatitude")
 
@@ -250,19 +250,19 @@ plot(occ_quemin_flag, lon = "decimalLongitude", lat = "decimalLatitude")
 Exclude or filter the flagged records 
 
 ```{r}
-#| eval: false
+#| eval: true
 
 occ_quemin_clean <- occ_quemin_flag %>% 
   filter(.summary == TRUE)
 
-occ_quemin_clean
+#occ_quemin_clean
 
 ```
 
 Plot the cleaned data 
 
 ```{r}
-#| eval: false
+#| eval: true
 
 plot(occ_quemin_clean, lon = "decimalLongitude", lat = "decimalLatitude")
 
@@ -271,7 +271,7 @@ plot(occ_quemin_clean, lon = "decimalLongitude", lat = "decimalLatitude")
 Now transform our occurrence data to a spatial object, this will help us to visualize better our data.
 
 ```{r} 
-#| eval: false
+#| eval: true
 
 quemin_spt <- st_as_sf(occ_quemin_clean, 
                        coords = c("decimalLongitude", "decimalLatitude"), 
@@ -286,7 +286,7 @@ glimpse(quemin_spt)
 Let's plot the distribution of *Quercus minima* occurrences.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 sf_use_s2(FALSE)
 
@@ -305,7 +305,7 @@ USpoly <- worldMap %>%
 Plot the occurrence records
 
 ```{r}
-#| eval: false
+#| eval: true
 
 map_US <- map_data('world')[map_data('world')$region == "USA", ]
 
@@ -333,7 +333,7 @@ Small joke 😬🫣.
 Now the real map...
 
 ```{r}
-#| eval: false
+#| eval: true
 
 ggplot() + 
   geom_polygon(data = map_data("world"), 
@@ -358,7 +358,7 @@ ggplot() +
 Seems the data is correct but sometimes the data aggregation can cause some troubles in model predictions. To solve this issue we will apply a spatial thinning on the species occurrences, to do so, we will use the package {**spThin**}. Given that our species has a broad distribution let's set a distance threshold of 2 km between occurrence points.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 quemin_thinned <- thin(
       loc.data =  occ_quemin_clean, 
@@ -380,7 +380,7 @@ quemin_thinned$species <- "Quercus_minima"
 Explore the results of the thinning process. We can see that the number of occurrences of *Quercus minima* decreased from 784 occurrences to 440 occurrences. We will use the thinned data for further analyses.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 glimpse(quemin_thinned)
 
@@ -389,7 +389,7 @@ glimpse(quemin_thinned)
 Transform the thinned occurrences to a spatial object
 
 ```{r}
-#| eval: false
+#| eval: true
 
 quemin_thinned_sf <- st_as_sf(quemin_thinned, 
                        coords = c("Longitude", "Latitude"), 
@@ -406,7 +406,7 @@ quemin_thinned_spt <- SpatialPointsDataFrame(coords = quemin_thinned[, 1:2],
 Now visualize the both spatial objects.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 ggplot() + 
   geom_polygon(data = map_data("world"), 
@@ -432,7 +432,7 @@ ggplot() +
 Now let's save the data processed and keep **thinned_spt** for further analyses.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 save(occ_quemin, quemin_spt, quemin_thinned_sf, quemin_thinned, 
      file = "data/OCC/quemin_OCC_processed.RData")
@@ -472,7 +472,7 @@ If you have issues downloading WorldClim data, you can download the data [HERE](
 If you downloaded the bioclimatic data from dropbox please use the next lines of code.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 biosNames <- list.files("data/wc2.1_10m/", 
                         pattern = "tif$")
@@ -488,7 +488,7 @@ bios <- rast(paste0("data/wc2.1_10m/", # folder directory
 Let's explore some details of the bioclimatic data 
 
 ```{r}
-#| eval: false
+#| eval: true
 
 names(bios)
 
@@ -499,7 +499,7 @@ str(bios[[1]])
 Now let's plot some bioclimatic variables, let's say BIO1 and BIO12 that are mean annual temperature and annual precipitation, respectively.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 plot(c(bios[[1]], bios[[12]]))
 
@@ -507,7 +507,7 @@ plot(c(bios[[1]], bios[[12]]))
 Okay, the environmental data is at global level but our species only occur in North America, in order to have a better visualization of the data, let's crop the bioclimatic data to the extent of the United States. 
 
 ```{r}
-#| eval: false
+#| eval: true
 
 USpoly_spt <- as(USpoly, "Spatial") # used as extent
 
@@ -518,7 +518,7 @@ plot(USpoly_spt)
 Now crop the bioclimatic data to the extent of North America.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 bios_US <- crop(bios, USpoly, mask = TRUE)
 
@@ -527,7 +527,7 @@ bios_US <- crop(bios, USpoly, mask = TRUE)
 Let's visualize the results of cropping the bioclimatic data and overlap the thinned occurrences of *Quercus minima*.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 plot(bios_US[[1]]) # mean annual temperature
 plot(quemin_thinned_spt, col = "red", pch = 16, add = TRUE) # add occurrence records
@@ -541,7 +541,7 @@ Cool!
 Before any further analysis we need to define the accessible area for our species (*Quercus minima*) in the geographical space, remember our species is distributed in the United States. To define the accessible area let's use a bounding box around the known species occurrences plus ~300 km beyond that bound. This will give us an approximation of the species dispersal within the geographical domain, i.e., North America. This bounding box represent the component **M** in the **BAM** diagram.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 ### Species specific accessible area
 bb <- bbox(quemin_thinned_spt) # bounding box
@@ -560,7 +560,7 @@ out <- terra::crop(USpoly_spt, as(pex, 'Spatial'), byid = FALSE) # use NAs to el
 Now let's plot the accessible area.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 plot(bios_US[[1]])
 plot(pex, add = TRUE, lty = 2)
@@ -573,7 +573,7 @@ Nice, we can see that the accessible area for our species is the southeast Unite
 Now crop the bioclimatic data to the extent of the accessible area.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 bios_spp <- terra::crop(bios, out, mask = TRUE)
 #bios_spp <- terra::mask(bios_spp, vect(out))
@@ -592,7 +592,7 @@ Note that we will use this accessible area as extent for all the posterior analy
 To model the environmental niches (**ghosts**) and to project the species distributions (**shadows**) we need to have data of species presences and absences, however we only have presence data. What should we do if we don't have absences? That's the question! There is no a straightforward answer for that question, but the most common procedure to get absence data is to generate random points (AKA **pseudoabsences**) on the geographical domain (i.e., the accessible area or M). There is a lot of discussion on how many pseudoabsences we need to use for ENM/SDM, here we will use a conservative number, i.e., twice the number presences.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 set.seed(12345) # Random Number Generation to obtain the same result
 
@@ -608,7 +608,7 @@ absence <- dismo::randomPoints(mask = as(bios_spp[[1]], "Raster"), # transform s
 Now let's combine the **presence** and **pseudoabsence** data
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # Presences
 presence <- data.frame(quemin_thinned) # presence data
@@ -628,7 +628,7 @@ quemin <- rbind(presence, absence) # combine both information
 Finally transform the **presence-pseudoabsence** data to a spatial object and visualize it!
 
 ```{r}
-#| eval: false
+#| eval: true
 
 quemin_sp <- quemin
 
@@ -647,7 +647,7 @@ quemin_sf <- st_as_sf(quemin,
 Let's visualize the results
 
 ```{r}
-#| eval: false
+#| eval: true
 
 plot(bios_spp[[1]])
 plot(quemin_sp[quemin_sp$Occurrence == 1, ], col = "red", add = TRUE, pch = 16) # presence
@@ -658,7 +658,7 @@ points(quemin_sp[quemin_sp$Occurrence == 0, ], col = "blue", pch = 16) # absence
 We can save the processed data and clean the environment a little bit.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 save(presence, absence, quemin, file = "data/OCC/quemin_PresAbs.RData")
 
@@ -675,7 +675,7 @@ Now, we need to decide which variables are necessary to model the niche (Grinnel
 Let's use the statistical way. 
 
 ```{r}
-#| eval: false
+#| eval: true
 
 ## extract variables
 quemin_bios <- data.frame(terra::extract(bios_spp, quemin_sf))
@@ -696,7 +696,7 @@ One way to select variables is to explore the correlation among the predictors. 
 To do that, we first estimate a correlation matrix from the predictors. We use Spearman rank correlation coefficient, as we do not know whether all variables are normally distributed.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 cor_mat <- cor(quemin_bios[, c(6:24)], method = 'spearman')
 
@@ -705,7 +705,7 @@ cor_mat <- cor(quemin_bios[, c(6:24)], method = 'spearman')
 Let's visualize the correlation matrix.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 corrplot::corrplot.mixed(cor_mat, 
                          tl.pos = "lt", 
@@ -729,7 +729,9 @@ The simple solution is letting the computer decide, thus, for doing that, we wil
 I extracted the function **select07()** from the package {**mecofun**} so we can use it directly without install the {**mecofun**}.
 
 ```{r}
-#| eval: false
+#| eval: true
+
+set.seed(12345)
 
 #source("R-Functions/select07_mod.R")
 source("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2021/R-Functions/select07_mod.R")
@@ -760,7 +762,7 @@ The function will return a list of three objects:
 3. A vector of the selected variables.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # Check out the structure of the resulting object:
 str(covar_sel)
@@ -770,7 +772,7 @@ str(covar_sel)
 Let's see the results...
 
 ```{r}
-#| eval: false
+#| eval: true
 
 covar_sel$AIC
 covar_sel$cor_mat
@@ -781,7 +783,7 @@ covar_sel$pred_sel
 According to the **select07()** function eight climatic variables (predictors) best fit the data and also have low correlation. Assuming that this is correct, we will use these variables for further analyses. The selected variables are: "bio18", "bio4", "bio9", "bio5", "bio15", "bio2", "bio19". Store these variable names as a vector.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 preds <- covar_sel$pred_sel
 preds
@@ -791,7 +793,7 @@ preds
 Finally, let's select the bioclimatic variables and plot them. Note that we will use these environmental layers for model predictions.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 bios_quemin_sel <- bios_spp[[preds]]
 
@@ -802,7 +804,7 @@ plot(bios_quemin_sel)
 As a pre-final step we will scale the predictors 
 
 ```{r}
-#| eval: false
+#| eval: true
 
 quemin_bios_sel <- quemin_bios %>% 
   select(Occurrence, all_of(preds))
@@ -818,9 +820,10 @@ Okay, we are ready to build the models for our species.
 To model the environmental niches for *Quercus minima* we will use the R package {**cito**}. The first thing we need to do is to filter some data for training and some data for testing. We will use ~30% of the data for testing and ~70% for training.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 set.seed(12345)
+
 index <- sample.int(nrow(quemin_bios_sel), 400) # 400 points or 0.33% of the data 
 
 ## Testing data
@@ -834,7 +837,7 @@ training <- quemin_bios_sel[-index, ]
 Now let's model the species-environment relationship or Grinnellian niches. 
 
 ```{r}
-#| eval: false
+#| eval: true
 
 library(cito)
 
@@ -843,7 +846,9 @@ library(cito)
 Run Deep Neural Network
 
 ```{r}
-#| eval: false
+#| eval: true
+
+set.seed(12345)
 
 quemin_DNN <- dnn(Occurrence ~., # formula
             data = training, # data for training
@@ -872,7 +877,7 @@ plot(quemin_DNN)
 Visualize the bootstrap output. If an error is returned, you can skip this part.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 analyze_training(quemin_DNN)
 
@@ -881,7 +886,7 @@ analyze_training(quemin_DNN)
 Until here we have downloaded and processed occurrence data and fitted a deep learning algorithm. Now let's predict the Grinnellian niche for *Quercus minima* in the accessible area. But first let's explore how good our model is. In addition, you can use the fitted object (i.e., quemin_DNN) to make predictions to other regions (e.g., areas with similar environmental conditions or invadable areas) or to project to other periods of time (i.e., to the future or the past).
 
 ```{r}
-#| eval: false
+#| eval: true
 
 quemin_DNN_pred <- predict(quemin_DNN, 
                       newdata = testing, 
@@ -894,7 +899,7 @@ dim(quemin_DNN_pred)
 Let's get the AUC (Area under the ROC Curve) from the prediction object.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 AUCs <- sapply(1:20, function(i) Metrics::auc(testing$Occurrence, quemin_DNN_pred[i,,]))
 
@@ -910,7 +915,7 @@ We can see that the AUC is very high ranging between 0.980 and 0.984.
 Get variable (feature) importance or the variables that are more important in predicting the Grinnellian niche of our species.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 quemin_Response <- summary(quemin_DNN)
 quemin_Response
@@ -926,7 +931,7 @@ quemin_Response
 We can also go a step ahead and make some inferences. For example, we can see how the species is responding to the set of environmental variables we use to model its Grinnellian niche.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 ALE(model = quemin_DNN, variable = preds[1])
 ALE(model = quemin_DNN, variable = preds[2])
@@ -942,10 +947,10 @@ ALE(model = quemin_DNN, variable = preds[7])
 
 Now let's predict the Grinnellian niche for *Quercus minima* in the accessible area.
 
-Auxiliary functions to perform predictions (https://citoverse.github.io/cito/articles/C-Example_Species_distribution_modeling.html)
+Auxiliary functions to perform predictions obtained from  (https://citoverse.github.io/cito/articles/C-Example_Species_distribution_modeling.html)
 
 ```{r}
-#| eval: false
+#| eval: true
 
 ## mean prediction
 customPredictFun <- function(model, data) {
@@ -962,7 +967,7 @@ customPredictFun_sd <- function(model, data) {
 Perform model prediction
 
 ```{r}
-#| eval: false
+#| eval: true
 
 ## Scale the predictors 
 bios_quemin_sel_scale <- terra::scale(bios_quemin_sel)
@@ -978,7 +983,7 @@ quemin_ENM <- terra::predict(object = bios_quemin_sel_scale,
 Let’s try making a nice map.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 library(rasterVis)
 library(RColorBrewer)
@@ -1001,7 +1006,7 @@ levelplot(quemin_ENM,
 We can also predict the uncertainty of our model
 
 ```{r}
-#| eval: false
+#| eval: true
 
 quemin_ENM_uncertainty <- terra::predict(object = bios_quemin_sel_scale,
                   model = quemin_DNN,
@@ -1013,7 +1018,7 @@ quemin_ENM_uncertainty <- terra::predict(object = bios_quemin_sel_scale,
 Plot the uncertainty in our prediction
 
 ```{r}
-#| eval: false
+#| eval: true
 
 levelplot(quemin_ENM_uncertainty,
   maxpixels = 1e10,
@@ -1028,7 +1033,7 @@ levelplot(quemin_ENM_uncertainty,
 You might also want to save the predictions.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 dir.create("results")
 dir.create("results/ENM")
@@ -1054,7 +1059,7 @@ Finally, let's produce "shadows" from the "ghosts".
 First we need to set a binarization threshold for the model predictions, the threshold (cut-off) is used to transform model predictions (probabilities, distances, or similar values) to a binary score (presence or absence). 
 
 ```{r}
-#| eval: false
+#| eval: true
 
 ## Get mean and sd predictions
 meanPred <- apply(as.data.frame.array(quemin_DNN_pred), MARGIN = 2, FUN = mean)
@@ -1086,7 +1091,7 @@ ROCdf %>%
 Here we will find the threshold for the **mean** prediction, but you can find the threshold for each bootstrap. The threshold we will use intents to maximizes the **sensitivity** (ability of a test to correctly identify presences or true positive rate) plus **specificity** (ability of a test to correctly identify absences or true negative rate) in the predictions.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 ## Get sensitivity and specificity
 quemin_PERF <- ROCR::performance(predOBJ, "sens", "spec") 
@@ -1103,10 +1108,10 @@ quemin_TSS <- PERF_df[which(PERF_df$alpha == quemin_threshold), 'tss']
 
 ```
 
-The threshold that maximizes the sensitivity and specificity is **0.41**, we will use that value to produce "shadows" from the "ghosts".
+The threshold that maximizes the sensitivity and specificity is **0.39**, we will use that value to produce "shadows" from the "ghosts".
 
 ```{r}
-#| eval: false
+#| eval: true
 
 quemin_SDM <- quemin_ENM
 
@@ -1118,7 +1123,7 @@ quemin_SDM[] <- ifelse(quemin_ENM[] >= quemin_threshold, 1, 0)
 Plot the distribution of *Quercus minima*
 
 ```{r}
-#| eval: false
+#| eval: true
 
 plot(quemin_SDM)
 plot(countriesCoarse, add = TRUE)
@@ -1130,7 +1135,7 @@ That's it, we modeled environmental niches (**ghosts**) to produce geographical 
 You might also want to save this final raster file in your hard drive.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 dir.create("results/SDM")
 
