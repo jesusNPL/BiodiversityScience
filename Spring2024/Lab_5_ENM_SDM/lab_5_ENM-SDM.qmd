@@ -734,7 +734,7 @@ I extracted the function **select07()** from the package {**mecofun**} so we can
 set.seed(12345)
 
 #source("R-Functions/select07_mod.R")
-source("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2021/R-Functions/select07_mod.R")
+source("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2024/Lab_5_ENM_SDM/functions/select07_mod.R")
 
 # Run select07()
 covar_sel <- select07_v2(X = quemin_bios[, -c(1:5)], # only predictors data 
