@@ -33,6 +33,7 @@ Note. Part of the text used in this tutorial was extracted from [here](https://w
 # Set up your data and your working directory
 
 Set up a working directory and store the data files in that directory. Tell R that this is the directory you will be using, and read in your data:
+
 ```{r}
 #| eval: false
 
@@ -43,11 +44,11 @@ setwd("..your working directory")
 To do this laboratory you will need to install the following packages:
 
 ```{r}
-#| eval: false
+#| eval: true
 
-packages <- c("neonUtilities", "BiocManager", "plyr", "reshape2", 
-              "terra", "sf", "sp") 
 # Package vector names
+packages <- c("neonUtilities", "BiocManager", "plyr", "reshape2", 
+              "terra", "sf", "sp", "dismo") 
 
 ```
 
@@ -59,7 +60,7 @@ You can use the function **install.packages()** to install the packages.
 If you don't want to install the packages one by one, you can use the next command. 
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # Install packages not yet installed
 installed_packages <- packages %in% rownames(installed.packages())
@@ -75,7 +76,7 @@ The package {rhdf5} is not available on CRAN, but it is located in "Bioconductor
 When installing the package {**rhdf5**} R will ask you if you want to **"Update all/some/none? [a/s/n]:"** please in your console type **n**.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 if ( ! ("rhdf5" %in% installed.packages())) {BiocManager::install("rhdf5")}
 
@@ -83,7 +84,7 @@ if ( ! ("rhdf5" %in% installed.packages())) {BiocManager::install("rhdf5")}
 Call or load all packages
 
 ```{r}
-#| eval: false
+#| eval: true
 
 sapply(packages, require, character.only = TRUE)
 
@@ -102,7 +103,7 @@ You can use the function **getwd()** to get the current working directory.
 # Data preparation
 
 ```{r}
-#| eval: false
+#| eval: true
 
 dir.create("data")
 dir.create("data/NEON")
@@ -112,7 +113,7 @@ dir.create("data/NEON")
 The first step is to prepare the information required to download the hyperspectral data from NEON-AOP. To do that we will first download the **Terrestrial Observation System Sampling Locations** dataset. You can download it from [NEON Spatial Data & Maps](https://www.neonscience.org/data-samples/data/spatial-data-maps), specifically under the  **Terrestrial Observation System Sampling Locations** tab or by clicking [**HERE**](https://www.neonscience.org/sites/default/files/All_NEON_TOS_Plots_V10.zip). Once you have downloaded the data, please store it within the folder **data**.
 
 ```{r} 
-#| eval: false
+#| eval: true
 
 NEON_plots <- st_read("data/All_NEON_TOS_Plots_V10/All_NEON_TOS_Plot_Centroids_V10.shp")
 
@@ -121,11 +122,18 @@ NEON_plots <- st_read("data/All_NEON_TOS_Plots_V10/All_NEON_TOS_Plot_Centroids_V
 From the spatial distribution of the NEON **sites/plots** we loaded into R, we will select the NEON site **Harvard Forest & Quabbin Watershed** ([**HARV**](https://www.neonscience.org/field-sites/harv)).
 
 ```{r}
-#| eval: false
+#| eval: true
 
 HARV_plots <- NEON_plots %>% 
   filter(siteID == "HARV" & plotType == "distributed" & subtype == "basePlot") %>% 
   arrange(plotID)
+
+```
+
+Explore the data
+
+```{r}
+#| eval: true
 
 view(HARV_plots)
 
@@ -134,7 +142,7 @@ view(HARV_plots)
 Now from the NEON site HARV we will select the plot number one (plotID = **HARV_001**) and extract the coordinates in UTM (**Universal Transverse Mercator**) system as spatial reference to download the hyperspectral data from the **NEON-AOP**.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 east <- HARV_plots$easting
 names(east) <- HARV_plots$plotID
@@ -152,11 +160,12 @@ coords_HARV_001
 
 Now we have the UTM coordinates from the plot **HARV_001** we can download the Hyperspectral Remote Sensing Data in HDF5 Format for that site. You can see the AOP data available [HERE](https://data.neonscience.org/data-products/DP3.30006.001).
 
-### Direct download
+### Option 1 - direct download
 You can download the spectral data directly from [HERE](https://drive.google.com/file/d/1LuJRLfpwYry83NXTgc4AQdIrJSBVyk5t/view?usp=share_link). Once you download the **zip** file, copy it into the folder **data/NEON**.
 
-### Download using {neonUtilities}
-
+### Option 2 - download using {neonUtilities}
+You can download the data using the the function "byTileAOP()" from the R package {neonUtilities}
+ 
 ```{r}
 #| eval: false
 
@@ -175,12 +184,12 @@ When you are downloading the Hyperspectral imagery {**R**} will ask you if you w
 
 # Hyperspectral remote sensing data exploration
 
-We are now ready for start using hyperspectral data. Note that the downloaded data is in a **HDF5** format, this format natively compresses data stored within it (i.e., makes it smaller) and supports data slicing, in other words, you can extract only the portions of the data that you need to work with rather than reading the entire dataset into ypur computer memory.
+We are now ready for start using hyperspectral data. Note that the downloaded data is in a **HDF5** format, this format natively compresses data stored within it (i.e., makes it smaller) and supports data slicing, in other words, you can extract only the portions of the data that you need to work with rather than reading the entire dataset into your computer memory.
 
 The downloaded hyperspectral data is stored within a folder **DP3.30006.001** that in turn is stored within the folder scheme **Data/Neon**. Please pay attention to the full folder scheme. This scheme is composed of several folders with a file  **NEON_D01_HARV_DP3_725000_4700000_reflectance.h5** in HDF5 format. In order to load and work with this data you might need to specify the full path to that file.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 f <- "data/NEON/DP3.30006.001/neon-aop-products/2019/FullSite/D01/2019_HARV_6/L3/Spectrometer/Reflectance/NEON_D01_HARV_DP3_725000_4700000_reflectance.h5"
 
@@ -196,7 +205,7 @@ The **wavelength** dataset contains the middle wavelength values for each band i
 
 
 ```{r}
-#| eval: false
+#| eval: true
 
 View(h5ls(f, all = TRUE))
 
@@ -207,7 +216,7 @@ View(h5ls(f, all = TRUE))
 A band represents a group of wavelengths. For example, the wavelength values between 695 nm and 700 nm might be one band as captured by an imaging spectrometer. The imaging spectrometer collects reflected light energy in a pixel for light in that band. When we are working with a multispectral (e.g., Landsat, MODIS) or hyperspectral (e.g., NEON-AOP - NASA/JPL AVIRIS-NG) dataset, the band information is reported as the center wavelength value. This value represents the center point value of the wavelengths represented in that band. Thus in a band spanning 695-700 nm, the center would be 697.5 nm. 
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # Get information about the wavelengths of HARV plot 001
 wlInfo <- h5readAttributes(f, "/HARV/Reflectance/Metadata/Spectral_Data/Wavelength")
@@ -218,10 +227,10 @@ wlInfo
 
 ### Read wavelengths from the HDF5 file
 
-To read the wavelenghts of our hyperspectral image we just use the function {h5read}
+To read the wavelenghts of our hyperspectral image we just use the function "h5read"
 
 ```{r} 
-#| eval: false
+#| eval: true
 
 WL <- h5read(f, "/HARV/Reflectance/Metadata/Spectral_Data/Wavelength")
 
@@ -232,10 +241,10 @@ tail(WL)
 
 ### Extract reflectance metadata
 
-To extract the full metadata of the hyperspectral image we use the function {h5readAttributes}. Please, read the content of the the metadata carefully.
+To extract the full metadata of the hyperspectral image we use the function "h5readAttributes". Note: please, read the content of the the metadata carefully.
 
 ```{r} 
-#| eval: false
+#| eval: true
 
 reflInfo <- h5readAttributes(f, "/HARV/Reflectance/Reflectance_Data")
 
@@ -246,18 +255,18 @@ reflInfo
 For example, the center wavelength value associated with the band 34 is **549.0242**
 
 ```{r} 
-#| eval: false
+#| eval: true
 
 WL[34]
 
 ```
 
-Importnatly, the {h5read} function reads data in the order: **Bands**, **Cols**, **Rows**. Let's get these information from the reflectance metadata.
+Importnatly, the "h5read" function reads data in the order: **Bands**, **Cols**, **Rows**. Let's get these information from the reflectance metadata.
 
 ### Read dimensions of the hyperspectral data
 
 ```{r}
-#| eval: false
+#| eval: true
 
 nRows <- reflInfo$Dimensions[1]
 nCols <- reflInfo$Dimensions[2]
@@ -269,12 +278,12 @@ nBands
 
 ```
 
-Now using the the information obtained from the reflectance metadata let's extract the **band 34**. You can try other band if you prefere.
+Now using the the information obtained from the reflectance metadata let's extract the **band 34**. You can try other band if you prefer.
 
 ### Extract or "slice" data for band 34 from the HDF5 file
 
 ```{r}
-#| eval: false
+#| eval: true
 
 b34 <- h5read(f, "/HARV/Reflectance/Reflectance_Data", 
               index = list(34, 1:nCols, 1:nRows)) # get band 34
@@ -289,7 +298,7 @@ class(b34)
 The returned object is an **array**, the arrays are matrices with more than 2 dimensions, i.e., are matrices stacked or piled in a single object.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # convert from array to matrix by selecting only the first band
 b34 <- b34[1,, ]
@@ -303,7 +312,7 @@ class(b34)
 Now we can plot the image of band 34.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 image(b34)
 
@@ -312,7 +321,7 @@ image(b34)
 The previous image is hard to visually interpret, let's log the data and see what happens.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 image(log(b34))
 
@@ -325,7 +334,7 @@ An image data in raster format will often contain a **data ignore** value and a 
 From the reflectance metadata we can define the ignore value as **-9999**. Thus, let's set all pixels with a value == -9999 to NA (no value).
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # there is NO data value in our raster - let's define it
 myNoDataValue <- as.numeric(reflInfo$Data_Ignore_Value)
@@ -342,10 +351,10 @@ image(b34)
 
 # Creating a georeferenced raster 
 
-In order to get a raster file suitable for further analysis, we first need to define the Coordinate reference system (CRS) of the raster. Again, we obtain the necessary information form the HDF5 file.
+In order to get a raster file suitable for further analysis, we first need to define the Coordinate reference system (CRS) of the raster. Again, we obtain the necessary information form the **HDF5** file.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # Extract the EPSG from the h5 dataset
 myEPSG <- h5read(f, "/HARV/Reflectance/Metadata/Coordinate_System/EPSG Code")
@@ -362,7 +371,7 @@ myCRS
 Define final raster with projection info.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 b34ras <- rast(b34, crs = myCRS)
 
@@ -374,7 +383,7 @@ b34ras
 Let's take a look at the georeferenced raster. Take note of the coordinates on the x and y axis.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 image(log(b34ras), 
       xlab = "UTM Easting", 
@@ -386,7 +395,7 @@ image(log(b34ras),
 Next we define the extents of our raster. The extents will be used to calculate the raster's resolution. We get this information from the reflectance information obtained in a previous step.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # Grab the UTM coordinates of the spatial extent
 xMin <- reflInfo$Spatial_Extent_meters[1]
@@ -399,7 +408,7 @@ yMax <- reflInfo$Spatial_Extent_meters[4]
 Define the spatial extent of the raster image
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # define the extent (left, right, top, bottom)
 rasExt <- ext(xMin, xMax, yMin, yMax)
@@ -412,7 +421,7 @@ rasExt
 Assign the spatial extent to the raster
 
 ```{r}
-#| eval: false
+#| eval: true
 
 ext(b34ras) <- rasExt
 
@@ -424,7 +433,7 @@ b34ras
 Visualize the raster file but now let's change the colors by adjusting the zlims.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 col <- terrain.colors(25)
 
@@ -440,11 +449,14 @@ image(b34ras,
 We can now save the created raster.
       
 ```{r}
-#| eval: false
+#| eval: true
+
+# Create a new folder to store the results
+dir.create("output")
 
 # write out the raster as a geotiff
 writeRaster(b34ras,
-            file = "Data/NEON/DP3.30006.001/HARV_plot_001_band_34.tif",
+            file = "output/HARV_plot_001_band_34.tif",
             overwrite = TRUE)
 
 ```
@@ -454,7 +466,7 @@ writeRaster(b34ras,
 In the previous step we created a raster file of a single band, but each hyperspectral data from the NEON-AOP contains 426 bands. In this step we will construct a raster stack file, i.e., a raster with N bands, in other words, a **raster of rasters**. You can do it manually as we did for the band 34, but let's take advantage of **R** and write a function that do the work for us. Please, take your time to read and understand the function.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # file: the hdf file
 # band: the band you want to process 
@@ -494,16 +506,18 @@ band2Raster <- function(file, band, noDataValue, extent, CRS){
 Now apply the function to create a RGB raster file, to do this, we will use the bands 58, 34 and 19, respectively.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # create a list of the bands we want in our stack
 rgb <- list(58, 34, 19)
 
 # lapply tells R to apply the function to each element in the list
-rgb_harv <- lapply(rgb, FUN = band2Raster, file = f,
-                   noDataValue = myNoDataValue, 
-                   extent = rasExt,
-                   CRS = myCRS)
+rgb_harv <- lapply(rgb, # band numbers
+                   FUN = band2Raster, # function
+                   file = f, # file from where data is extracted
+                   noDataValue = myNoDataValue, # No data 
+                   extent = rasExt, # extent
+                   CRS = myCRS) # Coordinate system
 
 # check out the properties or rgb_rast
 # note that it displays properties of 3 rasters.
@@ -514,7 +528,7 @@ rgb_harv
 Success!!! 🎉🎉🎉 we created a list of three rasters. Now in order to get the raster stack just apply the function **stack()** from the package {raster}.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # Create a raster stack from our list of rasters
 rgb_harv_stack <- rast(rgb_harv)
@@ -526,7 +540,7 @@ rgb_harv_stack
 As a final step, let's assign the names of the bands to the raster stack object.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # Create a list of band names
 bandNames <- paste("Band_", unlist(rgb), sep = "")
@@ -548,11 +562,13 @@ plot(rgb_harv_stack$Band_58, main = "Band 58")
 And plot resulting RGB raster.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # create a 3 band RGB image
-plotRGB(rgb_harv_stack,
-        r = 1, g = 2, b = 3,
+plotRGB(rgb_harv_stack, # rasterstack
+        r = 1, # red band
+        g = 2, # green band
+        b = 3, # blue band
         stretch = "lin")
 
 ```
@@ -562,11 +578,11 @@ Cool, right?
 As we did with the band 34, let's save the RGB raster in a GeoTIFF format.
 
 ```{r} 
-#| eval: false
+#| eval: true
 
 # write out final raster    
 writeRaster(rgb_harv_stack, 
-            file = "Data/NEON/DP3.30006.001/HARV_plot_001_RGB.tif", 
+            file = "output/HARV_plot_001_RGB.tif", 
             overwrite = TRUE)
 
 ```
@@ -584,7 +600,7 @@ To calculate the **NDVI** from the NEON-AOP hyperspectral data, first select the
 ### Calculate NDVI
 
 ```{r} 
-#| eval: false
+#| eval: true
 
 # select bands to use in calculation (red, NIR)
 ndvi_bands <- c(58, 90) #bands c(58, 90) in full NEON hyperspectral dataset
@@ -611,7 +627,7 @@ ndvi_harv
 Write a function for **NDVI** calculation.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 #calculate NDVI
 NDVI_func <- function(ras) {
@@ -623,7 +639,7 @@ NDVI_func <- function(ras) {
 Apply the function and plot the result.
 
 ```{r} 
-#| eval: false
+#| eval: true
 
 ndvi_calc <- app(ndvi_harv, 
                  fun = NDVI_func)
@@ -636,7 +652,7 @@ plot(ndvi_calc,
 Now, play with breaks and colors to create a meaningful map add a color map with 4 colors.
 
 ```{r} 
-#| eval: false
+#| eval: true
 
 myCol <- rev(terrain.colors(4)) # use the 'rev()' function to put green as the highest NDVI value
 # add breaks to the colormap, including lowest and highest values (4 breaks = 3 segments)
@@ -653,10 +669,10 @@ plot(ndvi_calc,
 We can save the resulting NDVI raster.
 
 ```{r} 
-#| eval: false
+#| eval: true
 
 writeRaster(ndvi_calc, 
-            file = "Data/NEON/DP3.30006.001/HARV_plot_001_NDVI.tif", 
+            file = "output/HARV_plot_001_NDVI.tif", 
             overwrite = TRUE)
 
 ```
@@ -666,7 +682,7 @@ writeRaster(ndvi_calc,
 Now we will extract all reflectance values for a selected pixel in the hyperspectral data from HARV and use this values to plot its spectral signatures.  For practice purpose we will select a pixel at the position (100, 35), in other words, we are selecting the pixel at the row 100 and column 35. In addition to get the the reflectance for all bands we need to inform an empty space (as NULL).
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # extract all bands from a single pixel
 aPixel <- h5read(f, "/HARV/Reflectance/Reflectance_Data", 
@@ -693,7 +709,7 @@ head(aPixeldf)
 Now select the scale factor from the reflectance object and scale the reflectance values for all bands.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 scaleFact <- reflInfo$Scale_Factor
 
@@ -711,7 +727,7 @@ tail(aPixeldf)
 As a last step let's plot the scaled reflectance as a function of the wavelength. 
 
 ```{r}
-#| eval: false
+#| eval: true
 
 aPixeldf %>% 
   ggplot(aes(x = Wavelength, y = ScaledReflectance)) + 
@@ -731,7 +747,7 @@ We will use the exact geographical position of tree species in the HARV site. To
 First install and call the package **geoNEON**
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # install the package {geoNEON}
 #remotes::install_github('NEONScience/NEON-geolocation/geoNEON', dependencies = TRUE)
@@ -748,7 +764,7 @@ library(geoNEON)
 Now download the data from woody plant vegetation from NEON.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # Download Woody plant vegetation structure from NEON #####
 zipsByProduct(
@@ -765,10 +781,10 @@ stackByTable("data/NEON/filesToStack10098", folder = TRUE)
 
 ### Prepare vegetation data 
 
-The function {def.calc.geo.os} will refine the geolocation data associated with NEON data products.
+The function "getLocTOS" will refine the geolocation data associated with NEON data products.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # Calculate the more precise location for each NEON plot in the HARV site
 vegmap <- "data/NEON/filesToStack10098/stackedFiles/vst_mappingandtagging.csv" %>%
@@ -791,34 +807,42 @@ vegetation <- right_join(vegind, vegmap,
 Now select the individual trees available for the plot **HARV_001** and transform it into a spatial object.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 harv_01_trees <- vegetation %>% 
   select(adjNorthing, adjEasting, scientificName, plotID, 
          adjDecimalLatitude, adjDecimalLongitude) %>% 
   filter(plotID == "HARV_001")
 
+```
+
+SF format
+
+```{r}
+#| eval: true
 # SF format
 harv_01_trees_sf <- st_as_sf(harv_01_trees, 
                        coords = c("adjEasting", "adjNorthing"), 
                        crs = crs(ndvi_calc)) 
 
+```
+
+SP format
+
+```{r}
+#| eval: true
 # SPT format
 harv_01_trees_spt <- harv_01_trees
 
 coordinates(harv_01_trees_spt) <- ~ adjEasting + adjNorthing  
 crs(harv_01_trees_spt) <- crs(ndvi_calc)
 
-#harv_01_trees_spt <- SpatialPointsDataFrame(coords = harv_01_trees[, 2:1], 
- #                                     data = harv_01_trees, 
-  #                                    proj4string = crs(ndvi_calc))
-
 ```
 
 The plot HARV_001 is composed by four species and 38 individuals. You can verify that information.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 unique(harv_01_trees$scientificName)
 
@@ -829,7 +853,7 @@ length(harv_01_trees$scientificName)
 Plot the results
 
 ```{r}
-#| eval: false
+#| eval: true
 
 plot(ndvi_harv[[1]])
 plot(harv_01_trees_sf, add = TRUE)
@@ -843,7 +867,7 @@ This is not over, now we will extract the spectral information for each of our t
 First install and call the package **neonhs**
 
 ```{r}
-#| eval: false
+#| eval: true
 
 #remotes::install_github('earthlab/neonhs')
 
@@ -857,11 +881,11 @@ library(neonhs)
 Extract the spectra data associated with each tree species.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # Path to access the hyperspectral data
 hs_path_2019 <- list.files(
-  path = "Data/NEON/DP3.30006.001/neon-aop-products/2019/", 
+  path = "data/NEON/DP3.30006.001/neon-aop-products/2019/", 
   pattern = "reflectance.h5",
   recursive = TRUE, full.names = TRUE
 )
@@ -878,11 +902,11 @@ resHARV_001
 The object with the spectral data is a **SpatialPointsDataFrame** we need to transform it into a data.frame to continue working with the spectra.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 resHARV_001_df <- as.data.frame(resHARV_001) %>%
   bind_rows() %>%
-  as_tibble() %>% 
+  tibble() %>% 
   dplyr::select(!c("band418_2472nm", "band419_2477nm", "band420_2482nm", "band421_2487nm", 
             "band422_2492nm", "band423_2497nm", "band424_2502nm", "band425_2507nm", 
             "band426_2512nm", "adjEasting.1", "adjNorthing.1")) %>% 
@@ -895,7 +919,7 @@ resHARV_001_df
 Let's perform a bit of cleaning...
 
 ```{r}
-#| eval: false
+#| eval: true
 
 resHARV_001_df_long <- resHARV_001_df %>% 
   dplyr::select(!c(plotID, adjNorthing, adjEasting, adjDecimalLongitude, adjDecimalLatitude)) %>% 
@@ -914,7 +938,7 @@ resHARV_001_df_long <- resHARV_001_df_long %>%
 Now let's plot the results...
 
 ```{r}
-#| eval: false
+#| eval: true
 
 # Aux function for visualization
 theme_lab6 <- function() {
@@ -930,7 +954,6 @@ theme_lab6 <- function() {
 # plot the spectra by species 
 resHARV_001_df_long %>% 
   drop_na() %>% 
-  #filter(scientificName == "Acer rubrum L.") %>% 
   ggplot() + 
   geom_line(aes(x = WL, y = Reflectance, color = scientificName)) +
   scale_color_viridis_d(option = "A", 
@@ -949,7 +972,7 @@ Cool! we just made a plot with the spectral signatures for four tree species at 
 To eliminate those anomalies we first might need to select and eliminate those bands manually. Happily, the reflectance metadata contains the lower and upper bound of each of those **atmospheric absorption bands**. Let's read those bands and plot rectangles where the reflectance measurements are obscured by atmospheric absorbtion.
 
 ```{r} 
-#| eval: false
+#| eval: true
 
 # grab Reflectance metadata (which contains absorption band limits)
 reflMetadata <- h5readAttributes(f, "/HARV/Reflectance" )
@@ -965,7 +988,7 @@ ab2
 Plot spectral signatures again with rectangles showing the absorption bands
 
 ```{r} 
-#| eval: false
+#| eval: true
 
 resHARV_001_df_long %>% 
   drop_na() %>% 
@@ -993,7 +1016,7 @@ resHARV_001_df_long %>%
 By inspecting the plot we can confirm that the sections of the spectra with anomalies are within the atmospheric absorption bands. Using the absorption band limits we can remove the sections with anomalies and plot masked spectral signatures for the four species.
 
 ```{r} 
-#| eval: false
+#| eval: true
 
 # Duplicate the spectral signatures into a new data.frame
 resHARV_001_df_long_mask <- resHARV_001_df_long
@@ -1012,7 +1035,7 @@ head(resHARV_001_df_long_mask)
 Plot the masked spectral signatures
 
 ```{r} 
-#| eval: false
+#| eval: true
 
 resHARV_001_df_long_mask %>% 
   ggplot() + 
@@ -1031,7 +1054,7 @@ resHARV_001_df_long_mask %>%
 It's always good practice to close the H5 connection before moving on. 
 
 ```{r} 
-#| eval: false
+#| eval: true
 
 # close the H5 file
 H5close()
@@ -1041,7 +1064,7 @@ H5close()
 Clean your R environment.
 
 ```{r} 
-#| eval: false
+#| eval: true
 
 rm(list = ls())
 
