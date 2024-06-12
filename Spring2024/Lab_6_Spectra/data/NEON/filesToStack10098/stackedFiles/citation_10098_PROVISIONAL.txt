@@ -1,0 +1,9 @@
+@misc{DP1.10098.001/provisional,
+  doi = {},
+  url = {https://data.neonscience.org/data-products/DP1.10098.001},
+  author = {{National Ecological Observatory Network (NEON)}},
+  language = {en},
+  title = {Vegetation structure (DP1.10098.001)},
+  publisher = {National Ecological Observatory Network (NEON)},
+  year = {2024}
+}

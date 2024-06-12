@@ -1,0 +1,12 @@
+@misc{https://doi.org/10.48443/jy48-8w62,
+  doi = {10.48443/JY48-8W62},
+  url = {https://data.neonscience.org/data-products/DP3.30006.001/RELEASE-2024},
+  author = {{National Ecological Observatory Network (NEON)}},
+  keywords = {reflectance, airborne, aerial, remote sensing, spectrometer, mosaic, surface reflectance, directional reflectance, atmospherically corrected, hyperspectral imaging (HSI), orthorectified, HDF5, biodiversity},
+  language = {en},
+  title = {Spectrometer orthorectified surface directional reflectance - mosaic (DP3.30006.001)},
+  publisher = {National Ecological Observatory Network (NEON)},
+  year = {2024},
+  copyright = {Creative Commons Zero v1.0 Universal}
+}
+
