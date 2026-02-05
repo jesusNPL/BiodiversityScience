@@ -304,7 +304,7 @@ ggplot() +
   geom_sf(data = neighbours, color = "white") +
   geom_sf(data = NApoly) +
   geom_sf(data = oaks_CH, aes(fill = Species), alpha = 0.7) +
-  scale_fill_scico_d(palette = "davos", direction = -1, end = 0.9, guide = FALSE) +
+  scale_fill_scico_d(palette = "davos", direction = -1, end = 0.9) +
   coord_sf(
     xlim = c(-125, -65),
     ylim = c(10, 50)
