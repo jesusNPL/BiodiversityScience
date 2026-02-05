@@ -44,7 +44,7 @@ For this lab, you will need to have a set of R packages to do this lab. Install 
 ```{r}
 #| eval: false
 # Package vector names 
-packages <- c("tidyverse", "ape", "geiger", "caper", "phytools", "rr2") 
+packages <- c("tidyverse", "ape", "geiger", "caper", "phytools", "knitr") 
 
 ```
 
@@ -79,7 +79,7 @@ library(ape)
 library(geiger)
 library(caper)
 library(phytools)
-library(rr2)
+library(knitr)
 ```
 
 Set up a working directory. Tell R that this is the directory you will be using, and read in your data:
@@ -107,12 +107,12 @@ Load the data. Instead of reading files from the computer we will pull the requi
 ```{r}
 
 ## Trait data
-furnaData <- read_csv("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2024/Lab_1_Intro_PCM/Data/furnariides_traits.csv") %>% 
+furnaData <- read_csv("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2026/Lab_1_Intro_PCM/Data/furnariides_traits.csv") %>% 
   column_to_rownames("Sciname") %>%   # we are using the column "Sciname" as rownames
   drop_na(Range.Size)
 
 ## Phylogenetic data
-furnaTree <- read.nexus("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2024/Lab_1_Intro_PCM/Data/furnariides_tree.nex")
+furnaTree <- read.nexus("https://raw.githubusercontent.com/jesusNPL/BiodiversityScience/master/Spring2026/Lab_1_Intro_PCM/Data/furnariides_tree.nex")
 
 ```
 
@@ -410,7 +410,7 @@ brownianModel # this will show you the fit statistics and parameter values
 ```
 
 **Answer:** 
-The estimated ancestral state (z0) under Brownian Motionevolutionary model suggests that HWI was ~2.94 [or exp(2.938551) = 18.89 units]. This value is similar to the current mean clade trait log-value ($\mu$ = 2.71). This model also suggests that HWI is evolving at a rate $\sigma^{2}$ = 0.007356.
+The estimated ancestral state (z0) under Brownian Motion evolutionary model suggests that HWI was ~2.94 [or exp(2.938551) = 18.89 units]. This value is similar to the current mean clade trait log-value ($\mu$ = 2.71). This model also suggests that HWI is evolving at a rate $\sigma^{2}$ = 0.007356.
 
 ```{r}
 
@@ -492,9 +492,9 @@ Let's look at a plot of range size as a function of Hand-wing index.
 
 furnaData %>% 
   drop_na(Range.Size) %>% 
-  ggplot(aes(x = log(`Hand-Wing.Index`), y = log(Range.Size))) + 
+  ggplot(aes(x = log(Range.Size), y = log(`Hand-Wing.Index`))) + 
   geom_point(alpha = 0.5, color = "darkgray", size = 3) +  
-  labs(x = "log(Hand-Wing Index)", y = "log(Range Size)")
+  labs(x = "log(Range Size)", y = "log(Hand-Wing Index)")
 
 ```
 
@@ -515,9 +515,9 @@ Let's be more quantitative in describing that relationship with a linear model.
 ```{r}
 #| eval: true
 
-lm_hwi_rangesize <- lm(log(rangeSize) ~ log(hwi)) 
+olsModel <- lm(log(hwi) ~ log(rangeSize)) 
 
-summary(lm_hwi_rangesize)
+summary(olsModel)
 
 ```
 
@@ -525,9 +525,9 @@ summary(lm_hwi_rangesize)
 
 furnaData %>% 
   drop_na(Range.Size) %>% 
-  ggplot(aes(x = log(`Hand-Wing.Index`), y = log(Range.Size))) + 
+  ggplot(aes(x = log(Range.Size), y = log(`Hand-Wing.Index`))) + 
   geom_point(alpha = 0.5, color = "darkgray") + 
-  labs(x = "log(Hand-Wing Index)", y = "log(Range Size)") + 
+  labs(x = "log(Range Size)", y = "log(Hand-Wing Index)") + 
   geom_smooth(method = "lm")
 
 ```
@@ -537,14 +537,14 @@ The coefficients table from the *summary()* command shows the slope and intercep
 *Write the linear model for this relationship. Are the parameters significantly different from 0?*
 
 **Answer:** 
-RS(y) \~ $\alpha$ = 8.52 + $\beta$ = 1.33(log(HWI)) + $\epsilon$
+RS(y) \~ $\alpha$ = 2.49 + $\beta$ = 0.02(log(Range size)) + $\epsilon$
 
 The coefficients ($\alpha$ = Intercept and $\beta$ = Slope) of this model are different from zero, that is, the model suggest that there is a positive association between the two variables (Range Size \~ HWI).
 
 *What is the R\^2 value for this data?*
 
 **Answer:** 
-Despite the coefficients of the model being different from zero, the adjusted R\^2 = 0.02 meaning that HWI only explains 2% of the variation of range size.
+Despite the coefficients of the model being different from zero, the adjusted R\^2 = 0.02 meaning that range size only explains 2% of the variation of HWI.
 
 *How do you feel about that?*
 
@@ -558,49 +558,28 @@ Nice. But, we have not considered the fact that these birds are related to each 
 ```{r}
 #| eval: true
 
-
-furnariidaeData <- furnaData %>% 
-  filter(Family3 == "Furnariidae") #%>% 
-  #dplyr::select(Species3, `Hand-Wing.Index`, Range.Size) 
-
-
-
-furnariidaeTree <- drop.tip(phy = furnaTree, 
-                            tip = setdiff(furnaTree$tip.label, rownames(furnariidaeData)))
-
 ### Prepare data
 furnariidaeTree$node.label <- NULL
 
 ## Traits
 furnariidaeData <- furnariidaeData %>%
-  mutate(species = gsub(" ", "_", Species3))
-
-rownames(furnariidaeData) <- furnariidaeData$species
-
-traitNames <- names(furnariidaeData)[c(17, 36)]
-
+  mutate(species = gsub(" ", "_", Species3)) %>% 
+  dplyr::select(species, `Hand-Wing.Index`, Range.Size)
 
 ## Create comparative.data object for further analyses
 compData <- caper::comparative.data(
   phy = furnariidaeTree,
-  data = furnariidaeData %>% 
-    dplyr::select(`Hand-Wing.Index`, Range.Size, species),
+  data = furnariidaeData, 
   names.col = "species",
   vcv.dim = TRUE,
   warn.dropped = FALSE
 )
 
-mod <- pgls(log(`Hand-Wing.Index`) ~ log(Range.Size), lambda = "ML", data = compData) 
+pglsModel <- pgls(log(`Hand-Wing.Index`) ~ log(Range.Size), 
+                  lambda = "ML", 
+                  data = compData) 
 
-summary(mod)
-
-
-# pglsModel <- gls(log(rangeSize) ~ log(hwi), 
-#                  correlation = corBrownian(phy = furnariidaeTree, 
-#                                            form=~names(rangeSize)), 
-#                  method = "ML")
-# 
-# pglsModel
+pglsModel
 
 ```
 
@@ -614,22 +593,15 @@ summary(pglsModel)
 
 coef(pglsModel)
 
-# R2lik is based on the likelihood of fitted models and therefore reflects the amount of information that the models contain.
-
-#And R2lik is most appropriate to assess the importance of different components within the same model applied to the same data, because it is most closely associated with statistical significance tests.
-
-R2_lik(mod = pglsModel)
-
 ```
 
 ```{r}
 #| eval: true
 
-furnaData %>% 
-  drop_na(Range.Size) %>% 
-  ggplot(aes(x = log(`Hand-Wing.Index`), y = log(Range.Size))) + 
+furnariidaeData %>% 
+  ggplot(aes(x = log(Range.Size) , y = log(`Hand-Wing.Index`))) + 
   geom_point(alpha = 0.5, color = "darkgray") + 
-  labs(x = "Hand-Wing Index", y = "log(Range Size)") + 
+  labs(x = "log(Range Size)", y = "log(Hand-Wing Index)") + 
   #geom_smooth(method = "lm") + 
   geom_abline(intercept = coef(pglsModel)[1], slope = coef(pglsModel)[2], 
               color = "red", linewidth = 1.5)
@@ -640,30 +612,12 @@ furnaData %>%
 *Write the linear model for this relationship. Are the parameters significantly different from 0?*
 
 **Answer:** 
-RS(y) \~ $\alpha$ = 4.13 + $\beta$ = 3.18(log(HWI)) + cor($\lambda$, $\mu$) + $\epsilon$
+RS(y) \~ $\alpha$ = 2.73 + $\beta$ = 0.02(log(HWI)) + cor($\lambda$, $\mu$) + $\epsilon$
 
-*What is the R\^2 value for this data? (use the likelihood-based R\^2 value)*
+*What is the R\^2 value for this data?*
 
 **Answer:** 
-The R\^2 for the PGLS model is **-0.34**. Although it seems counterintuitive to interpret negative R\^2s given that R\^2 ranges between 0 and 1, negative values are allowed when the null model outperforms the tested model. That is, the log-likelihood of the tested model (PGLS) is smaller than the log-likelihood of the null model (intercept-only model).
-
-```{r}
-
-## Loglik of the PGLS model
-logLik(pglsModel)
-
-## Estimate null model or intercept-only model
-y <- as.numeric(fitted(pglsModel) + resid(pglsModel))
-
-nullModel <- lm(y ~ 1)
-
-## loglik null model
-logLik(nullModel)
-
-## Is higher
-logLik(pglsModel) > logLik(nullModel)
-
-```
+The R\^2 for the PGLS model is **0.04**. 
 
 *How do you feel about that?*
 
@@ -673,7 +627,7 @@ In this case, adding a correlation structure does not improve our understanding 
 *Compare results from the PGLS analysis with those that you got from the regular linear model you ran earlier.*
 
 **Answer:** 
-The OLS coefficients are different from zero. The coefficients of the PGLS model only the Slope ($\beta$: p-value < 0.05) is different from zero. Despite the $\beta$ value of the PGLS model being steeper, it does not outperform the simple OLS model.
+The OLS coefficients are different from zero. The coefficients of the PGLS model only the Slope ($\beta$: p-value < 0.05) is also different from zero. 
 
 # Model Fitting
 
@@ -749,7 +703,6 @@ aicw(mods)
 According to the model comparison using AIC, the model that best fits the data is the OU model. The OU model also shows a slightly higher lnL value compared to the BM and EB models of evolution.
 
 ```{r}
-library(knitr)
 
 aic_HWI <- aicw(mods) 
 names(aic_HWI)[1] <- "AIC"
@@ -799,11 +752,10 @@ However, we can still test our hypothesis that species with large HWI also prese
 ```{r}
 #| eval: true
 
-furnaData %>% 
-  drop_na(Range.Size) %>% 
-  ggplot(aes(x = log(`Hand-Wing.Index`), y = log(Range.Size))) + 
+furnariidaeData %>% 
+  ggplot(aes(x = log(Range.Size), y = log(`Hand-Wing.Index`))) + 
   geom_point(alpha = 0.5, color = "darkgray") + 
-  labs(x = "log(Hand-Wing Index)", y = "log(Range Size)") + 
+  labs(x = "log(Range Size)", y = "log(Hand-Wing Index)") + 
   geom_smooth(method = "lm", se = FALSE, linewidth = 1.5) + # OLS slope
   geom_abline(intercept = coef(pglsModel)[1], # PGLS slope
               slope = coef(pglsModel)[2], 
@@ -811,26 +763,56 @@ furnaData %>%
 
 ```
 
-You might want to know if these regressions really differ in their ability to predict range size from HWI. Asked in another way, are the slopes from these two regressions significantly different from each other? You need to know that a 95% confidence interval for the slope parameter is $\beta$ (the slope) plus/minus 1.96 standard errors (this
-is derived from a normal distribution). To calculate your 95% confidence intervals:
+You might want to know if these regressions really differ in their ability to predict range size from HWI. Asked in another way, are the slopes from these two regressions significantly different from each other? You need to know that a 95% confidence interval for the slope parameter $\beta$ (the slope) plus/minus 1.96 standard errors (this
+is derived from a normal distribution) do not overlap. To calculate your 95% confidence intervals:
 
 ```{r}
 #| eval: true
 
-rshwi.sum <- summary(lm_hwi_rangesize)
+### OLS model
+ols.sum <- summary(olsModel)
 
-#for the uncorrected linear model
-rshwi.sum$coef[2, 1] + c(-1.96, 1.96)*rshwi.sum$coef[2, 2]
+# for the uncorrected linear model, the 95% CI is 
+ols.sum$coefficients[2, 1] + # slope
+  c(-1.96, 1.96)*ols.sum$coefficients[2, 2] #standard error
 
-#for Brownian Motion, the 95% CI
-coef(pglsModel)[2] + c(-1.96, 1.96)*sqrt(pglsModel$varBeta[2, 2])
+### PGLS model
+pgls.sum <- summary(pglsModel)
+
+# for Brownian Motion, the 95% CI is
+pgls.sum$coefficients[2, 1] + c(-1.96, 1.96)*pgls.sum$coefficients[2, 2]
+
+```
+
+```{r}
+#| eval: true
+
+furnariidaeData %>% 
+  ggplot(aes(x = log(Range.Size), y = log(`Hand-Wing.Index`))) + 
+  geom_point(alpha = 0.5, color = "darkgray") + 
+  labs(x = "log(Range Size)", y = "log(Hand-Wing Index)") + 
+  # add OLS Intercept and Slope
+  geom_smooth(method = "lm", se = FALSE, linewidth = 1.5) +
+  # add CI to OLS model
+  geom_abline(intercept = ols.sum$coefficients[1, 1] + c(-1.96, 1.96)*ols.sum$coefficients[1, 2], # CI intercept
+              slope = ols.sum$coefficients[2, 1] + c(-1.96, 1.96)*ols.sum$coefficients[2, 2], # CI slope
+              color = "blue", linewidth = 1, linetype = 2) + 
+  # add PGLS Intercept and Slope
+  geom_abline(intercept = coef(pglsModel)[1], 
+              slope = coef(pglsModel)[2], 
+              color = "red", linewidth = 1.5) + 
+  # add CI PGLS model
+  geom_abline(intercept = pgls.sum$coefficients[1, 1] + c(-1.96, 1.96)*pgls.sum$coefficients[1, 2], # CI intercept
+              slope = pgls.sum$coefficients[2, 1] + c(-1.96, 1.96)*pgls.sum$coefficients[2, 2], # CI slope
+              color = "red", linewidth = 1, linetype = 2)
+
 
 ```
 
 *Did phylogenetic correction make a difference in this case?*
 
 **Answer:**
-The $\beta$ under the PGLS model is steeper than the $\beta$ of the OLS model. However, the confidence intervals (CIs) of both models overlap with each other. Thus, both models are equally probable. 
+The $\beta$ under the PGLS model is somewhat similar to the $\beta$ of the OLS model. However, the confidence intervals (CIs) of both models overlap with each other. Thus, both models are equally probable. 
 
 *What do you conclude about the evolution of range size as a function of hand-wing index?*
 
@@ -870,7 +852,7 @@ Pagel's $\lambda$ is a tree transformation that stretches the tip branches relat
 #| eval: true
 
 # Run Pagel's Lambda
-LB_hwi <- phylosig(tree = furnaTree, 
+LB_hwi <- phylosig(tree = furnariidaeTree, 
                   x = hwi, 
                   method = "lambda", 
                   test = TRUE)
@@ -910,7 +892,7 @@ plot(K_rs)
 
 
 # Run Pagel's Lambda
-LB_rs <- phylosig(tree = furnaTree, 
+LB_rs <- phylosig(tree = furnariidaeTree, 
                   x = rangeSize, 
                   method = "lambda", 
                   test = TRUE)
@@ -927,9 +909,11 @@ plot(LB_rs)
 
 Until now, we have analyzed several metrics based on phylogenies using the family Furnariidae. But, in order to better understand how our perception may (or may not) change when analyzing other clades and to gain more experience using R, the challenge for this lab is:
 
-1.  First option -- repeat the process but using a difference clade. For example, the Infraorder Furnariides is composed of six families ("Conopophagidae", "Dendrocolaptidae" "Formicariidae", "Furnariidae", "Rhinocryptidae", "Thamnophilidae"), you just need to select a family different from Furnariidae.
+1. First option -- repeat the process for the entire lineage and explain the differences with the family Furnariidae (a sublineage within the Furnariides Infraorder). 
 
-2.  Second option -- You can stick with the Family Furnariidae, but you must need to change the traits. For example, you can use **Mass** and **Wing.Length**
+1.  Second option -- repeat the process but using a difference clade. For example, the Infraorder Furnariides is composed of six families ("Conopophagidae", "Dendrocolaptidae" "Formicariidae", "Furnariidae", "Rhinocryptidae", "Thamnophilidae"), you just need to select a family different from Furnariidae and explain the differences (if any) in parameter estimations.
+
+2.  Third option -- You can stick with the Family Furnariidae, but you must need to change the traits. For example, you can use **Mass** and **Wing.Length**
 
 In either case, you need to answer all of the questions in the tutorial and return the lab report.
 
