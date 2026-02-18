@@ -111,7 +111,7 @@ If you received an error while uploading the coronavirus dataset, use the next c
 ```{r}
 #| eval: false
 
-githubURL <- "https://github.com/jesusNPL/BiodiversityScience/raw/master/Spring2024/Lab_3_Infectious_diseases/data/coronavirus.RData"
+githubURL <- "https://github.com/jesusNPL/BiodiversityScience/raw/master/Spring2026/Lab_3_Infectious_diseases/data/coronavirus.RData"
 
 load(url(githubURL))
 
@@ -155,10 +155,11 @@ theme_biosci <- function() {
 coronavirus %>%
   filter(type == "confirmed") %>%
   group_by(country) %>%
-  summarise(total = sum(cases)) %>% 
+  reframe(total = sum(cases)) %>% 
+  mutate(country = as_factor(country)) %>% 
   arrange(desc(total)) %>% 
   head(20) %>% 
-  ggplot(aes(y = as.factor(country), x = total)) + 
+  ggplot(aes(y = country, x = total)) + 
   geom_bar(stat = "identity", alpha = 0.7) + 
   scale_x_continuous(labels = scales::label_number(suffix = " M", 
                                                    scale = 1e-6)) + 
@@ -192,12 +193,13 @@ coronavirus %>%
 
 # Plot countries with less confirmed cases by country
 coronavirus %>%
-  filter(type == "confirmed") %>%
+  filter(type == "confirmed") %>% 
   group_by(country) %>%
-  summarise(total = sum(cases)) %>% 
+  reframe(total = sum(cases)) %>% 
+  mutate(country = as_factor(country)) %>% 
   arrange(desc(total)) %>% 
   tail(20) %>% 
-  ggplot(aes(y = as.factor(country), x = total)) + 
+  ggplot(aes(y = country, x = total)) + 
   geom_bar(stat = "identity", alpha = 0.7) + 
   scale_x_continuous(labels = scales::label_number(suffix = " M", 
                                                    scale = 1e-6)) + 
@@ -232,6 +234,7 @@ coronavirus %>%
   filter(country != "Summer Olympics 2020") %>% 
   filter(country != "Winter Olympics 2022") %>% 
   filter(country != "Diamond Princess") %>% 
+  filter(country != "MS Zaandam") %>% 
   tail(20) %>% 
   ggplot(aes(y = as.factor(country), x = total)) + 
   geom_bar(stat = "identity", alpha = 0.7) + 
@@ -258,6 +261,8 @@ coronavirus %>%
   arrange(desc(total)) %>% 
   filter(country != "Summer Olympics 2020") %>% 
   filter(country != "Winter Olympics 2022") %>% 
+  filter(country != "Diamond Princess") %>% 
+  filter(country != "MS Zaandam") %>% 
   tail(5)
 
 ```
@@ -265,6 +270,7 @@ coronavirus %>%
 *What about the number of reported recovered cases?*
 
 **Answer:**
+
 The countries with more recovery cases were India, Brazil, Russia, Turkey and Argentina.
 
 ```{r}
@@ -340,7 +346,7 @@ coronavirus_us <- coronavirus %>%
 
 ```
 
-If we look at the US coronavirus data it contains information of the number of recovers (**R**), the number of new cases (**I**) and the the deaths. Let's isolate those data and inspect if there are some trends.
+If we look at the US coronavirus data it contains information of the number of recoveries (**R**), the number of new cases (**I**) and the deaths. Let's isolate those data and inspect if there are some trends.
 
 ```{r}
 #| eval: true
@@ -439,7 +445,7 @@ The first step to build our first ***SIR*** model is to get data of a disease, w
 #| eval: true
 
 githubURL <- 
-  "https://github.com/jesusNPL/BiodiversityScience/raw/master/Spring2024/Lab_3_Infectious_diseases/data/covidUS.RData"
+  "https://github.com/jesusNPL/BiodiversityScience/raw/master/Spring2026/Lab_3_Infectious_diseases/data/covidUS.RData"
 
 load(url(githubURL))
 
@@ -613,7 +619,8 @@ SIR <- function(time, state, parameters) {
     dI <- Beta * I * S / N - Gamma * I # Equation two
     dR <- Gamma * I # Equation three
     list(c(dS, dI, dR)) 
-    })
+    } 
+    )
 }
 
 ```
@@ -644,8 +651,8 @@ Okay, we now have almost all information needed to fit our first $SIR$ model. Th
 ```{r}
 #| eval: true
 
-# Total population for the State of Minnesota by July 2023
-N <- 5737915 
+# Total population (estimated) for the State of Minnesota by 2025
+N <- 5830405
 
 ```
 
@@ -665,7 +672,7 @@ Moreover, as more than three years have passed since the pandemic started, the v
 #| eval: true
 
 start_date <- "2020-03-06"
-end_date <- "2020-04-20"
+end_date <- "2020-05-06"
 
 # isolating the infected subjects in the state of Minnesota since the start date
 
@@ -843,25 +850,25 @@ round(R0, 3)
 
 ```
 
-The estimated $R_0$ is 1.264 which suggests that for every sick subject 1.3 subjects can get infected by COVID-19. This value is lower when compared to other diseases and even lower than the estimated $R_0$ for COVID-19 in the literature that ranges between 2.5 and 3. One potential explanation for this low $R_0$ can be due the fact the first 45 days, the number of observed cases were very low when compared with the large population size ($N$) in the state of Minnesota.
+The estimated $R_0$ is 1.242 which suggests that for every sick subject 1.3 subjects (ish) can get infected by COVID-19. This value is lower when compared to other diseases and even lower than the estimated $R_0$ for COVID-19 in the literature that ranges between 2.5 and 3. One potential explanation for this low $R_0$ can be due the fact the first 45 days, the number of observed cases were very low when compared with the large population size ($N$) in the state of Minnesota.
 
 Another reason could be that the number of reported cases of COVID-19 in US are not true, in other words, the reported cases are lower than the true cases [@wu_substantial_2020]. This is critical when we are constructing any kind of model, as potentially we would be facing the **GIGO** metaphor--*garbage-in, garbage-out*--that indicates that if the data used in a model are not reliable, then the results are not useful. In other words, you can be using the best mathematical model ever constructed, but if your data is not reliable or coherent, then your results are not useful (are garbage).
 
 ## Evaluating the outbreak under no intervention
 
-To fit our model we used data within two months since the first reported case, now let's explore what would it happen if no public intervention (i.e., quarantine) was applied. Here, using the fitted model we will extrapolate up to 350 days.
+To fit our model we used data within two months since the first reported case, now let's explore what would it happen if no public intervention (i.e., quarantine) was applied. Here, using the fitted model we will extrapolate up to 365 days.
 
 ```{r}
 #| eval: true
 
-times <- 1:350 # time in days
+times <- 1:365 # time in days
 
-fit_350 <- data.frame(ode( 
+fit_365 <- data.frame(ode( 
   y = init, times = times, 
   func = SIR, parms = Opt_par))
 
-head(fit_350)
-tail(fit_350)
+head(fit_365)
+tail(fit_365)
 
 ```
 
@@ -879,23 +886,20 @@ Now, let's plot the output.
 ```{r}
 #| eval: true
 
-#matplot(fit_350$time, fit_350[, 2:4], type = "l", 
- #       xlab = "Days since infection", ylab = "Number of subjects", 
-  #      lwd = 2, lty = 1, col = cols)
-
-#legend("left", c("Susceptible", "Infected", "Recovered"), 
- #      lty = 1, lwd = 2, col = cols, inset = 0.05)
-
-## GGPLOT format
-tt <- fit_350 %>% 
-  pivot_longer(!time, values_to = "estimation", names_to = "compartment")
+tt <- fit_365 %>% 
+  pivot_longer(!time, values_to = "Estimation", names_to = "Compartment") %>% 
+  filter(Estimation > 0) %>% 
+  mutate(Compartment = as_factor(Compartment), 
+         Est_log = log(Estimation))
 
 tt %>% 
-  ggplot(aes(x = time, y = estimation, 
-             group = compartment, 
-             color = compartment)) + 
+  
+  ggplot(aes(x = time, y = Estimation, 
+             group = Compartment, 
+             color = Compartment)) + 
   geom_line(linewidth = 2) + 
-  theme_biosci()
+  theme_biosci() + 
+  theme(legend.position = "bottom")
 
 ```
 
@@ -904,7 +908,7 @@ Same figure but in log scale and adding the observed cases
 ```{r}
 #| eval: true
 
-matplot(fit_350$time, fit_350[ , 2:4], 
+matplot(fit_365["time"], fit_365[, 2:4], 
         type = "l", 
         xlab = "Days", 
         ylab = "Number of subjects", 
@@ -922,6 +926,7 @@ legend("bottomright", c("Susceptible", "Infected", "Recovered"),
 title("SIR model 2019-nCoV - Minnesota", outer = TRUE, line = -2)
 
 ```
+
 
 *How do you feel about that?*
 
@@ -945,7 +950,7 @@ Using the fitted model we can also estimate some additional statistics that coul
 ```{r}
 #| eval: true
 
-# Peak of the pandemic for the first 45 days
+# Peak of the pandemic for the first three month
 fit_incidence[fit_incidence$I == max(fit_incidence$I), c("time", "I")]
 
 ```
