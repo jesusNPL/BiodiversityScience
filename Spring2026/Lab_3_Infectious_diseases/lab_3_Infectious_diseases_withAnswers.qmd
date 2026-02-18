@@ -585,7 +585,7 @@ Now using the data from the US we will fit the SIR model to predict the changes 
 
 Then, these compartments in turn are used to model the dynamics of an outbreak. However, first of all we need to understand a little bit the *Math* behind the scenes. Dr. Seraina Cappelli provided a nice introduction to the math in the last lecture, but if you want to dig a little bit more you can watch this amazing video by Trevor Bazett [The MATH of Epidemics \| Intro to the SIR Model](https://www.youtube.com/watch?v=Qrp40ck3WpI) on YouTube. But, if you want to learn more details on this topic, the Book [**Epidemics: models and data using R**](https://www.springer.com/gp/book/9783319974866) by @bjornstad_epidemics_2018 can help you.
 
-Anyhow, let's recap a little bit how the math works. To do that, we need three *differential equations*, one for the change in each group or compartment, where $\beta$ (represents the infection rate) is the parameter that controls the transition between $S$ and $I$ and $\gamma$ (gamma) which controls the transition between $I$ and $R$, and represents the removal or recovery rate.
+Anyhow, let's recap a little bit how the math works. To do that, we need three *differential equations*, one for the change in each group or compartment, where $\beta$ (represents the infection rate) is the parameter that controls the transition between $S$ and $I$ and $\gamma$ (gamma) which controls the transition between $I$ and $R$, and represents the removal or recovery rate or the average infectious duration period.
 
 The first equation indicates that the number of susceptible subjects ($S$) decreases with the number of newly infected subjects. In other words, every new infected subject is the result of the infection rate ($\beta$) times the number of susceptible individuals ($S$) who had a contact with an infected subject ($I$).
 
@@ -666,7 +666,7 @@ covid_mn %>%
 
 ```
 
-Moreover, as more than three years have passed since the pandemic started, the variability in the number of cases is huge, so let's select the first ~45 days of cases to fit our model and then use the fitted model to predict the dynamics of COVID-19 for the following year.
+Moreover, as more than three years have passed since the pandemic started, the variability in the number of cases is huge, so let's select the first ~60 days (two months) of cases to fit our model and then use the fitted model to predict the dynamics of COVID-19 for the entire year.
 
 ```{r}
 #| eval: true
@@ -678,8 +678,6 @@ end_date <- "2020-05-06"
 
 Infections <- covid_mn %>% 
   filter(Date >= ymd(start_date) & Date <= ymd(end_date))
-
-#Infected2 <- subset(covid_mn, Date >= ymd(start_date) & Date <= ymd(end_date))$new_case
 
 ```
 
@@ -893,7 +891,6 @@ tt <- fit_365 %>%
          Est_log = log(Estimation))
 
 tt %>% 
-  
   ggplot(aes(x = time, y = Estimation, 
              group = Compartment, 
              color = Compartment)) + 
@@ -936,7 +933,7 @@ SIR model projections are visually appealing but can't recover the actual data a
 *Please explain the trend of each compartment in a temporal way?*
 
 **Answer:**
-Despite the SIR models not being accurate enough to predict the dynamics of infectious diseases, we can still use the model projections to have a scenario in which no intervention (e.g., quarantine) is applied. Under this scenario of no intervention, the number of infected subjects increased linearly until day 115 (I = 134881) after the beginning of the pandemic. Then, there is a continuous decline in the number of infected subjects. The number of recovered/death cases also increases linearly until day 145 (R = 2110042). Then, the number of R subjects continues increasing but at lower numbers, which gives an impression of saturation. Finally, the number of susceptible (S) cases has been steadily declining but slowly declining over time. It has changed drastically as the number of R subjects has increased. 
+Despite the SIR models not being accurate enough to predict the dynamics of infectious diseases, we can still use the model projections to have a scenario in which no intervention (e.g., quarantine) is applied. Under this scenario of no intervention, the number of infected subjects increased linearly until day 123 (I = 118780) after the beginning of the pandemic. Then, there is a continuous decline in the number of infected subjects. The number of recovered/death cases also increases linearly until day 280 (R = 2114899). Then, the number of R subjects continues increasing but at lower numbers, which gives an impression of saturation. Finally, the number of susceptible (S) cases has been steadily declining but slowly declining over time. It has changed drastically as the number of R subjects has increased. 
 
 ## Additional summary statistics
 
@@ -966,6 +963,6 @@ max(fit_incidence$I) * 0.02 # Assuming 2% of fatality rate
 
 # The challenge
 
-The challenge for this assignment is to repeat the process by selecting other state in the United States and discuss if the $R_0$ obtained differ to the obtained for the state of Minnesota. 
+The challenge for this assignment is to repeat the process by selecting another state in the United States and discuss if the $R_0$ obtained differs from that obtained for the state of Minnesota. You can speculate on the causes of the differences.
 
 Happy coding!
