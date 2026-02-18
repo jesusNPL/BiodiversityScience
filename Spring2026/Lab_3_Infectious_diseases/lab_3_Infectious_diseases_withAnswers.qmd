@@ -1,0 +1,966 @@
+---
+title: "Intro to Infectious Diseases"
+description: Showing some neat features of R!
+date: today # other options: now, last-modified
+authors:
+  - name: Jesús N. Pinto-Ledezma 
+    url: https://jesusnpl.github.io
+    affiliation: Ecology, Evolution & Behavior, University of Minnesota
+                Biodiversity Science - EBB 3534-5534
+    affiliation-url: https://github.com/jesusNPL/BiodiversityScience
+title-block-banner: true
+#title-block-banner: "#562457"
+format: 
+  html: 
+    embed-resources: true # save contained file.
+    theme: spacelab # check other themes https://quarto.org/docs/output-formats/html-themes.html 
+    code-fold: true
+    toc: true
+    number-sections: true
+bibliography: lab_3_infectious_diseases.bib
+link-citations: true
+csl: ../apa-single-spaced.csl
+from: markdown+emoji
+---
+
+::: callout-note
+Today we will have one more lab and will explore basic aspects of models for Spread of Disease or Compartmental models that are used to simplify the mathematical modeling of infectious diseases, more specifically, we will explore the basic $SIR$ (Susceptible, Infectious, Recovered) model that is used to predict disease spreads, the total number of infected subjects of the duration of a pandemic. To do so, we will use real data obtained from the [**Centers for Disease Control and Prevention**](https://www.cdc.gov) that reports aggregate counts of COVID-19 at State level for the United States.
+
+We can get information about **herd immunity** in an amazing paper published in the **American Journal of Preventive Medicine**. The paper entitles [Vaccine Efficacy Needed for a COVID-19 Coronavirus Vaccine to Prevent or Stop an Epidemic as the Sole Intervention](https://www.ajpmonline.org/article/S0749-3797(20)30284-1/abstract) and was written by @bartsch_vaccine_2020. Another nice paper to understand the **herd immunity** concept was published in **Current Biology** by @ashby_herd_2021, you can get access to that conceptual paper by clicking [HERE](https://www.cell.com/current-biology/fulltext/S0960-9822(21)00039-7).
+:::
+
+# Set up your data and your working directory
+
+To do this laboratory you will need to have a set of R packages. Install the following packages:
+
+```{r}
+#| eval: false
+
+# Package vector names
+packages <- c("coronavirus", "deSolve", "lubridate", "scales", "PrettyCols") 
+
+```
+
+::: callout-tip
+## Function install.packages()
+
+You can use the function **install.packages()** to install the packages.
+:::
+
+If you don't want to install the packages one by one, you can use the next command.
+
+```{r}
+#| eval: false
+
+# Install packages not yet installed
+installed_packages <- packages %in% rownames(installed.packages())
+
+if (any(installed_packages == FALSE)) {
+  install.packages(packages[!installed_packages], dependencies = TRUE)
+}
+
+```
+
+This command, will, first, check if you already the packages installed, then if a package is not installed in your computer, will install it.
+
+Load installed packages:
+
+```{r}
+#| eval: true
+
+library(tidyverse)
+library(lubridate)
+library(coronavirus)
+library(PrettyCols)
+library(scales)
+library(deSolve)
+
+```
+
+Double-check your working directory.
+
+::: callout-tip
+## Function getwd()
+
+You can use the function **getwd()** to get the current working directory.
+:::
+
+# Data exploration
+
+First we will explore the data for the **COVID-19** for different countries. To do that we will get data at global scale using the amazing R package {**coronavirus**} that provides a daily summary of **COVID-19** cases by country obtained from the [Johns Hopkins University Center for Systems Science and Engineering (JHU CCSE) Coronavirus](https://systems.jhu.edu/research/public-health/ncov/).
+
+```{r}
+#| eval: true
+
+data("coronavirus")
+
+glimpse(coronavirus)
+
+```
+
+::: callout-tip
+## The package {tidylog}
+
+We are using **tidyverse** for almost everything in the lab sessions. If you want to know what we are really doing, you can install and load the R package named {tidylog}. This package will print in your console the different operations within the pipes.
+:::
+
+**IMPORTANT:** JHU Has Stopped Collecting Data As Of **03 / 10 / 2023**
+
+If you received an error while uploading the coronavirus dataset, use the next code. If not, please skip this lines.
+
+```{r}
+#| eval: false
+
+githubURL <- "https://github.com/jesusNPL/BiodiversityScience/raw/master/Spring2024/Lab_3_Infectious_diseases/data/coronavirus.RData"
+
+load(url(githubURL))
+
+glimpse(coronavirus)
+
+```
+
+Let's start exploring the total numbers of confirmed cases by country.
+
+```{r}
+#| eval: true
+
+# Get top confirmed cases by country
+coronavirus %>%
+  filter(type == "confirmed") %>% # filter confirmed cases
+  group_by(country) %>% # group cases by country
+  summarise(total = sum(cases)) %>% # sum all cases
+  arrange(-total) %>% # select the countries with more cases
+  head(20) %>% 
+  ggplot(aes(y = as.factor(country), x = total)) + 
+  geom_bar(stat = "identity") 
+
+```
+
+Informative but not good looking... let's play a bit more!
+
+```{r}
+#| eval: true
+
+# Aux function for visualization
+theme_biosci <- function() {
+  theme_bw() + 
+    theme(panel.grid.minor = element_blank(),
+          plot.background = element_rect(fill = "white", color = NA),
+          strip.background = element_rect(fill = "grey80", color = NA),
+          legend.title = element_text(face = "bold", size = 25), 
+          legend.text = element_text(size = 20))
+}
+
+# Get top confirmed cases by country
+coronavirus %>%
+  filter(type == "confirmed") %>%
+  group_by(country) %>%
+  summarise(total = sum(cases)) %>% 
+  arrange(desc(total)) %>% 
+  head(20) %>% 
+  ggplot(aes(y = as.factor(country), x = total)) + 
+  geom_bar(stat = "identity", alpha = 0.7) + 
+  scale_x_continuous(labels = scales::label_number(suffix = " M", 
+                                                   scale = 1e-6)) + 
+  labs(x = "Number of cases", 
+       y = "Countries with more reported cases") + 
+  theme_biosci()
+
+```
+
+Much, much better!
+
+*What about the 20 countries with less number of reported cases?*
+
+**Answer:**
+Below is the figure for the 20 countries with the least reported cases. Of these, the Winter Olympics 2002 and Summer Olympics 2020 are also listed. The Olympics were included in the list because the hosting cities received people from across the world.
+
+```{r}
+
+# Get countries with less confirmed cases by country
+coronavirus %>%
+  filter(type == "confirmed") %>%
+  group_by(country) %>%
+  summarise(total = sum(cases)) %>% 
+  arrange(desc(total)) %>% 
+  tail(20)
+
+```
+
+
+```{r}
+
+# Plot countries with less confirmed cases by country
+coronavirus %>%
+  filter(type == "confirmed") %>%
+  group_by(country) %>%
+  summarise(total = sum(cases)) %>% 
+  arrange(desc(total)) %>% 
+  tail(20) %>% 
+  ggplot(aes(y = as.factor(country), x = total)) + 
+  geom_bar(stat = "identity", alpha = 0.7) + 
+  scale_x_continuous(labels = scales::label_number(suffix = " M", 
+                                                   scale = 1e-6)) + 
+  labs(x = "Number of cases", 
+       y = "Countries with more reported cases") + 
+  theme_biosci()
+
+```
+
+We can also omit the Olympics and plot the results for actual countries.
+
+```{r}
+## Get countries with less confirmed cases by country
+coronavirus %>%
+  filter(type == "confirmed") %>%
+  group_by(country) %>%
+  summarise(total = sum(cases)) %>% 
+  arrange(desc(total)) %>% 
+  filter(country != "Summer Olympics 2020") %>% 
+  filter(country != "Winter Olympics 2022") %>% 
+  tail(20)
+
+```
+
+```{r}
+# Plot countries with less confirmed cases by country
+coronavirus %>%
+  filter(type == "confirmed") %>% 
+  group_by(country) %>% 
+  summarise(total = sum(cases)) %>% 
+  arrange(desc(total)) %>% 
+  filter(country != "Summer Olympics 2020") %>% 
+  filter(country != "Winter Olympics 2022") %>% 
+  filter(country != "Diamond Princess") %>% 
+  tail(20) %>% 
+  ggplot(aes(y = as.factor(country), x = total)) + 
+  geom_bar(stat = "identity", alpha = 0.7) + 
+  scale_x_continuous(labels = scales::label_number(suffix = " M", 
+                                                   scale = 1e-6)) + 
+  labs(x = "Number of cases", 
+       y = "Countries with more reported cases | Olympics not included") + 
+  theme_biosci()
+
+```
+
+*Which countries reported fewer cases of COVID-19?*
+
+**Answer:**
+The top five countries/territories with less reported cases were Diamond Princess, Holy See, Antarctica, MS Zaandam, and North Korea. Note that [Diamond Princess](https://www.princess.com/en-us/ships-and-experience/ships/di-diamond-princess) and [MS Zaandam](https://www.hollandamerica.com/en/us/cruise-ships/zaandam/7) are cruise ships.
+
+
+```{r}
+## Get countries with less confirmed cases by country
+coronavirus %>%
+  filter(type == "confirmed") %>%
+  group_by(country) %>%
+  summarise(total = sum(cases)) %>% 
+  arrange(desc(total)) %>% 
+  filter(country != "Summer Olympics 2020") %>% 
+  filter(country != "Winter Olympics 2022") %>% 
+  tail(5)
+
+```
+
+*What about the number of reported recovered cases?*
+
+**Answer:**
+The countries with more recovery cases were India, Brazil, Russia, Turkey and Argentina.
+
+```{r}
+## Get countries with more recovery cases
+coronavirus %>%
+  filter(type == "recovery") %>%
+  group_by(country) %>%
+  summarise(total = sum(cases)) %>% 
+  arrange(desc(total)) %>% 
+  filter(country != "Summer Olympics 2020") %>% 
+  filter(country != "Winter Olympics 2022") %>% 
+  filter(country != "Diamond Princess") %>% 
+  filter(country != "MS Zaandam") %>% 
+  head(20)
+
+```
+
+Plot the top 20 with more reported cases of recovery.
+
+```{r}
+
+coronavirus %>%
+  filter(type == "recovery") %>% 
+  group_by(country) %>% 
+  summarise(total = sum(cases)) %>% 
+  arrange(desc(total)) %>% 
+  filter(country != "Summer Olympics 2020") %>% 
+  filter(country != "Winter Olympics 2022") %>% 
+  filter(country != "Diamond Princess") %>% 
+  filter(country != "MS Zaandam") %>% 
+  head(20) %>% 
+  ggplot(aes(y = as.factor(country), x = total)) + 
+  geom_bar(stat = "identity", alpha = 0.7) + 
+  scale_x_continuous(labels = scales::label_number(suffix = " M", 
+                                                   scale = 1e-6)) + 
+  labs(x = "Number of cases", 
+       y = "Countries with more reported cases | Olympics not included") + 
+  theme_biosci()
+
+
+```
+
+Conversely the countries with less reported cases of recovery were Tanzania, Grenada, Holy See, Solomon Islands
+
+```{r}
+## Get countries with more recovery cases
+coronavirus %>%
+  filter(type == "recovery") %>%
+  group_by(country) %>%
+  summarise(total = sum(cases)) %>% 
+  arrange(desc(total)) %>% 
+  filter(country != "Summer Olympics 2020") %>% 
+  filter(country != "Winter Olympics 2022") %>% 
+  filter(country != "Diamond Princess") %>% 
+  filter(country != "MS Zaandam") %>% 
+  tail(20)
+
+```
+
+*How do feel about that?*
+
+**Answer:**
+The data available is very variable and may not be completely accurate. As such, we should take care in interpreting this information.
+
+By quickly exploring the coronavirus dataset we can see that the United States is the country with more reported cases, not new information is added to our current knowledge, however, we can learn more about the COVID-19 dynamics in the US by looking at its changes over time--you can select any other country if you wish.
+
+```{r}
+#| eval: true
+
+coronavirus_us <- coronavirus %>% 
+  filter(country == "US") %>% 
+  arrange(desc(date)) # sort the data according dates
+
+```
+
+If we look at the US coronavirus data it contains information of the number of recovers (**R**), the number of new cases (**I**) and the the deaths. Let's isolate those data and inspect if there are some trends.
+
+```{r}
+#| eval: true
+
+head(coronavirus)
+
+infected_us <- coronavirus %>% 
+  filter(country == "US") %>% 
+  arrange(desc(date)) %>% 
+  filter(type == "confirmed")
+
+deaths_us <- coronavirus %>% 
+  filter(country == "US") %>% 
+  arrange(desc(date)) %>% 
+  filter(type == "death")
+
+recovered_us <- coronavirus %>% 
+  filter(country == "US") %>% 
+  arrange(desc(date)) %>% 
+  filter(type == "recovery")
+
+head(infected_us)
+```
+
+Let's plot the new cases.
+
+```{r}
+#| eval: true
+
+coronavirus_us %>% 
+  filter(type == "confirmed") %>% 
+  ggplot(aes(x = as.POSIXct(date), y = cases)) + 
+  geom_point(color = "gray") + 
+  labs(x = NULL, y = "COVID-19 new cases") + 
+  geom_line(mapping = aes(x = as.POSIXct(date)), 
+            linewidth = 2,
+            colour = alpha(PrettyCols::prettycols("Purples")[4], 
+                           0.3)) +
+  geom_smooth(colour = PrettyCols::prettycols("Purples")[1], 
+              linewidth = 2) +
+  scale_y_continuous(labels = scales::label_number(suffix = " M", 
+                                                   scale = 1e-6)) + 
+  scale_x_datetime(date_breaks = "2 month", 
+                   labels = scales::label_date_short()) + 
+  theme_biosci()
+
+```
+
+We can see a trend in the number of confirmed Infected subjects since the first case was registered in the US. Happily, the number of reported cases has declined steadily since mid-September 2022. This is really great news! If you want to explore with more detail these dynamics in the United Sates the website [**covid19.Explorer**](https://covid19-explorer.org) developed by @revell_covid19explorer_2021 can help you. This website is accompanied with a nice [paper](https://peerj.com/articles/11489/) in which Liam explains the methodology he used to arrange and visualize the data.
+
+*How do you feel about that?*
+
+**Answer:**
+These results are interesting as we can see infectious disease dynamics in the United States.
+
+*Please explain the trend temporally; in other words, do the spikes in the number of cases match the US holidays?*
+
+**Answer:**
+By looking at the trend, yes, the peaks match with the US national holidays or vacation periods. Interestingly, the highest peak of reported cases was between the end of December 2021 and mid-January 2022.
+
+*What about the number of deaths and the number of recovered people?* 
+
+**Answer:**
+By plotting the number of recovery cases over time, we can see a continuous increase between March 2020 and December 2020. However, since January 2021, the reported recovery cases have been zero.
+
+```{r}
+#| eval: true
+
+coronavirus_us %>% 
+  filter(type == "recovery") %>% 
+  filter(cases >= 0) %>% 
+  ggplot(aes(x = as.POSIXct(date), y = cases)) + 
+  geom_point(color = "gray") + 
+  labs(x = NULL, y = "COVID-19 new cases") + 
+  geom_line(mapping = aes(x = as.POSIXct(date)), 
+            linewidth = 2,
+            colour = alpha(PrettyCols::prettycols("Purples")[4], 
+                           0.3)) +
+  geom_smooth(colour = PrettyCols::prettycols("Purples")[1], 
+              linewidth = 2) +
+  scale_y_continuous(labels = scales::label_number(suffix = " M", 
+                                                   scale = 1e-6)) + 
+  scale_x_datetime(date_breaks = "2 month", 
+                   labels = scales::label_date_short()) + 
+  theme_biosci()
+
+```
+
+# SIR model
+
+## Data preparation
+
+The first step to build our first ***SIR*** model is to get data of a disease, well, we already have data of COVID-19 for each country in the world, however, as this dataset is at country level we probably will be missing some relevant information that occurs only at local scale, i.e., by States. In this sense, we will use data from the [**Centers for Disease Control and Prevention**](https://www.cdc.gov) that reports aggregate counts of COVID-19 at State level within the United States, how good is that? Okay, let's go for it!
+
+```{r}
+#| eval: true
+
+githubURL <- 
+  "https://github.com/jesusNPL/BiodiversityScience/raw/master/Spring2024/Lab_3_Infectious_diseases/data/covidUS.RData"
+
+load(url(githubURL))
+
+# Explore the content
+glimpse(covid_us)
+
+```
+
+Let's explore the data and clean it little bit.
+
+```{r}
+#| eval: true
+
+covid_us %>% 
+  arrange(state) %>% 
+  drop_na(tot_cases) %>% 
+  group_by(state) %>% # group cases by state
+  summarise(total = sum(new_case)) %>% # sum all cases
+  ggplot(aes(y = state, x = total)) + 
+  geom_bar(stat = "identity") + 
+  labs(x = "Number of cases", y = "Reported cases by State") + 
+  scale_x_continuous(labels = scales::label_number(suffix = " M", scale = 1e-6)) + 
+  theme_biosci()
+
+```
+
+Let's reformat the dates and order the data in an ascending order.
+
+```{r}
+#| eval: true
+
+covid_us <- covid_us %>% 
+  mutate(Date = submission_date) %>% 
+  mutate(Date = mdy(Date)) %>% 
+  select(Date, everything()) %>% 
+  separate(submission_date, sep = "/", into = c("month", "day", "year")) 
+
+# Sort the data in an increasing order
+covid_us <- covid_us[order(covid_us$Date), ]
+
+head(covid_us)
+
+```
+
+As we can see there are a lot of **NA** values in the dataset, these NA values are because there were no cases reported in the US in the first two months of the 2020.
+
+The data is still very broad, let's select data for the State of Minnesota.
+
+```{r}
+#| eval: true
+
+covid_mn <- covid_us %>% 
+  filter(state == "MN")
+
+head(covid_mn)
+
+```
+
+Now we can explore the data in a similar way we did for the entire United States.
+
+```{r}
+#| eval: true
+
+covid_mn %>% 
+  ggplot(aes(x = as.POSIXct(Date), 
+             y = new_case)) + 
+  geom_point(color = "gray") + 
+  labs(x = NULL, y = "COVID-19 new cases") + 
+  geom_line(mapping = aes(x = as.POSIXct(Date)), 
+            linewidth = 2,
+            colour = alpha(PrettyCols::prettycols("Purples")[4], 0.3)) +
+  geom_smooth(colour = PrettyCols::prettycols("Purples")[1], 
+              linewidth = 2) +
+  scale_y_continuous(labels = scales::label_number(suffix = " M", 
+                                                   scale = 1e-6)) + 
+  scale_x_datetime(date_breaks = "2 month", 
+                   labels = label_date_short()) + 
+  theme_biosci()
+
+```
+
+We can see that there are some days that no cases were reported, however, it looks like follows the same pattern as the entire United States.
+
+Let's see what happens if we plot the cumulative number of cases.
+
+```{r}
+#| eval: true
+
+covid_mn %>% 
+  ggplot(aes(x = as.POSIXct(Date), 
+             y = tot_cases)) + 
+  geom_point(color = "gray") + 
+  labs(x = NULL, y = "Total COVID-19 cases") + 
+  geom_line(mapping = aes(x = as.POSIXct(Date)), 
+            linewidth = 2,
+            colour = alpha(PrettyCols::prettycols("Purples")[4], 0.3)) +
+  geom_smooth(colour = PrettyCols::prettycols("Purples")[1], 
+              linewidth = 1) +
+  scale_y_continuous(labels = scales::label_number(suffix = " M", 
+                                                   scale = 1e-6)) + 
+  scale_x_datetime(date_breaks = "2 month", labels = label_date_short()) + 
+  theme_biosci()
+
+```
+
+It look like the after three years the cumulative number of cases is reaching a plateau.
+
+We can also see the number of deaths caused by COVID-19 in the state of Minnesota.
+
+```{r}
+#| eval: true
+
+covid_mn %>% 
+  ggplot(aes(x = as.POSIXct(Date), 
+             y = abs(new_death))) + 
+  geom_point(color = "gray") + 
+  labs(x = NULL, y = "Number of Deaths") + 
+  geom_line(mapping = aes(x = as.POSIXct(Date)), 
+            linewidth = 2,
+            colour = alpha(PrettyCols::prettycols("Purples")[4], 0.3)) +
+  geom_smooth(colour = PrettyCols::prettycols("Purples")[1], 
+              linewidth = 1) +
+  scale_y_continuous(labels = scales::label_number(suffix = "K", 
+                                                   scale = 1e-6)) + 
+  scale_x_datetime(date_breaks = "2 month", labels = label_date_short()) + 
+  theme_biosci()
+
+```
+
+## Modeling SIR
+
+Now using the data from the US we will fit the SIR model to predict the changes in the number of Infected cases. The basic idea of the SIR model is, in fact, quite simple. First, we can see that the SIR model is composed of a set of three groups of people or compartments:
+
+1.  Those who are healthy but susceptible to the disease (**S**) 😀🫣🤔
+2.  the infected (**I**) 😱😷🤒
+3.  the recovered (**R**) 😬🤗 or 😵
+
+Then, these compartments in turn are used to model the dynamics of an outbreak. However, first of all we need to understand a little bit the *Math* behind the scenes. Dr. Seraina Cappelli provided a nice introduction to the math in the last lecture, but if you want to dig a little bit more you can watch this amazing video by Trevor Bazett [The MATH of Epidemics \| Intro to the SIR Model](https://www.youtube.com/watch?v=Qrp40ck3WpI) on YouTube. But, if you want to learn more details on this topic, the Book [**Epidemics: models and data using R**](https://www.springer.com/gp/book/9783319974866) by @bjornstad_epidemics_2018 can help you.
+
+Anyhow, let's recap a little bit how the math works. To do that, we need three *differential equations*, one for the change in each group or compartment, where $\beta$ (represents the infection rate) is the parameter that controls the transition between $S$ and $I$ and $\gamma$ (gamma) which controls the transition between $I$ and $R$, and represents the removal or recovery rate.
+
+The first equation indicates that the number of susceptible subjects ($S$) decreases with the number of newly infected subjects. In other words, every new infected subject is the result of the infection rate ($\beta$) times the number of susceptible individuals ($S$) who had a contact with an infected subject ($I$).
+
+$$\frac{dS}{dt} = - \frac{\beta IS}{N}$$
+
+The second equation indicates that the number of infected subjects ($I$) increases as new infected individuals are added to the pool ($\beta IS$) minus the recovered subjects ($\gamma I$), where, $\gamma I$ is the removal rate $\gamma$ times the infected subjects $I$.
+
+$$\frac{dI}{dt} = \frac{\beta IS}{N} - \gamma I$$
+
+Finally, the third equation indicates that the number of recovered subjects $R$ increases with the number of subjects who either recovered or died ($\gamma I$).
+
+$$\frac{dR}{dt} = \gamma I$$
+
+Okay, we are almost there. But first let's see how an epidemic develops.
+
+-   Step zero - An outbreak starts when no subject in the population has anti-bodies, in other words, when $S$ (susceptible subjects) equal the entire population $N$.
+-   Step one - Once one subject in the population get infected ($I$), this subject change the state from $S$ to $I$. Thus, $S$ decreases by **1** as new $I$ are added to the population.
+-   Step two - Each $I$ (before recovering 😬 or dying 😵) in turn infect other subjects in the population.
+-   Step three - The dynamic continues as newly $I$ subjects infect other $S$ subjects in the population before they recover (or died) or until some **Interventions** are applied (e.g., quarantine, wearing masks).
+-   Step four - Vaccines are developed (**YAY** 👏🎊🎉), so a counteract can be applied to reduce the number of $S$ or to increase the number of $R$.
+
+As we now understand how the $SIR$ model works, we can build an **R function** that allow us to model the dynamic of a disease.
+
+```{r}
+#| eval: true
+
+SIR <- function(time, state, parameters) {
+  par <- as.list(c(state, parameters))
+  with(par, { 
+    dS <- -Beta * I * S / N # Equation one
+    dI <- Beta * I * S / N - Gamma * I # Equation two
+    dR <- Gamma * I # Equation three
+    list(c(dS, dI, dR)) 
+    })
+}
+
+```
+
+Now to fit the $SIR$ model to the data (Minnesota dataset) we need a ***solver*** and an ***optimizer***. Wait, what is a solver? Well, the $SIR$ model is an ***Ordinary Differential Equation*** (**ODE**), thus, a solver function is needed to help us to solve the equations. We will use the function "**ode**" of the package {**deSolve**} and the "**optim**" function of {**R base**} as an optimizer.
+
+More specifically, in order to solve the equations we need is to minimize the sum of the squared differences ($RSS$) between the number of $I$ subjects (infected) and time $t$--$I(t)$--and the number of predicted cases by our model, i.e., $\hat{I}(t)$:
+
+$$RSS(\beta, \gamma) = \sum_t \big(I(t) - \hat{I}(t) \big)^2$$
+
+Before start solving the $SIR$ model, let's write another function that allows the $RSS$ estimation.
+
+```{r}
+#| eval: true
+
+RSS <- function(parameters) {
+  names(parameters) <- c("Beta", "Gamma") 
+  out <- ode(y = init, times = Days, func = SIR, parms = parameters) 
+  # the out object includes the SIR function we wrote above
+  fit <- out[, 3] 
+  sum((Infected - fit)^2)
+}
+
+```
+
+Okay, we now have almost all information needed to fit our first $SIR$ model. The last information we need is to set of initial values for $N$ (population size), $S$, $I$ and $R$.
+
+```{r}
+#| eval: true
+
+# Total population for the State of Minnesota by July 2023
+N <- 5737915 
+
+```
+
+By observing the trend in the number of cases for MN, we can see that the first date with records of infected subject was in **March 06, 2020** (you can double check to confirm that date), so, let's set that day as a starting point for our $SIR$ model. 
+
+```{r}
+#| eval: true
+
+covid_mn %>% 
+  filter(Date == "2020-03-06")
+
+```
+
+Moreover, as more than three years have passed since the pandemic started, the variability in the number of cases is huge, so let's select the first ~45 days of cases to fit our model and then use the fitted model to predict the dynamics of COVID-19 for the following year.
+
+```{r}
+#| eval: true
+
+start_date <- "2020-03-06"
+end_date <- "2020-04-20"
+
+# isolating the infected subjects in the state of Minnesota since the start date
+
+Infections <- covid_mn %>% 
+  filter(Date >= ymd(start_date) & Date <= ymd(end_date))
+
+#Infected2 <- subset(covid_mn, Date >= ymd(start_date) & Date <= ymd(end_date))$new_case
+
+```
+
+Let's plot this data and see how it looks.
+
+```{r}
+#| eval: true
+
+Infections %>% 
+  ggplot(aes(x = as.POSIXct(Date), y = log(new_case))) + 
+  geom_point(color = "gray") + 
+  geom_smooth(colour = PrettyCols::prettycols("Purples")[1], 
+              linewidth = 1) + 
+  labs(x = NULL, y = "log - COVID-19 cases") + 
+  theme_biosci()
+
+```
+
+We can see that the confirmed cases in Minnesota were increasing rapidly since the first case of COVID-19 was reported.
+
+As we now know that the number of $I$ were increasing since the first days of the pandemic, let's model de dynamic of COVID-19 during that period of time. Why we selected that period of time and not all data? Well, the main reason is that this kind of models are used to explore the first stages of a disease in order to identify if the disease has the potential to become a pandemic and to approximate its reproductive ratio $R_0$.
+
+```{r}
+#| eval: true
+
+# ODE does not like tidy format, so we are going to isolate the number of cases in R base.
+
+Infected <- Infections$new_case
+
+Days <- 1:length(Infected) # Number of days since the first case
+
+# Initial values for our SIR model
+init <- c(
+  S = N - Infected[1], # Susceptible group
+  I = Infected[1], # Infected group
+  R = 0 # Recovered group.
+)
+
+```
+
+Now we can combine all information and run our model. Using the information provided above, we can find the values of $\beta$ and $\gamma$ that give the smallest $RSS$ that represent the best fit to the data. Let's start exploring with values of **0.5** for each step and constrain those values to an interval from 0 to 1.
+
+You can play with the initial values by changing the **c(0.5, 0.5)** to lower or higher values (e.g., 0.1 or 0.7), but remember, the estimates of $\beta$ and $\gamma$ will change. A nice post that explains in more detail the impact of changing the initial values can be found [HERE](https://blog.ephorie.de/contagiousness-of-covid-19-part-i-improvements-of-mathematical-fitting-guest-post).
+
+```{r}
+#| eval: true
+
+Opt <- optim(c(0.5, 0.5),
+  RSS,
+  method = "L-BFGS-B",
+  lower = c(0, 0),
+  upper = c(1, 1)
+)
+
+```
+
+Check if the model converged.
+
+```{r}
+#| eval: true
+
+# optimize with some sensible conditions
+Opt$message
+
+# [1] "CONVERGENCE: REL_REDUCTION_OF_F <= FACTR*EPSMCH"
+```
+
+Yay! our model show convergence.
+
+From the optimized model we can obtain the $\beta$ and $\gamma$ values, and remember, these values controls for the transition between $S$ (susceptible) and $I$ (infectious) and $I$ and $R$ (recovered), respectively.
+
+```{r}
+#| eval: true
+
+Opt_par <- setNames(Opt$par, c("Beta", "Gamma"))
+
+Opt_par
+
+```
+
+Now using the fitted $\beta$ and $\gamma$ values, we can see if our model recovers the observed trend in the state of Minnesota for the first two months since the first positive $I$ case was reported.
+
+```{r}
+#| eval: true
+
+# get the fitted values from our SIR model
+fit_incidence <- data.frame(ode(
+  y = init, times = Days,
+  func = SIR, parms = Opt_par
+))
+
+head(fit_incidence)
+tail(fit_incidence)
+
+```
+
+Let's plot the estimated $I$ over the first two months. We will use a kind of plot named **semi-log plot**, this plot allow us the read the difference between the expected (fitted) and observed number of confirmed cases over time.
+
+```{r}
+#| eval: true
+
+#matplot(fit_incidence$time, fit_incidence$I, 
+ #       type = "l", log = "y", 
+  #      xlab = "Days", ylab = "Number of infected subjects", 
+   #     lwd = 2, lty = 1) 
+
+#points(Days, Infected)
+
+
+fit_incidence %>% 
+  ggplot(aes(x = time, y = log(I))) + 
+  geom_smooth(colour = PrettyCols::prettycols("Purples")[1], 
+              linewidth = 1) + 
+  geom_point(data = Infections, aes(x = Days, y = log(new_case))) + 
+  labs(x = "Days", y = "Number of infected subjects") + 
+  theme_biosci()
+
+
+```
+
+Hmmm, looks like the fitted model does recover the number of infected cases in the Minnesota. However, although seems that the model tend to underestimate the number of reported cases, we can see an steady increment on the number of cases since the first reported case.
+
+*How do you feel about that?*
+
+**Answer:**
+Despite its simplicity, the SIR model can still be used to explore the dynamics of infectious diseases. However, we must exercise great care if we want to use its output to make predictions.
+
+*Do you see any other interested pattern? If so, please explain*
+
+**Answer:**
+It seems that under the SIR model, the number of infected subjects increases linearly. However, the actual data shows that the number of reported infected cases started to saturate after 20 days.
+
+## Reproduction number $R_0$ (R naught)
+
+Although our SIR model does not fit the observed data accurately, we can still use it to estimate the basic reproduction number $R_0$ (AKA reproductive ratio). The $R_0$ give us an approximate estimation of how many $S$ subjects get infected by a sick subject ($I$) on average--i.e., the transmission probability per contact [@ashby_herd_2021]. Importantly, $R_0$ is not a fixed value and can vary over time and between populations. To calculate $R_0$ we just need to obtain the ratio between $\beta$ and $\gamma$:
+
+$$R_0 = \frac{\beta}{\gamma}$$
+
+::: callout-tip
+## On the derivation of the back-of-the-envelope $R_0$ by Elizabeth Borer
+
+It arises from the concept of "force of infection" which is the rate that susceptibles get infected. This is broadly a function of host mortality and the infectiousness of a pathogen. There was a lot of work on the math of this in the 1950s-1980s (that I have not spent the time to fully follow through), but the relationships that emerge are relatively simple. One key one that e.g., Anderson and May use a lot comes from Muench (1950s math) and  @dietz_estimation_1993 [attached](https://www.dropbox.com/s/vcexeah6npcfewp/Dietz-1993-StatMethodsMedResearch-estimating%20R0.pdf?dl=0). In this case, force of infection has been described as $\mu(R_0 - 1)$ [where $\mu$ is the host background mortality rate]. They were originally using this to estimate the average age of infection, but you can turn this around to estimate $R_0$, too. 
+
+Life expectancy can be estimated as $\mu^-1$ (inverse function of mortality) — or if we want to be even more simplistic (as in this lecture), we can assume a stable host population and estimate life expectancy just as a constant, $L$. Then, just rearranging the stuff these guys did on average age of infection as a function of $R_0$ and life expectancy, you can use the host values to estimate the $R_0$.
+
+$$A = \frac{(\mu^-1)}{R_0-1}$$
+From the early math in Muench & Dietz	Substitute in the constant, $L$, as an estimate of $\mu^-1$ 
+	
+$$A = \frac{L}{R_0-1}$$
+Rearrange and you get
+
+$$R_0 = \frac{L}{A}$$
+
+One more time
+
+$$R_0 = 1 + \frac{L}{A}$$
+
+There are a ton of assumptions in each of these steps (pathogen is increasing, complete mixing, no host variation, etc), but this is all basically derived from the original **SIR** models via relationships describing force of infection.
+
+:::
+
+```{r}
+#| eval: true
+
+R0 <- setNames(Opt_par["Beta"] / Opt_par["Gamma"], "R0")
+
+round(R0, 3)
+
+```
+
+The estimated $R_0$ is 1.264 which suggests that for every sick subject 1.3 subjects can get infected by COVID-19. This value is lower when compared to other diseases and even lower than the estimated $R_0$ for COVID-19 in the literature that ranges between 2.5 and 3. One potential explanation for this low $R_0$ can be due the fact the first 45 days, the number of observed cases were very low when compared with the large population size ($N$) in the state of Minnesota.
+
+Another reason could be that the number of reported cases of COVID-19 in US are not true, in other words, the reported cases are lower than the true cases [@wu_substantial_2020]. This is critical when we are constructing any kind of model, as potentially we would be facing the **GIGO** metaphor--*garbage-in, garbage-out*--that indicates that if the data used in a model are not reliable, then the results are not useful. In other words, you can be using the best mathematical model ever constructed, but if your data is not reliable or coherent, then your results are not useful (are garbage).
+
+## Evaluating the outbreak under no intervention
+
+To fit our model we used data within two months since the first reported case, now let's explore what would it happen if no public intervention (i.e., quarantine) was applied. Here, using the fitted model we will extrapolate up to 350 days.
+
+```{r}
+#| eval: true
+
+times <- 1:350 # time in days
+
+fit_350 <- data.frame(ode( 
+  y = init, times = times, 
+  func = SIR, parms = Opt_par))
+
+head(fit_350)
+tail(fit_350)
+
+```
+
+To better explore the data, let's make some figures that allow us to see what would happened the first 350 days of the pandemic in the state of Minnesota in a hypothetical case of no intervention.
+
+```{r}
+#| eval: true
+
+cols <- 1:3 # colors: black = susceptible, red = infected and green = recovered
+
+```
+
+Now, let's plot the output.
+
+```{r}
+#| eval: true
+
+#matplot(fit_350$time, fit_350[, 2:4], type = "l", 
+ #       xlab = "Days since infection", ylab = "Number of subjects", 
+  #      lwd = 2, lty = 1, col = cols)
+
+#legend("left", c("Susceptible", "Infected", "Recovered"), 
+ #      lty = 1, lwd = 2, col = cols, inset = 0.05)
+
+## GGPLOT format
+tt <- fit_350 %>% 
+  pivot_longer(!time, values_to = "estimation", names_to = "compartment")
+
+tt %>% 
+  ggplot(aes(x = time, y = estimation, 
+             group = compartment, 
+             color = compartment)) + 
+  geom_line(linewidth = 2) + 
+  theme_biosci()
+
+```
+
+Same figure but in log scale and adding the observed cases
+
+```{r}
+#| eval: true
+
+matplot(fit_350$time, fit_350[ , 2:4], 
+        type = "l", 
+        xlab = "Days", 
+        ylab = "Number of subjects", 
+        lwd = 2, 
+        lty = 1, 
+        col = cols, 
+        log = "y")
+## Warning in xy.coords(x, y, xlabel, ylabel, log = log): 1 y value <= 0
+## omitted from logarithmic plot
+points(Days, Infected)
+
+legend("bottomright", c("Susceptible", "Infected", "Recovered"), 
+       lty = 1, lwd = 2, col = cols, inset = 0.05)
+
+title("SIR model 2019-nCoV - Minnesota", outer = TRUE, line = -2)
+
+```
+
+*How do you feel about that?*
+
+**Answer:**
+SIR model projections are visually appealing but can't recover the actual data accurately.
+
+*Please explain the trend of each compartment in a temporal way?*
+
+**Answer:**
+Despite the SIR models not being accurate enough to predict the dynamics of infectious diseases, we can still use the model projections to have a scenario in which no intervention (e.g., quarantine) is applied. Under this scenario of no intervention, the number of infected subjects increased linearly until day 115 (I = 134881) after the beginning of the pandemic. Then, there is a continuous decline in the number of infected subjects. The number of recovered/death cases also increases linearly until day 145 (R = 2110042). Then, the number of R subjects continues increasing but at lower numbers, which gives an impression of saturation. Finally, the number of susceptible (S) cases has been steadily declining but slowly declining over time. It has changed drastically as the number of R subjects has increased. 
+
+## Additional summary statistics
+
+Using the fitted model we can also estimate some additional statistics that could help us to better understand the dynamics of a pandemic:
+
+-   Peak of the pandemic
+-   Fatality rate
+
+### Peak of the pandemic
+
+```{r}
+#| eval: true
+
+# Peak of the pandemic for the first 45 days
+fit_incidence[fit_incidence$I == max(fit_incidence$I), c("time", "I")]
+
+```
+
+### Fatality rate
+
+```{r}
+#| eval: true
+
+max(fit_incidence$I) * 0.02 # Assuming 2% of fatality rate
+
+```
+
+# The challenge
+
+The challenge for this assignment is to repeat the process by selecting other state in the United States and discuss if the $R_0$ obtained differ to the obtained for the state of Minnesota. 
+
+Happy coding!
