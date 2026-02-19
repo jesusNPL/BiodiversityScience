@@ -147,8 +147,8 @@ theme_biosci <- function() {
     theme(panel.grid.minor = element_blank(),
           plot.background = element_rect(fill = "white", color = NA),
           strip.background = element_rect(fill = "grey80", color = NA),
-          legend.title = element_text(face = "bold", size = 25), 
-          legend.text = element_text(size = 20))
+          legend.title = element_text(face = "bold", size = 12), 
+          legend.text = element_text(size = 10))
 }
 
 # Get top confirmed cases by country
@@ -220,6 +220,8 @@ coronavirus %>%
   arrange(desc(total)) %>% 
   filter(country != "Summer Olympics 2020") %>% 
   filter(country != "Winter Olympics 2022") %>% 
+  filter(country != "Diamond Princess") %>% 
+  filter(country != "MS Zaandam") %>% 
   tail(20)
 
 ```
@@ -249,7 +251,7 @@ coronavirus %>%
 *Which countries reported fewer cases of COVID-19?*
 
 **Answer:**
-The top five countries/territories with less reported cases were Diamond Princess, Holy See, Antarctica, MS Zaandam, and North Korea. Note that [Diamond Princess](https://www.princess.com/en-us/ships-and-experience/ships/di-diamond-princess) and [MS Zaandam](https://www.hollandamerica.com/en/us/cruise-ships/zaandam/7) are cruise ships.
+The top five countries/territories with less reported cases were Kiribati, Tuvalu, Holy See, Antarctica, and North Korea. Note that [Diamond Princess](https://www.princess.com/en-us/ships-and-experience/ships/di-diamond-princess) and [MS Zaandam](https://www.hollandamerica.com/en/us/cruise-ships/zaandam/7) are cruise ships.
 
 
 ```{r}
@@ -583,7 +585,7 @@ Now using the data from the US we will fit the SIR model to predict the changes 
 2.  the infected (**I**) 😱😷🤒
 3.  the recovered (**R**) 😬🤗 or 😵
 
-Then, these compartments in turn are used to model the dynamics of an outbreak. However, first of all we need to understand a little bit the *Math* behind the scenes. Dr. Seraina Cappelli provided a nice introduction to the math in the last lecture, but if you want to dig a little bit more you can watch this amazing video by Trevor Bazett [The MATH of Epidemics \| Intro to the SIR Model](https://www.youtube.com/watch?v=Qrp40ck3WpI) on YouTube. But, if you want to learn more details on this topic, the Book [**Epidemics: models and data using R**](https://www.springer.com/gp/book/9783319974866) by @bjornstad_epidemics_2018 can help you.
+Then, these compartments in turn are used to model the dynamics of an outbreak. However, first of all we need to understand a little bit the *Math* behind the scenes. We cover some of the math in the last lecture, but if you want to dig a little bit more you can watch this amazing video by Trevor Bazett [The MATH of Epidemics \| Intro to the SIR Model](https://www.youtube.com/watch?v=Qrp40ck3WpI) on YouTube. But, if you want to learn more details on this topic, the Book [**Epidemics: models and data using R**](https://www.springer.com/gp/book/9783319974866) by @bjornstad_epidemics_2018 can help you.
 
 Anyhow, let's recap a little bit how the math works. To do that, we need three *differential equations*, one for the change in each group or compartment, where $\beta$ (represents the infection rate) is the parameter that controls the transition between $S$ and $I$ and $\gamma$ (gamma) which controls the transition between $I$ and $R$, and represents the removal or recovery rate or the average infectious duration period.
 
@@ -817,7 +819,7 @@ Although our SIR model does not fit the observed data accurately, we can still u
 $$R_0 = \frac{\beta}{\gamma}$$
 
 ::: callout-tip
-## On the derivation of the back-of-the-envelope $R_0$ by Elizabeth Borer
+## On the derivation of the back-of-the-envelope $R_0$ 
 
 It arises from the concept of "force of infection" which is the rate that susceptibles get infected. This is broadly a function of host mortality and the infectiousness of a pathogen. There was a lot of work on the math of this in the 1950s-1980s (that I have not spent the time to fully follow through), but the relationships that emerge are relatively simple. One key one that e.g., Anderson and May use a lot comes from Muench (1950s math) and  @dietz_estimation_1993 [attached](https://www.dropbox.com/s/vcexeah6npcfewp/Dietz-1993-StatMethodsMedResearch-estimating%20R0.pdf?dl=0). In this case, force of infection has been described as $\mu(R_0 - 1)$ [where $\mu$ is the host background mortality rate]. They were originally using this to estimate the average age of infection, but you can turn this around to estimate $R_0$, too. 
 
@@ -848,7 +850,7 @@ round(R0, 3)
 
 ```
 
-The estimated $R_0$ is 1.242 which suggests that for every sick subject 1.3 subjects (ish) can get infected by COVID-19. This value is lower when compared to other diseases and even lower than the estimated $R_0$ for COVID-19 in the literature that ranges between 2.5 and 3. One potential explanation for this low $R_0$ can be due the fact the first 45 days, the number of observed cases were very low when compared with the large population size ($N$) in the state of Minnesota.
+The estimated $R_0$ is 1.242 which suggests that for every sick subject 1.3 subjects (ish) can get infected by COVID-19. This value is lower when compared to other diseases and even lower than the estimated $R_0$ for COVID-19 in the literature that ranges between 2.5 and 3. One potential explanation for this low $R_0$ can be due the fact the first 60 days, the number of observed cases were very low when compared with the large population size ($N$) in the state of Minnesota.
 
 Another reason could be that the number of reported cases of COVID-19 in US are not true, in other words, the reported cases are lower than the true cases [@wu_substantial_2020]. This is critical when we are constructing any kind of model, as potentially we would be facing the **GIGO** metaphor--*garbage-in, garbage-out*--that indicates that if the data used in a model are not reliable, then the results are not useful. In other words, you can be using the best mathematical model ever constructed, but if your data is not reliable or coherent, then your results are not useful (are garbage).
 
@@ -870,14 +872,7 @@ tail(fit_365)
 
 ```
 
-To better explore the data, let's make some figures that allow us to see what would happened the first 350 days of the pandemic in the state of Minnesota in a hypothetical case of no intervention.
-
-```{r}
-#| eval: true
-
-cols <- 1:3 # colors: black = susceptible, red = infected and green = recovered
-
-```
+To better explore the data, let's make some figures that allow us to see what would happened the first 365 days of the pandemic in the state of Minnesota in a hypothetical case of no intervention.
 
 Now, let's plot the output.
 
@@ -902,6 +897,14 @@ tt %>%
 
 Same figure but in log scale and adding the observed cases
 
+
+```{r}
+#| eval: true
+
+cols <- 1:3 # colors: black = susceptible, red = infected and green = recovered
+
+```
+
 ```{r}
 #| eval: true
 
@@ -924,11 +927,31 @@ title("SIR model 2019-nCoV - Minnesota", outer = TRUE, line = -2)
 
 ```
 
+Let's try plotting the residuals
+
+```{r}
+#| eval: true
+
+fit_incidence$infected <- Infections$new_case
+
+fit_incidence %>% 
+  filter(infected > 0) %>% 
+  mutate(diff = log(infected) - log(I)) %>% 
+  ggplot(aes(x = log(I), log(infected), color = diff)) + 
+  geom_point(size = 3) + 
+  geom_abline(intercept = 0, slope = 1, linetype = 2, linewidth = 2, color = "gray") + 
+  lims(x = c(0, 7), y = c(0, 7)) + 
+  labs(x = "Modeled Incidences", y = "Observed Incidences") + 
+  scale_color_viridis_c(option = "B", name = "Residuals") + 
+  theme_biosci() 
+
+```
+
 
 *How do you feel about that?*
 
 **Answer:**
-SIR model projections are visually appealing but can't recover the actual data accurately.
+SIR model projections are visually appealing but can't recover the actual data accurately. That is, some days show overprediction and others underprediction.
 
 *Please explain the trend of each compartment in a temporal way?*
 
